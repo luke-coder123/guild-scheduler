@@ -127,7 +127,7 @@ textarea.form-input{resize:vertical;min-height:72px}
         <div class="form-group" style="margin:0"><label class="form-label">イベント名</label><input type="text" class="form-input" id="f-name" placeholder="例: 国家戦争"/></div>
         <div class="form-group" style="margin:0"><label class="form-label">種別</label>
           <select class="form-input" id="f-type" onchange="onTypeChange()">
-            <option value="weekly">毎週</option><option value="daily">毎日</option><option value="biweekly">隔日</option><option value="monthly">毎月</option><option value="temp">臨時</option><option value="custom">カスタム</option>
+            <option value="weekly">毎週</option><option value="daily">毎日</option><option value="biweekly">隔日</option><option value="monthly">毎月</option><option value="temp">臨時</option><option value="bimonthly">2週に1回</option><option value="trimonthly">3週に1回</option><option value="custom">カスタム</option>
           </select>
         </div>
       </div>
@@ -174,6 +174,28 @@ textarea.form-input{resize:vertical;min-height:72px}
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-biweekly-time" value="11:00" oninput="updateHint('hint-biweekly','f-biweekly-time')"/><div class="utc-hint" id="hint-biweekly"></div></div>
           </div>
           <p style="font-size:12px;color:#888;margin-top:8px">※ 曜日変更があった場合は開始日を更新してください</p>
+        </div>
+      </div>
+
+      <div id="fields-bimonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">2週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-bimonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-bimonthly-time" value="11:00" oninput="updateHint('hint-bimonthly','f-bimonthly-time')"/><div class="utc-hint" id="hint-bimonthly"></div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日かと2週間隔で繰り返し。曜日変更時は開始日を更新</p>
+        </div>
+      </div>
+
+      <div id="fields-trimonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">3週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-trimonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-trimonthly-time" value="11:00" oninput="updateHint('hint-trimonthly','f-trimonthly-time')"/><div class="utc-hint" id="hint-trimonthly"></div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日かと3週間隔で繰り返し。曜日変更時は開始日を更新</p>
         </div>
       </div>
 
@@ -259,7 +281,7 @@ textarea.form-input{resize:vertical;min-height:72px}
 <script>
 const DAYS=['日','月','火','水','木','金','土'];
 const COLORS=['#1D9E75','#534AB7','#D85A30','#BA7517','#378ADD','#639922','#D4537E','#888780'];
-const TYPE_LABELS={weekly:'毎週',daily:'毎日',biweekly:'隔日',monthly:'毎月',temp:'臨時',custom:'カスタム'};
+const TYPE_LABELS={weekly:'毎週',daily:'毎日',biweekly:'隔日',bimonthly:'2週に1回',trimonthly:'3週に1回',monthly:'毎月',temp:'臨時',custom:'カスタム'};
 const TYPE_BADGE={weekly:'b-weekly',daily:'b-daily',biweekly:'b-biweekly',monthly:'b-monthly',temp:'b-temp',custom:'b-custom'};
 const JST_OFFSET=9*60; // minutes
 const MAX=20;
@@ -392,7 +414,7 @@ document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='
 // --- Event form ---
 function onTypeChange(){
   const t=document.getElementById('f-type').value;
-  ['weekly','daily','biweekly','monthly','temp','custom'].forEach(k=>document.getElementById('fields-'+k).style.display=k===t?'block':'none');
+  ['weekly','daily','biweekly','bimonthly','trimonthly','monthly','temp','custom'].forEach(k=>{const el=document.getElementById('fields-'+k);if(el) el.style.display=k===t?'block':'none';});
   initHints();
 }
 function addTask(cid){
@@ -418,7 +440,7 @@ function saveEvent(){
   if(type==='weekly'){ev.weekday=+document.getElementById('f-weekday').value;ev.weekdayEnd=+document.getElementById('f-weekday-end').value;ev.time=document.getElementById('f-time').value;ev.timeEnd=document.getElementById('f-time-end').value;ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasks('weekly-tasks');}
   else if(type==='daily'){ev.time=document.getElementById('f-daily-time').value;ev.tasks=getTasks('daily-tasks');}
   else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=document.getElementById('f-biweekly-time').value;}
-  else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=document.getElementById('f-monthly-time').value;}
+  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=document.getElementById('f-bimonthly-time').value;}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=document.getElementById('f-trimonthly-time').value;}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=document.getElementById('f-monthly-time').value;}
   else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=document.getElementById('f-temp-time').value;}
   else if(type==='custom'){ev.customDates=[...customDates];ev.time=document.getElementById('f-custom-time').value;}
   if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
@@ -440,7 +462,7 @@ function editEvent(id){
   if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'11:00';document.getElementById('f-time-end').value=ev.timeEnd||'13:00';document.getElementById('f-prep').value=ev.prep||'';setTasks('weekly-tasks',ev.tasks);updateHint('hint-start','f-time');updateHint('hint-end','f-time-end');}
   else if(ev.type==='daily'){document.getElementById('f-daily-time').value=ev.time||'03:00';setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');}
   else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';document.getElementById('f-biweekly-time').value=ev.time||'11:00';updateHint('hint-biweekly','f-biweekly-time');}
-  else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'11:00';updateHint('hint-monthly','f-monthly-time');}
+  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';document.getElementById('f-bimonthly-time').value=ev.time||'11:00';updateHint('hint-bimonthly','f-bimonthly-time');}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';document.getElementById('f-trimonthly-time').value=ev.time||'11:00';updateHint('hint-trimonthly','f-trimonthly-time');}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'11:00';updateHint('hint-monthly','f-monthly-time');}
   else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';document.getElementById('f-temp-time').value=ev.time||'11:00';updateHint('hint-temp','f-temp-time');}
   else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];document.getElementById('f-custom-time').value=ev.time||'11:00';renderCD();updateHint('hint-custom','f-custom-time');}
   window.scrollTo({top:0,behavior:'smooth'});
@@ -456,7 +478,7 @@ function schedLabel(ev){
     return`毎週${wdPart} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}`;
   }
   if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}`;
-  if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}`;
+  if(ev.type==='bimonthly') return`2週に1回（\${ev.bimonthlyStart||'開始日未設定'} UTC～）\${fmtJST(ev.time)}`;if(ev.type==='trimonthly') return`3週に1回（\${ev.trimonthlyStart||'開始日未設定'} UTC～）\${fmtJST(ev.time)}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}`;
   if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}`;
   if(ev.type==='temp') return`${ev.start||'?'}〜${ev.end||'?'}(UTC) ${fmtJST(ev.time)}`;
   if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}`;
@@ -480,7 +502,7 @@ function isBiDay(ev,jstDS){
   return diff>=0&&diff%2===0;
 }
 
-function getEvs(jstDS){
+function isNWeekDay(utcStart,utcTime,jstDS,intervalDays){if(!utcStart) return false;const jstStart=utcDateToJST(utcStart,utcTime||'11:00');if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);return diff>=0&&diff%intervalDays===0;}function getEvs(jstDS){
   const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
   return curEvs().filter(ev=>{
     if(ev.type==='daily') return true;
@@ -489,7 +511,7 @@ function getEvs(jstDS){
       const jstWdEnd=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):jstWdStart;
       return jstWdEnd>=jstWdStart?wd>=jstWdStart&&wd<=jstWdEnd:wd>=jstWdStart||wd<=jstWdEnd;
     }
-    if(ev.type==='biweekly') return isBiDay(ev,jstDS);
+    if(ev.type==='biweekly') return isBiDay(ev,jstDS);if(ev.type==='bimonthly') return isNWeekDay(ev.bimonthlyStart,ev.time,jstDS,14);if(ev.type==='trimonthly') return isNWeekDay(ev.trimonthlyStart,ev.time,jstDS,21);
     if(ev.type==='monthly'){
       // monthday stored as UTC day → convert to JST day
       const jstRef=utcDateToJST(`2000-01-${String(ev.monthday).padStart(2,'0')}`,ev.time);
