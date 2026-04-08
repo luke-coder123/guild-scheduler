@@ -7,18 +7,24 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
-.header{background:#0F6E56;color:white;padding:14px 20px;display:flex;align-items:center;gap:12px}
-.header h1{font-size:16px;font-weight:500}
-.header-sub{font-size:12px;opacity:0.7;margin-left:auto}
+.header{background:#0F6E56;color:white;padding:12px 20px;display:flex;align-items:center;gap:12px}
+.header h1{font-size:15px;font-weight:500}
+.project-bar{background:#0a5240;padding:0 16px;display:flex;align-items:center;gap:4px;overflow-x:auto;min-height:44px}
+.project-tab{padding:8px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.6);white-space:nowrap;border-bottom:2px solid transparent;font-family:inherit;flex-shrink:0}
+.project-tab.active{color:white;border-bottom-color:#4ECDA4}
+.project-tab:hover{color:rgba(255,255,255,0.85)}
+.project-add-btn{padding:5px 12px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.3);background:none;color:rgba(255,255,255,0.7);border-radius:6px;white-space:nowrap;font-family:inherit;flex-shrink:0;margin-left:6px}
+.project-add-btn:hover{background:rgba(255,255,255,0.1);color:white}
 .container{max-width:900px;margin:0 auto;padding:20px 16px}
+.project-settings{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px 16px;background:white;border-radius:12px;border:0.5px solid #e0e0d8}
+.project-name-display{font-size:15px;font-weight:500;flex:1}
+.project-count{font-size:12px;color:#aaa}
 .tabs{display:flex;gap:4px;margin-bottom:20px;background:white;border-radius:10px;padding:4px;border:0.5px solid #e0e0d8}
 .tab{flex:1;padding:8px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-radius:7px;font-family:inherit}
 .tab.active{background:#0F6E56;color:white;font-weight:500}
 .panel{display:none}.panel.active{display:block}
-
 .card{background:white;border-radius:12px;border:0.5px solid #e0e0d8;padding:16px;margin-bottom:12px}
 .card-title{font-size:13px;font-weight:500;margin-bottom:12px;color:#444}
-
 .form-group{margin-bottom:12px}
 .form-label{font-size:12px;color:#666;margin-bottom:4px;display:block}
 .form-input{width:100%;padding:8px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:14px;background:white;color:#1a1a1a;font-family:inherit}
@@ -27,10 +33,9 @@ select.form-input{cursor:pointer}
 textarea.form-input{resize:vertical;min-height:72px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:500px){.form-row{grid-template-columns:1fr}}
-
 .form-section{margin-bottom:8px;padding:10px;background:#f9f9f6;border-radius:8px;border:0.5px solid #e8e8e0}
 .form-section-title{font-size:11px;font-weight:500;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em}
-
+.utc-hint{font-size:11px;color:#1D9E75;margin-top:4px}
 .btn-primary{padding:9px 22px;background:#1D9E75;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit}
 .btn-primary:hover{background:#0F6E56}
 .btn-sm{padding:5px 11px;font-size:12px;border:0.5px solid #d0d0c8;border-radius:7px;background:none;cursor:pointer;color:#666;font-family:inherit}
@@ -39,7 +44,6 @@ textarea.form-input{resize:vertical;min-height:72px}
 .copy-btn{padding:8px 16px;background:none;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;cursor:pointer;color:#666;font-family:inherit}
 .copy-btn:hover{background:#f5f5f0}
 .copy-btn.copied{color:#1D9E75;border-color:#1D9E75}
-
 .event-card{background:white;border:0.5px solid #e0e0d8;border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
 .event-card:hover{border-color:#c0c0b8}
 .event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
@@ -49,13 +53,9 @@ textarea.form-input{resize:vertical;min-height:72px}
 .event-tasks{font-size:11px;color:#888;margin-top:3px}
 .event-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
 .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
-.b-weekly{background:#E1F5EE;color:#0F6E56}
-.b-daily{background:#EEEDFE;color:#534AB7}
-.b-biweekly{background:#FAEEDA;color:#854F0B}
-.b-monthly{background:#FAECE7;color:#993C1D}
-.b-temp{background:#FAECE7;color:#993C1D}
-.b-custom{background:#E6F1FB;color:#185FA5}
-
+.b-weekly{background:#E1F5EE;color:#0F6E56}.b-daily{background:#EEEDFE;color:#534AB7}
+.b-biweekly{background:#FAEEDA;color:#854F0B}.b-monthly{background:#FAECE7;color:#993C1D}
+.b-temp{background:#FAECE7;color:#993C1D}.b-custom{background:#E6F1FB;color:#185FA5}
 .cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .cal-nav-btn{padding:5px 12px;border:0.5px solid #d0d0c8;border-radius:8px;background:white;cursor:pointer;font-size:13px;font-family:inherit}
 .cal-nav-btn:hover{background:#f5f5f0}
@@ -75,12 +75,9 @@ textarea.form-input{resize:vertical;min-height:72px}
 .detail-pane{background:white;border:0.5px solid #e0e0d8;border-radius:12px;padding:12px 16px;min-height:80px}
 .detail-row{font-size:13px;padding:6px 0;border-bottom:0.5px solid #f0f0e8;display:flex;align-items:flex-start;gap:8px}
 .detail-row:last-child{border-bottom:none}
-
 .output-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
 .output-controls label{font-size:13px;color:#666}
 .output-box{background:#f9f9f6;border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;color:#1a1a1a;white-space:pre-wrap;border:0.5px solid #e0e0d8;min-height:200px}
-
-.task-builder{margin-top:6px}
 .task-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
 .task-row input{flex:1;padding:6px 10px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:13px;font-family:inherit}
 .task-row input:focus{outline:none;border-color:#1D9E75}
@@ -89,200 +86,174 @@ textarea.form-input{resize:vertical;min-height:72px}
 .add-task-btn:hover{background:#E1F5EE}
 .remove-task-btn{padding:2px 6px;font-size:14px;border:none;background:none;cursor:pointer;color:#aaa}
 .remove-task-btn:hover{color:#D85A30}
-
 .custom-date-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#E6F1FB;color:#185FA5;border-radius:20px;font-size:12px;margin:2px}
 .custom-date-tag button{background:none;border:none;cursor:pointer;color:#185FA5;font-size:14px;line-height:1;padding:0}
 .custom-dates-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px;min-height:28px}
-
 .section-header{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;min-height:400px}
+.modal{background:white;border-radius:14px;padding:24px;width:320px;max-width:90vw}
+.modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="white" stroke-width="1.5"/><line x1="2" y1="7" x2="18" y2="7" stroke="white" stroke-width="1.5"/><line x1="6" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="14" x2="8" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="11" x2="14" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="white" stroke-width="1.5"/><line x1="2" y1="7" x2="18" y2="7" stroke="white" stroke-width="1.5"/><line x1="6" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
   <h1>Guild Event Scheduler</h1>
-
 </div>
+
+<div class="project-bar" id="project-bar"></div>
 
 <div class="container">
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('events')">イベント管理</button>
-  <button class="tab" onclick="switchTab('calendar')">カレンダー</button>
-  <button class="tab" onclick="switchTab('output')">通知テキスト</button>
-</div>
-
-<div id="tab-events" class="panel active">
-  <div class="card">
-    <div class="card-title" id="form-title">イベントを追加</div>
-
-    <div class="form-row" style="margin-bottom:12px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">イベント名</label>
-        <input type="text" class="form-input" id="f-name" placeholder="例: 国家戦争" />
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">種別</label>
-        <select class="form-input" id="f-type" onchange="onTypeChange()">
-          <option value="weekly">毎週</option>
-          <option value="daily">毎日</option>
-          <option value="biweekly">隔日</option>
-          <option value="monthly">毎月</option>
-          <option value="temp">臨時</option>
-          <option value="custom">カスタム</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="fields-weekly">
-      <div class="form-section">
-        <div class="form-section-title">開催スケジュール</div>
-        <div class="form-row">
-          <div class="form-group" style="margin:0">
-            <label class="form-label">開始曜日</label>
-            <select class="form-input" id="f-weekday">
-              <option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option>
-              <option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label class="form-label">終了曜日</label>
-            <select class="form-input" id="f-weekday-end">
-              <option value="-1">同日</option>
-              <option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option>
-              <option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row" style="margin-top:8px">
-          <div class="form-group" style="margin:0">
-            <label class="form-label">開始時間 (JST)</label>
-            <input type="time" class="form-input" id="f-time" value="20:00" />
-          </div>
-          <div class="form-group" style="margin:0">
-            <label class="form-label">終了時間 (JST)</label>
-            <input type="time" class="form-input" id="f-time-end" value="22:00" />
-          </div>
-        </div>
-      </div>
-      <div class="form-section" style="margin-top:8px">
-        <div class="form-section-title">前日準備・期間中タスク</div>
-        <div class="form-group" style="margin-bottom:8px">
-          <label class="form-label">前日準備タスク（空欄でスキップ）</label>
-          <input type="text" class="form-input" id="f-prep" placeholder="例: 資源備蓄、援軍リクエスト送信" />
-        </div>
-        <label class="form-label">期間中の毎日タスク</label>
-        <div class="task-builder" id="weekly-tasks"></div>
-        <button class="add-task-btn" onclick="addTask('weekly-tasks')">+ タスク追加</button>
-      </div>
-    </div>
-
-    <div id="fields-daily" style="display:none">
-      <div class="form-section">
-        <div class="form-section-title">スケジュール</div>
-        <div class="form-row">
-          <div class="form-group" style="margin:0"><label class="form-label">時間</label><input type="time" class="form-input" id="f-daily-time" value="12:00"/></div>
-          <div></div>
-        </div>
-        <label class="form-label" style="margin-top:8px;display:block">毎日タスク</label>
-        <div class="task-builder" id="daily-tasks"></div>
-        <button class="add-task-btn" onclick="addTask('daily-tasks')">+ タスク追加</button>
-      </div>
-    </div>
-
-    <div id="fields-biweekly" style="display:none">
-      <div class="form-section">
-        <div class="form-section-title">隔日スケジュール</div>
-        <div class="form-row">
-          <div class="form-group" style="margin:0">
-            <label class="form-label">開始日（ここから隔日）</label>
-            <input type="date" class="form-input" id="f-biweekly-start" />
-          </div>
-          <div class="form-group" style="margin:0">
-            <label class="form-label">時間 (JST)</label>
-            <input type="time" class="form-input" id="f-biweekly-time" value="20:00" />
-          </div>
-        </div>
-        <p style="font-size:12px;color:#888;margin-top:8px">※ 曜日変更があった場合は開始日を更新してください</p>
-      </div>
-    </div>
-
-    <div id="fields-monthly" style="display:none">
-      <div class="form-section">
-        <div class="form-section-title">毎月スケジュール</div>
-        <div class="form-row">
-          <div class="form-group" style="margin:0"><label class="form-label">毎月何日</label><input type="number" class="form-input" id="f-monthday" min="1" max="31" value="1"/></div>
-          <div class="form-group" style="margin:0"><label class="form-label">時間</label><input type="time" class="form-input" id="f-monthly-time" value="20:00"/></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="fields-temp" style="display:none">
-      <div class="form-section">
-        <div class="form-section-title">臨時イベント期間</div>
-        <div class="form-row">
-          <div class="form-group" style="margin:0"><label class="form-label">開始日</label><input type="date" class="form-input" id="f-temp-start"/></div>
-          <div class="form-group" style="margin:0"><label class="form-label">終了日</label><input type="date" class="form-input" id="f-temp-end"/></div>
-        </div>
-        <div class="form-group" style="margin-top:8px"><label class="form-label">時間</label><input type="time" class="form-input" id="f-temp-time" value="20:00"/></div>
-      </div>
-    </div>
-
-    <div id="fields-custom" style="display:none">
-      <div class="form-section">
-        <div class="form-section-title">カスタム日程指定</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="date" class="form-input" id="f-custom-date-input" style="flex:1"/>
-          <input type="time" class="form-input" id="f-custom-time" value="20:00" style="width:120px"/>
-          <button class="add-task-btn" onclick="addCustomDate()">+ 追加</button>
-        </div>
-        <div class="custom-dates-list" id="custom-dates-list"></div>
-      </div>
-    </div>
-
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">メモ・全体注意事項</label>
-      <textarea class="form-input" id="f-desc" placeholder="例: 参加必須。当日20分前に集合"></textarea>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn-primary" onclick="saveEvent()">保存</button>
-      <button class="btn-sm" onclick="cancelEdit()">キャンセル</button>
-    </div>
+  <div class="project-settings">
+    <div class="project-name-display" id="project-name-display"></div>
+    <span class="project-count" id="project-count"></span>
+    <button class="btn-sm" onclick="openEditProject()">編集</button>
+    <button class="btn-sm danger" onclick="deleteProject()">削除</button>
   </div>
 
-  <div class="section-header">登録済みイベント</div>
-  <div id="event-list"></div>
-</div>
-
-<div id="tab-calendar" class="panel">
-  <div class="cal-nav">
-    <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
-    <div class="cal-title" id="cal-title"></div>
-    <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('events')">イベント管理</button>
+    <button class="tab" onclick="switchTab('calendar')">カレンダー</button>
+    <button class="tab" onclick="switchTab('output')">通知テキスト</button>
   </div>
-  <div class="calendar-grid" id="cal-grid"></div>
-  <div class="detail-pane" id="detail-pane">
-    <div style="color:#aaa;font-size:13px">日付をクリックするとイベント詳細を表示</div>
+
+  <div id="tab-events" class="panel active">
+    <div class="card">
+      <div class="card-title" id="form-title">イベントを追加</div>
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group" style="margin:0"><label class="form-label">イベント名</label><input type="text" class="form-input" id="f-name" placeholder="例: 国家戦争"/></div>
+        <div class="form-group" style="margin:0"><label class="form-label">種別</label>
+          <select class="form-input" id="f-type" onchange="onTypeChange()">
+            <option value="weekly">毎週</option><option value="daily">毎日</option><option value="biweekly">隔日</option><option value="monthly">毎月</option><option value="temp">臨時</option><option value="custom">カスタム</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="fields-weekly">
+        <div class="form-section">
+          <div class="form-section-title">開催スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始曜日 (UTC)</label><select class="form-input" id="f-weekday"><option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option><option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了曜日 (UTC)</label><select class="form-input" id="f-weekday-end"><option value="-1">同日</option><option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option><option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option></select></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><input type="time" class="form-input" id="f-time" value="11:00" oninput="updateHint('hint-start','f-time')"/><div class="utc-hint" id="hint-start"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><input type="time" class="form-input" id="f-time-end" value="13:00" oninput="updateHint('hint-end','f-time-end')"/><div class="utc-hint" id="hint-end"></div></div>
+          </div>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中の毎日タスク</label>
+          <div id="weekly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('weekly-tasks')">+ タスク追加</button>
+        </div>
+      </div>
+
+      <div id="fields-daily" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-daily-time" value="03:00" oninput="updateHint('hint-daily','f-daily-time')"/><div class="utc-hint" id="hint-daily"></div></div>
+            <div></div>
+          </div>
+          <label class="form-label" style="margin-top:8px;display:block">毎日タスク</label>
+          <div id="daily-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('daily-tasks')">+ タスク追加</button>
+        </div>
+      </div>
+
+      <div id="fields-biweekly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">隔日スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-biweekly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-biweekly-time" value="11:00" oninput="updateHint('hint-biweekly','f-biweekly-time')"/><div class="utc-hint" id="hint-biweekly"></div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 曜日変更があった場合は開始日を更新してください</p>
+        </div>
+      </div>
+
+      <div id="fields-monthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">毎月スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">毎月何日 (UTC)</label><input type="number" class="form-input" id="f-monthday" min="1" max="31" value="1"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-monthly-time" value="11:00" oninput="updateHint('hint-monthly','f-monthly-time')"/><div class="utc-hint" id="hint-monthly"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="fields-temp" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">臨時イベント期間（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-temp-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了日 (UTC)</label><input type="date" class="form-input" id="f-temp-end"/></div>
+          </div>
+          <div class="form-group" style="margin-top:8px"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-temp-time" value="11:00" oninput="updateHint('hint-temp','f-temp-time')"/><div class="utc-hint" id="hint-temp"></div></div>
+        </div>
+      </div>
+
+      <div id="fields-custom" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">カスタム日程指定（UTC入力）</div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div style="flex:1"><input type="date" class="form-input" id="f-custom-date-input"/></div>
+            <div><input type="time" class="form-input" id="f-custom-time" value="11:00" style="width:120px" oninput="updateHint('hint-custom','f-custom-time')"/><div class="utc-hint" id="hint-custom"></div></div>
+            <button class="add-task-btn" style="margin-top:2px" onclick="addCustomDate()">+ 追加</button>
+          </div>
+          <div class="custom-dates-list" id="custom-dates-list"></div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:12px"><label class="form-label">メモ・全体注意事項</label><textarea class="form-input" id="f-desc" placeholder="例: 参加必須。当日20分前に集合"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-primary" onclick="saveEvent()">保存</button>
+        <button class="btn-sm" onclick="cancelEdit()">キャンセル</button>
+      </div>
+    </div>
+    <div class="section-header">登録済みイベント</div>
+    <div id="event-list"></div>
+  </div>
+
+  <div id="tab-calendar" class="panel">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
+      <div class="cal-title" id="cal-title"></div>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
+    </div>
+    <div class="calendar-grid" id="cal-grid"></div>
+    <div class="detail-pane" id="detail-pane"><div style="color:#aaa;font-size:13px">日付をクリックするとイベント詳細を表示</div></div>
+  </div>
+
+  <div id="tab-output" class="panel">
+    <div class="output-controls">
+      <label>起点日 (JST):</label><input type="date" class="form-input" id="out-date" style="width:auto"/>
+      <label>範囲:</label>
+      <select class="form-input" id="out-range" style="width:auto">
+        <option value="1">当日</option><option value="3">3日間</option><option value="7" selected>1週間</option><option value="14">2週間</option>
+      </select>
+      <button class="btn-primary" onclick="generateOutput()">生成</button>
+      <button class="copy-btn" id="copy-btn" onclick="copyOutput()">コピー</button>
+    </div>
+    <div class="output-box" id="output-box">← 生成ボタンを押してください</div>
   </div>
 </div>
 
-<div id="tab-output" class="panel">
-  <div class="output-controls">
-    <label>起点日:</label>
-    <input type="date" class="form-input" id="out-date" style="width:auto"/>
-    <label>範囲:</label>
-    <select class="form-input" id="out-range" style="width:auto">
-      <option value="1">当日</option>
-      <option value="3">3日間</option>
-      <option value="7" selected>1週間</option>
-      <option value="14">2週間</option>
-    </select>
-    <button class="btn-primary" onclick="generateOutput()">生成</button>
-    <button class="copy-btn" id="copy-btn" onclick="copyOutput()">コピー</button>
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <h2 id="modal-title">新しいゲームを追加</h2>
+    <div class="form-group"><label class="form-label">ゲーム名</label><input type="text" class="form-input" id="modal-game-name" placeholder="例: Whiteout Survival"/></div>
+    <div class="form-group"><label class="form-label">ギルド名（任意）</label><input type="text" class="form-input" id="modal-guild-name" placeholder="例: King Shot"/></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" id="modal-save-btn" onclick="saveProject()">追加</button>
+    </div>
   </div>
-  <div class="output-box" id="output-box">← 生成ボタンを押してください</div>
-</div>
 </div>
 
 <script>
@@ -290,210 +261,321 @@ const DAYS=['日','月','火','水','木','金','土'];
 const COLORS=['#1D9E75','#534AB7','#D85A30','#BA7517','#378ADD','#639922','#D4537E','#888780'];
 const TYPE_LABELS={weekly:'毎週',daily:'毎日',biweekly:'隔日',monthly:'毎月',temp:'臨時',custom:'カスタム'};
 const TYPE_BADGE={weekly:'b-weekly',daily:'b-daily',biweekly:'b-biweekly',monthly:'b-monthly',temp:'b-temp',custom:'b-custom'};
+const JST_OFFSET=9*60; // minutes
+const MAX=20;
 
-let events=JSON.parse(localStorage.getItem('guild_events_v2')||'[]');
+// --- UTC <-> JST utilities ---
+function utcTimeToJST(utcHH, utcMM) {
+  const total = utcHH * 60 + utcMM + JST_OFFSET;
+  const dayOffset = Math.floor(total / 1440); // day overflow
+  const mins = ((total % 1440) + 1440) % 1440;
+  return { h: Math.floor(mins / 60), m: mins % 60, dayOffset };
+}
+
+function utcTimeStr(hhmm) {
+  if (!hhmm) return null;
+  const [h, m] = hhmm.split(':').map(Number);
+  return utcTimeToJST(h, m);
+}
+
+function fmtJST(hhmm) {
+  if (!hhmm) return '';
+  const j = utcTimeStr(hhmm);
+  const timeStr = `${String(j.h).padStart(2,'0')}:${String(j.m).padStart(2,'0')} JST`;
+  return j.dayOffset > 0 ? timeStr + ' (+1日)' : j.dayOffset < 0 ? timeStr + ' (-1日)' : timeStr;
+}
+
+// UTC weekday + time → JST weekday (accounting for +9h day shift)
+function utcWeekdayToJST(utcWd, utcTime) {
+  if (!utcTime) return utcWd;
+  const j = utcTimeStr(utcTime);
+  return ((utcWd + j.dayOffset) + 7) % 7;
+}
+
+// UTC date string + time → JST date string
+function utcDateToJST(utcDateStr, utcTime) {
+  if (!utcDateStr) return utcDateStr;
+  const j = utcTimeStr(utcTime || '00:00');
+  const d = new Date(utcDateStr + 'T00:00:00Z');
+  d.setUTCMinutes(d.getUTCMinutes() + JST_OFFSET);
+  if (j.dayOffset > 0) d.setUTCDate(d.getUTCDate() + 1);
+  return toDS(d);
+}
+
+function updateHint(hintId, inputId) {
+  const el = document.getElementById(hintId);
+  const val = document.getElementById(inputId).value;
+  if (!val) { el.textContent = ''; return; }
+  el.textContent = '→ JST: ' + fmtJST(val);
+}
+
+function initHints() {
+  [['hint-start','f-time'],['hint-end','f-time-end'],['hint-daily','f-daily-time'],
+   ['hint-biweekly','f-biweekly-time'],['hint-monthly','f-monthly-time'],
+   ['hint-temp','f-temp-time'],['hint-custom','f-custom-time']].forEach(([h,i])=>updateHint(h,i));
+}
+
+// --- State ---
+let state = JSON.parse(localStorage.getItem('guildscheduler_v4') || 'null');
+if (!state) {
+  state = {projects:[{id:'p1',game:'Whiteout Survival',guild:'King Shot',events:[
+    {id:'e1',name:'国家戦争',type:'weekly',weekday:6,weekdayEnd:-1,time:'11:00',timeEnd:'13:00',prep:'資源備蓄、援軍リクエスト送信',tasks:[{text:'参加申請を忘れずに',when:'毎日'}],desc:'参加必須。20分前集合',color:COLORS[0]},
+    {id:'e2',name:'ベア狩り',type:'daily',time:'03:00',tasks:[{text:'スタミナを全消費',when:'毎日'}],desc:'報酬は上位30名に配布',color:COLORS[1]},
+  ]}],currentProjectId:'p1'};
+  save();
+}
+
 let editingId=null,calYear,calMonth,selectedDate,customDates=[];
+let modalMode='add',editingProjectId=null;
 
-function save(){localStorage.setItem('guild_events_v2',JSON.stringify(events));}
-function toDateStr(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function todayStr(){return toDateStr(new Date());}
+function save(){localStorage.setItem('guildscheduler_v4',JSON.stringify(state));}
+function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function todayJST(){
+  const now=new Date();
+  const jst=new Date(now.getTime()+JST_OFFSET*60000);
+  return`${jst.getUTCFullYear()}-${String(jst.getUTCMonth()+1).padStart(2,'0')}-${String(jst.getUTCDate()).padStart(2,'0')}`;
+}
+function curProj(){return state.projects.find(p=>p.id===state.currentProjectId)||state.projects[0];}
+function curEvs(){return curProj().events||[];}
 
+// --- Project bar ---
+function renderProjectBar(){
+  const bar=document.getElementById('project-bar');
+  let h=state.projects.map(p=>`<button class="project-tab${p.id===state.currentProjectId?' active':''}" onclick="switchProject('${p.id}')">${p.game}${p.guild?' · '+p.guild:''}</button>`).join('');
+  if(state.projects.length<MAX) h+=`<button class="project-add-btn" onclick="openAddProject()">+ ゲーム追加</button>`;
+  bar.innerHTML=h;
+  const p=curProj();
+  document.getElementById('project-name-display').textContent=p.game+(p.guild?' — '+p.guild:'');
+  document.getElementById('project-count').textContent=`${state.projects.length} / ${MAX}`;
+}
+
+function switchProject(id){
+  state.currentProjectId=id;save();editingId=null;clearForm();
+  calYear=null;calMonth=null;selectedDate=null;
+  renderProjectBar();renderEvents();
+  if(document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
+  if(document.getElementById('tab-output').classList.contains('active')){document.getElementById('out-date').value=todayJST();generateOutput();}
+}
+
+function openAddProject(){
+  if(state.projects.length>=MAX){alert('最大20ゲームまでです');return;}
+  modalMode='add';document.getElementById('modal-title').textContent='新しいゲームを追加';
+  document.getElementById('modal-save-btn').textContent='追加';
+  document.getElementById('modal-game-name').value='';document.getElementById('modal-guild-name').value='';
+  document.getElementById('modal').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-game-name').focus(),50);
+}
+function openEditProject(){
+  const p=curProj();modalMode='edit';editingProjectId=p.id;
+  document.getElementById('modal-title').textContent='ゲームを編集';
+  document.getElementById('modal-save-btn').textContent='保存';
+  document.getElementById('modal-game-name').value=p.game;document.getElementById('modal-guild-name').value=p.guild||'';
+  document.getElementById('modal').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-game-name').focus(),50);
+}
+function saveProject(){
+  const game=document.getElementById('modal-game-name').value.trim();if(!game){alert('ゲーム名を入力してください');return;}
+  const guild=document.getElementById('modal-guild-name').value.trim();
+  if(modalMode==='add'){const id='p'+Date.now();state.projects.push({id,game,guild,events:[]});state.currentProjectId=id;}
+  else{const p=state.projects.find(p=>p.id===editingProjectId);if(p){p.game=game;p.guild=guild;}}
+  save();closeModal();renderProjectBar();renderEvents();
+}
+function deleteProject(){
+  if(state.projects.length<=1){alert('最後のプロジェクトは削除できません');return;}
+  const p=curProj();if(!confirm(`「${p.game}」を削除しますか？\nイベントデータもすべて削除されます。`)) return;
+  state.projects=state.projects.filter(x=>x.id!==p.id);state.currentProjectId=state.projects[0].id;
+  save();renderProjectBar();renderEvents();
+}
+function closeModal(){document.getElementById('modal').style.display='none';}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal') closeModal();});
+
+// --- Event form ---
 function onTypeChange(){
   const t=document.getElementById('f-type').value;
-  ['weekly','daily','biweekly','monthly','temp','custom'].forEach(k=>{
-    document.getElementById('fields-'+k).style.display=k===t?'block':'none';
-  });
+  ['weekly','daily','biweekly','monthly','temp','custom'].forEach(k=>document.getElementById('fields-'+k).style.display=k===t?'block':'none');
+  initHints();
 }
-
 function addTask(cid){
-  const c=document.getElementById(cid);
-  const row=document.createElement('div');
-  row.className='task-row';
-  row.innerHTML=`<input type="text" placeholder="タスク内容"/><select><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
-  c.appendChild(row);
+  const r=document.createElement('div');r.className='task-row';
+  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById(cid).appendChild(r);
 }
-
-function getTasksFromContainer(cid){
-  const tasks=[];
-  document.querySelectorAll(`#${cid} .task-row`).forEach(r=>{
-    const inp=r.querySelector('input'),sel=r.querySelector('select');
-    if(inp&&inp.value.trim()) tasks.push({text:inp.value.trim(),when:sel?sel.value:'毎日'});
-  });
-  return tasks;
-}
-
-function setTasksToContainer(cid,tasks){
-  const c=document.getElementById(cid);c.innerHTML='';
-  (tasks||[]).forEach(t=>{
-    const row=document.createElement('div');row.className='task-row';
-    row.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
-    c.appendChild(row);
-  });
-}
-
+function getTasks(cid){const t=[];document.querySelectorAll(`#${cid} .task-row`).forEach(r=>{const i=r.querySelector('input'),s=r.querySelector('select');if(i&&i.value.trim()) t.push({text:i.value.trim(),when:s?s.value:'毎日'});});return t;}
+function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
 function addCustomDate(){
-  const d=document.getElementById('f-custom-date-input').value;
-  if(!d||customDates.includes(d)) return;
-  customDates.push(d);customDates.sort();renderCustomDates();
+  const d=document.getElementById('f-custom-date-input').value;if(!d||customDates.includes(d)) return;
+  customDates.push(d);customDates.sort();renderCD();
 }
-function removeCustomDate(d){customDates=customDates.filter(x=>x!==d);renderCustomDates();}
-function renderCustomDates(){
-  document.getElementById('custom-dates-list').innerHTML=customDates.map(d=>`<span class="custom-date-tag">${d}<button onclick="removeCustomDate('${d}')">×</button></span>`).join('');
-}
+function removeCustomDate(d){customDates=customDates.filter(x=>x!==d);renderCD();}
+function renderCD(){document.getElementById('custom-dates-list').innerHTML=customDates.map(d=>`<span class="custom-date-tag">${d} UTC<button onclick="removeCustomDate('${d}')">×</button></span>`).join('');}
 
 function saveEvent(){
-  const name=document.getElementById('f-name').value.trim();
-  if(!name){alert('イベント名を入力してください');return;}
-  const type=document.getElementById('f-type').value;
-  const desc=document.getElementById('f-desc').value.trim();
+  const name=document.getElementById('f-name').value.trim();if(!name){alert('イベント名を入力してください');return;}
+  const type=document.getElementById('f-type').value,desc=document.getElementById('f-desc').value.trim();
+  const proj=curProj(),evs=proj.events||[];
   let ev={id:editingId||Date.now().toString(),name,type,desc};
-  ev.color=editingId?(events.find(e=>e.id===editingId)||{}).color||COLORS[events.length%COLORS.length]:COLORS[events.length%COLORS.length];
-  if(type==='weekly'){ev.weekday=parseInt(document.getElementById('f-weekday').value);ev.weekdayEnd=parseInt(document.getElementById('f-weekday-end').value);ev.time=document.getElementById('f-time').value;ev.timeEnd=document.getElementById('f-time-end').value;ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasksFromContainer('weekly-tasks');}
-  else if(type==='daily'){ev.time=document.getElementById('f-daily-time').value;ev.tasks=getTasksFromContainer('daily-tasks');}
+  ev.color=editingId?(evs.find(e=>e.id===editingId)||{}).color||COLORS[evs.length%COLORS.length]:COLORS[evs.length%COLORS.length];
+  if(type==='weekly'){ev.weekday=+document.getElementById('f-weekday').value;ev.weekdayEnd=+document.getElementById('f-weekday-end').value;ev.time=document.getElementById('f-time').value;ev.timeEnd=document.getElementById('f-time-end').value;ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasks('weekly-tasks');}
+  else if(type==='daily'){ev.time=document.getElementById('f-daily-time').value;ev.tasks=getTasks('daily-tasks');}
   else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=document.getElementById('f-biweekly-time').value;}
-  else if(type==='monthly'){ev.monthday=parseInt(document.getElementById('f-monthday').value);ev.time=document.getElementById('f-monthly-time').value;}
+  else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=document.getElementById('f-monthly-time').value;}
   else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=document.getElementById('f-temp-time').value;}
   else if(type==='custom'){ev.customDates=[...customDates];ev.time=document.getElementById('f-custom-time').value;}
-  if(editingId){const i=events.findIndex(e=>e.id===editingId);events[i]=ev;}else events.push(ev);
-  save();editingId=null;clearForm();renderEvents();
+  if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
+  proj.events=evs;save();editingId=null;clearForm();renderEvents();
 }
-
 function clearForm(){
   ['f-name','f-desc','f-prep'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-type').value='weekly';
-  document.getElementById('f-time').value='20:00';
-  document.getElementById('weekly-tasks').innerHTML='';
-  document.getElementById('daily-tasks').innerHTML='';
+  document.getElementById('f-type').value='weekly';document.getElementById('f-time').value='11:00';
+  document.getElementById('weekly-tasks').innerHTML='';document.getElementById('daily-tasks').innerHTML='';
   document.getElementById('form-title').textContent='イベントを追加';
-  customDates=[];renderCustomDates();onTypeChange();
+  customDates=[];renderCD();onTypeChange();
 }
 function cancelEdit(){editingId=null;clearForm();}
-
 function editEvent(id){
-  const ev=events.find(e=>e.id===id);if(!ev) return;
-  editingId=id;
-  document.getElementById('form-title').textContent='イベントを編集';
-  document.getElementById('f-name').value=ev.name;
-  document.getElementById('f-type').value=ev.type;
-  document.getElementById('f-desc').value=ev.desc||'';
+  const ev=curEvs().find(e=>e.id===id);if(!ev) return;
+  editingId=id;document.getElementById('form-title').textContent='イベントを編集';
+  document.getElementById('f-name').value=ev.name;document.getElementById('f-type').value=ev.type;document.getElementById('f-desc').value=ev.desc||'';
   onTypeChange();
-  if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'20:00';document.getElementById('f-time-end').value=ev.timeEnd||'22:00';document.getElementById('f-prep').value=ev.prep||'';setTasksToContainer('weekly-tasks',ev.tasks);}
-  else if(ev.type==='daily'){document.getElementById('f-daily-time').value=ev.time||'12:00';setTasksToContainer('daily-tasks',ev.tasks);}
-  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';document.getElementById('f-biweekly-time').value=ev.time||'20:00';}
-  else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'20:00';}
-  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';document.getElementById('f-temp-time').value=ev.time||'20:00';}
-  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];document.getElementById('f-custom-time').value=ev.time||'20:00';renderCustomDates();}
+  if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'11:00';document.getElementById('f-time-end').value=ev.timeEnd||'13:00';document.getElementById('f-prep').value=ev.prep||'';setTasks('weekly-tasks',ev.tasks);updateHint('hint-start','f-time');updateHint('hint-end','f-time-end');}
+  else if(ev.type==='daily'){document.getElementById('f-daily-time').value=ev.time||'03:00';setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');}
+  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';document.getElementById('f-biweekly-time').value=ev.time||'11:00';updateHint('hint-biweekly','f-biweekly-time');}
+  else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'11:00';updateHint('hint-monthly','f-monthly-time');}
+  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';document.getElementById('f-temp-time').value=ev.time||'11:00';updateHint('hint-temp','f-temp-time');}
+  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];document.getElementById('f-custom-time').value=ev.time||'11:00';renderCD();updateHint('hint-custom','f-custom-time');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
+function deleteEvent(id){if(!confirm('削除しますか？')) return;const p=curProj();p.events=(p.events||[]).filter(e=>e.id!==id);save();renderEvents();}
 
-function deleteEvent(id){if(!confirm('削除しますか？')) return;events=events.filter(e=>e.id!==id);save();renderEvents();}
-
-function getScheduleLabel(ev){
-  if(ev.type==='weekly'){const end=ev.weekdayEnd>=0?`〜${DAYS[ev.weekdayEnd]}曜`:'';return`毎週${DAYS[ev.weekday||0]}曜${end} ${ev.time||''}${ev.timeEnd?'〜'+ev.timeEnd:''}`;}
-  if(ev.type==='daily') return`毎日 ${ev.time||''}`;
-  if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'}〜）${ev.time||''}`;
-  if(ev.type==='monthly') return`毎月${ev.monthday||1}日 ${ev.time||''}`;
-  if(ev.type==='temp') return`${ev.start||'?'} 〜 ${ev.end||'?'} ${ev.time||''}`;
-  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件`;
+// Schedule label: show both UTC and JST
+function schedLabel(ev){
+  if(ev.type==='weekly'){
+    const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
+    const jstWdEnd=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):-1;
+    const wdPart=jstWdEnd>=0&&jstWdEnd!==jstWdStart?`${DAYS[jstWdStart]}〜${DAYS[jstWdEnd]}曜`:DAYS[jstWdStart]+'曜';
+    return`毎週${wdPart} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}`;
+  }
+  if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}`;
+  if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}`;
+  if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}`;
+  if(ev.type==='temp') return`${ev.start||'?'}〜${ev.end||'?'}(UTC) ${fmtJST(ev.time)}`;
+  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}`;
   return'';
 }
 
 function renderEvents(){
-  const el=document.getElementById('event-list');
-  if(!events.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
-  el.innerHTML=events.map(ev=>{
-    const tasks=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card"><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${getScheduleLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${tasks?`<div class="event-tasks">タスク: ${tasks}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+  const el=document.getElementById('event-list'),evs=curEvs();
+  if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
+  el.innerHTML=evs.map(ev=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
+    return`<div class="event-card"><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
 }
 
-function isBiweeklyDay(ev,ds){
-  if(!ev.biweeklyStart||ev.biweeklyStart>ds) return false;
-  const diff=Math.round((new Date(ds+'T00:00:00')-new Date(ev.biweeklyStart+'T00:00:00'))/86400000);
+// --- Calendar: works in JST dates ---
+function isBiDay(ev,jstDS){
+  if(!ev.biweeklyStart) return false;
+  const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);
+  if(jstDS<jstStart) return false;
+  const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
   return diff>=0&&diff%2===0;
 }
 
-function getEventsOnDate(ds){
-  const d=new Date(ds+'T00:00:00'),wd=d.getDay(),day=d.getDate();
-  return events.filter(ev=>{
+function getEvs(jstDS){
+  const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
+  return curEvs().filter(ev=>{
     if(ev.type==='daily') return true;
-    if(ev.type==='weekly'){const end=ev.weekdayEnd>=0?ev.weekdayEnd:ev.weekday;return end>=ev.weekday?wd>=ev.weekday&&wd<=end:wd>=ev.weekday||wd<=end;}
-    if(ev.type==='biweekly') return isBiweeklyDay(ev,ds);
-    if(ev.type==='monthly') return ev.monthday===day;
-    if(ev.type==='temp') return ds>=ev.start&&ds<=ev.end;
-    if(ev.type==='custom') return(ev.customDates||[]).includes(ds);
+    if(ev.type==='weekly'){
+      const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
+      const jstWdEnd=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):jstWdStart;
+      return jstWdEnd>=jstWdStart?wd>=jstWdStart&&wd<=jstWdEnd:wd>=jstWdStart||wd<=jstWdEnd;
+    }
+    if(ev.type==='biweekly') return isBiDay(ev,jstDS);
+    if(ev.type==='monthly'){
+      // monthday stored as UTC day → convert to JST day
+      const jstRef=utcDateToJST(`2000-01-${String(ev.monthday).padStart(2,'0')}`,ev.time);
+      return day===new Date(jstRef+'T00:00:00').getDate();
+    }
+    if(ev.type==='temp'){
+      const jstStart=utcDateToJST(ev.start,ev.time);
+      const jstEnd=utcDateToJST(ev.end,ev.time);
+      return jstDS>=jstStart&&jstDS<=jstEnd;
+    }
+    if(ev.type==='custom'){
+      return(ev.customDates||[]).some(utcD=>utcDateToJST(utcD,ev.time)===jstDS);
+    }
     return false;
   });
 }
 
-function getPrepEventsOnDate(ds){
-  const next=new Date(ds+'T00:00:00');next.setDate(next.getDate()+1);
-  const ns=toDateStr(next);
-  return events.filter(ev=>ev.type==='weekly'&&ev.prep&&new Date(ns+'T00:00:00').getDay()===ev.weekday);
+function getPreps(jstDS){
+  const next=new Date(jstDS+'T00:00:00');next.setDate(next.getDate()+1);
+  const ns=toDS(next);
+  return curEvs().filter(ev=>{
+    if(ev.type!=='weekly'||!ev.prep) return false;
+    const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
+    return new Date(ns+'T00:00:00').getDay()===jstWdStart;
+  });
 }
 
 function renderCalendar(){
-  const today=new Date();
-  if(!calYear){calYear=today.getFullYear();calMonth=today.getMonth();}
-  document.getElementById('cal-title').textContent=`${calYear}年${calMonth+1}月`;
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const tStr=toDateStr(today);
-  let html=DAYS.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
-  for(let i=0;i<firstDay;i++) html+='<div class="cal-day empty"></div>';
-  for(let d=1;d<=daysInMonth;d++){
+  const t=new Date();
+  const jst=new Date(t.getTime()+JST_OFFSET*60000);
+  if(!calYear){calYear=jst.getUTCFullYear();calMonth=jst.getUTCMonth();}
+  document.getElementById('cal-title').textContent=`${calYear}年${calMonth+1}月 (JST)`;
+  const fd=new Date(calYear,calMonth,1).getDay(),dim=new Date(calYear,calMonth+1,0).getDate();
+  const tStr=`${jst.getUTCFullYear()}-${String(jst.getUTCMonth()+1).padStart(2,'0')}-${String(jst.getUTCDate()).padStart(2,'0')}`;
+  let h=DAYS.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  for(let i=0;i<fd;i++) h+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=dim;d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const evs=getEventsOnDate(ds),preps=getPrepEventsOnDate(ds);
-    html+=`<div class="cal-day${ds===tStr?' today':''}${ds===selectedDate?' selected':''}${preps.length?' prep-day':''}" onclick="selectDay('${ds}')"><div class="cal-day-num">${d}</div>${preps.map(e=>`<div class="cal-chip prep" style="background:${e.color}22;color:${e.color}">[前日]${e.name}</div>`).join('')}${evs.slice(0,3).map(e=>`<div class="cal-chip" style="background:${e.color}22;color:${e.color}">${e.name}</div>`).join('')}${evs.length>3?`<div style="font-size:10px;color:#aaa">+${evs.length-3}</div>`:''}</div>`;
+    const evs=getEvs(ds),preps=getPreps(ds);
+    h+=`<div class="cal-day${ds===tStr?' today':''}${ds===selectedDate?' selected':''}${preps.length?' prep-day':''}" onclick="selectDay('${ds}')"><div class="cal-day-num">${d}</div>${preps.map(e=>`<div class="cal-chip prep" style="background:${e.color}22;color:${e.color}">[前日]${e.name}</div>`).join('')}${evs.slice(0,3).map(e=>`<div class="cal-chip" style="background:${e.color}22;color:${e.color}">${e.name}</div>`).join('')}${evs.length>3?`<div style="font-size:10px;color:#aaa">+${evs.length-3}</div>`:''}</div>`;
   }
-  document.getElementById('cal-grid').innerHTML=html;
+  document.getElementById('cal-grid').innerHTML=h;
 }
 
 function selectDay(ds){
   selectedDate=ds;renderCalendar();
-  const evs=getEventsOnDate(ds),preps=getPrepEventsOnDate(ds);
-  const pane=document.getElementById('detail-pane');
-  if(!evs.length&&!preps.length){pane.innerHTML=`<div style="color:#aaa;font-size:13px">${ds} — イベントなし</div>`;return;}
-  let html=`<div style="font-size:13px;font-weight:500;margin-bottom:8px">${ds}</div>`;
-  html+=preps.map(ev=>`<div class="detail-row"><div class="event-dot" style="background:${ev.color};opacity:0.5"></div><div><div style="font-size:13px;color:#888">[前日準備] ${ev.name}</div>${ev.prep?`<div style="font-size:12px;color:#aaa">${ev.prep}</div>`:''}</div></div>`).join('');
-  html+=evs.map(ev=>`<div class="detail-row"><div class="event-dot" style="background:${ev.color}"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">${ev.name} ${ev.time||''}</div>${ev.desc?`<div style="font-size:12px;color:#888;margin-top:2px">${ev.desc}</div>`:''}</div></div>`).join('');
-  pane.innerHTML=html;
+  const evs=getEvs(ds),preps=getPreps(ds),pane=document.getElementById('detail-pane');
+  if(!evs.length&&!preps.length){pane.innerHTML=`<div style="color:#aaa;font-size:13px">${ds} (JST) — イベントなし</div>`;return;}
+  let h=`<div style="font-size:13px;font-weight:500;margin-bottom:8px">${ds} (JST)</div>`;
+  h+=preps.map(ev=>`<div class="detail-row"><div class="event-dot" style="background:${ev.color};opacity:0.5"></div><div><div style="font-size:13px;color:#888">[前日準備] ${ev.name}</div>${ev.prep?`<div style="font-size:12px;color:#aaa">${ev.prep}</div>`:''}</div></div>`).join('');
+  h+=evs.map(ev=>`<div class="detail-row"><div class="event-dot" style="background:${ev.color}"></div><div><div style="font-size:13px;font-weight:500">${ev.name} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}</div>${ev.desc?`<div style="font-size:12px;color:#888;margin-top:2px">${ev.desc}</div>`:''}</div></div>`).join('');
+  pane.innerHTML=h;
 }
-
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 
-function isFirstDayOfEvent(ev,ds){
-  if(ev.type==='weekly') return new Date(ds+'T00:00:00').getDay()===ev.weekday;
-  if(ev.type==='temp') return ds===ev.start;
+function isFirst(ev,jstDS){
+  if(ev.type==='weekly') return new Date(jstDS+'T00:00:00').getDay()===utcWeekdayToJST(ev.weekday||0,ev.time);
+  if(ev.type==='temp') return jstDS===utcDateToJST(ev.start,ev.time);
   return true;
 }
-function isLastDayOfEvent(ev,ds){
-  if(ev.type==='weekly'){const end=ev.weekdayEnd>=0?ev.weekdayEnd:ev.weekday;return new Date(ds+'T00:00:00').getDay()===end;}
-  if(ev.type==='temp') return ds===ev.end;
+function isLast(ev,jstDS){
+  if(ev.type==='weekly'){const e=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):utcWeekdayToJST(ev.weekday||0,ev.time);return new Date(jstDS+'T00:00:00').getDay()===e;}
+  if(ev.type==='temp') return jstDS===utcDateToJST(ev.end,ev.time);
   return true;
 }
 
 function generateOutput(){
-  const base=document.getElementById('out-date').value||todayStr();
-  const range=parseInt(document.getElementById('out-range').value);
-  let lines=[`📅 ━━━━━━━━━━━━━━━━━━━━━━━━\n   Guild Event Schedule\n📅 ━━━━━━━━━━━━━━━━━━━━━━━━\n`];
-  let hasAny=false;
+  const base=document.getElementById('out-date').value||todayJST();
+  const range=+document.getElementById('out-range').value,p=curProj();
+  let lines=[`===========================\n   ${p.game}${p.guild?' — '+p.guild:''}\n===========================\n`];
+  let any=false;
   for(let i=0;i<range;i++){
     const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+i);
-    const ds=toDateStr(d);
-    const preps=getPrepEventsOnDate(ds),evs=getEventsOnDate(ds);
-    if(!preps.length&&!evs.length) continue;
-    hasAny=true;
-    lines.push(`【${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]})】`);
-    preps.forEach(ev=>{lines.push(`⚠️ 前日準備: ${ev.name}`);if(ev.prep) lines.push(`   ${ev.prep}`);});
+    const ds=toDS(d),preps=getPreps(ds),evs=getEvs(ds);
+    if(!preps.length&&!evs.length) continue;any=true;
+    lines.push(`【${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]}) JST】`);
+    preps.forEach(ev=>{lines.push(`[!] 前日準備: ${ev.name}`);if(ev.prep) lines.push(`   ${ev.prep}`);});
     evs.forEach(ev=>{
-      lines.push(`▶ ${ev.name}${ev.time?' '+ev.time:''}${ev.timeEnd?'〜'+ev.timeEnd:''}`);
+      const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
+      lines.push(`> ${ev.name}${tStr}`);
       if(ev.desc) lines.push(`   ${ev.desc}`);
-      (ev.tasks||[]).filter(t=>t.when==='毎日'||(t.when==='初日'&&isFirstDayOfEvent(ev,ds))||(t.when==='最終日'&&isLastDayOfEvent(ev,ds))).forEach(t=>lines.push(`   ✔ ${t.text}`));
+      (ev.tasks||[]).filter(t=>t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))).forEach(t=>lines.push(`   * ${t.text}`));
     });
     lines.push('');
   }
-  if(!hasAny) lines.push('期間中にイベントはありません');
+  if(!any) lines.push('期間中にイベントはありません');
   document.getElementById('output-box').textContent=lines.join('\n');
 }
 
@@ -509,12 +591,11 @@ function switchTab(t){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   if(t==='calendar') renderCalendar();
-  if(t==='output'){document.getElementById('out-date').value=todayStr();generateOutput();}
+  if(t==='output'){document.getElementById('out-date').value=todayJST();generateOutput();}
 }
 
-document.getElementById('out-date').value=todayStr();
-onTypeChange();
-renderEvents();
+document.getElementById('out-date').value=todayJST();
+onTypeChange();renderProjectBar();renderEvents();
 </script>
 </body>
 </html>
