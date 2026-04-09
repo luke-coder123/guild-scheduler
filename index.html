@@ -9,7 +9,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .header{background:#0F6E56;color:white;padding:12px 20px;display:flex;align-items:center;gap:12px}
 .header h1{font-size:15px;font-weight:500}
-.project-bar{background:#0a5240;padding:0 16px;display:flex;align-items:center;gap:4px;overflow-x:auto;min-height:44px}
+.project-bar{background:#0a5240;padding:0 16px;display:flex;align-items:center;gap:4px;overflow-x:auto;min-height:44px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.project-bar::-webkit-scrollbar{display:none}
 .project-tab{padding:8px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.6);white-space:nowrap;border-bottom:2px solid transparent;font-family:inherit;flex-shrink:0}
 .project-tab.active{color:white;border-bottom-color:#4ECDA4}
 .project-tab:hover{color:rgba(255,255,255,0.85)}
@@ -33,6 +33,63 @@ select.form-input{cursor:pointer}
 textarea.form-input{resize:vertical;min-height:72px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:500px){.form-row{grid-template-columns:1fr}}
+
+/* Responsive */
+@media(max-width:640px){.form-row-3{grid-template-columns:1fr 1fr!important}.event-actions{flex-wrap:wrap}
+  .container{padding:12px 10px}
+  .header h1{font-size:14px}
+  .project-tab{padding:6px 10px;font-size:11px}
+  .project-add-btn{padding:4px 8px;font-size:11px}
+  .project-settings{flex-wrap:wrap;gap:6px;padding:10px 12px}
+  .project-name-display{font-size:13px;width:100%}
+  .project-count{font-size:11px}
+  .tabs{gap:2px;padding:3px}
+  .tab{padding:7px 4px;font-size:12px}
+  .card{padding:12px}
+  .card-title{font-size:12px}
+  .form-label{font-size:11px}
+  .form-input{font-size:13px;padding:7px 10px}
+  .form-section{padding:8px}
+  .form-section-title{font-size:10px}
+  .btn-primary{padding:8px 16px;font-size:13px}
+  .btn-sm{padding:4px 8px;font-size:11px}
+  .event-card{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  .event-actions{width:100%;justify-content:flex-end}
+  .event-name{font-size:13px}
+  .event-meta{font-size:11px}
+  .event-tasks{font-size:10px}
+  .badge{font-size:10px;padding:2px 6px}
+  .cal-hdr{font-size:10px;padding:2px}
+  .cal-day{min-height:52px;padding:3px}
+  .cal-day-num{font-size:10px}
+  .cal-chip{font-size:9px;padding:1px 2px}
+  .cal-title{font-size:13px}
+  .cal-nav-btn{padding:4px 8px;font-size:12px}
+  .detail-pane{padding:10px 12px}
+  .detail-row{font-size:12px}
+  .output-controls{gap:6px}
+  .output-controls label{font-size:12px}
+  .output-box{font-size:11px;padding:12px}
+  .copy-btn{padding:7px 12px;font-size:12px}
+  .modal{width:95vw;padding:16px}
+  .section-header{font-size:10px}
+  .task-row{flex-wrap:wrap;gap:6px}
+  .task-row input{min-width:0}
+  .task-row select{font-size:11px}
+  .add-task-btn{font-size:11px}
+  .utc-hint{font-size:10px}
+  .custom-date-tag{font-size:11px}
+  .project-bar{gap:2px;padding:0 8px}
+}
+@media(max-width:400px){
+  .tabs{flex-wrap:nowrap}
+  .tab{font-size:11px;padding:6px 2px}
+  .calendar-grid{gap:2px}
+  .cal-day{min-height:44px}
+  .cal-chip{display:none}
+  .cal-chip:first-of-type{display:block}
+  .output-controls{flex-direction:column;align-items:flex-start}
+}
 .form-section{margin-bottom:8px;padding:10px;background:#f9f9f6;border-radius:8px;border:0.5px solid #e8e8e0}
 .form-section-title{font-size:11px;font-weight:500;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em}
 .utc-hint{font-size:11px;color:#1D9E75;margin-top:4px}
@@ -75,7 +132,7 @@ textarea.form-input{resize:vertical;min-height:72px}
 .detail-pane{background:white;border:0.5px solid #e0e0d8;border-radius:12px;padding:12px 16px;min-height:80px}
 .detail-row{font-size:13px;padding:6px 0;border-bottom:0.5px solid #f0f0e8;display:flex;align-items:flex-start;gap:8px}
 .detail-row:last-child{border-bottom:none}
-.output-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.output-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;row-gap:8px}
 .output-controls label{font-size:13px;color:#666}
 .output-box{background:#f9f9f6;border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;color:#1a1a1a;white-space:pre-wrap;border:0.5px solid #e0e0d8;min-height:200px}
 .task-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
