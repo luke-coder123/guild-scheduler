@@ -152,12 +152,15 @@ textarea.form-input{resize:vertical;min-height:72px}
 .modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div class="header">
   <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="white" stroke-width="1.5"/><line x1="2" y1="7" x2="18" y2="7" stroke="white" stroke-width="1.5"/><line x1="6" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
   <h1>Guild Event Scheduler</h1>
+  <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0" title="未接続"></span>
+  <button id="sync-btn" onclick="openSyncPanel()" style="padding:4px 10px;font-size:11px;border:1px solid rgba(255,255,255,0.3);background:none;color:rgba(255,255,255,0.7);border-radius:6px;cursor:pointer;font-family:inherit;flex-shrink:0">クラウド同期</button>
 </div>
 
 <div class="project-bar" id="project-bar"></div>
@@ -930,6 +933,239 @@ function switchTab(t){
 
 document.getElementById('out-date').value=todayJST();
 onTypeChange();renderProjectBar();renderEvents();
+
+// ===== Supabase Sync =====
+const SYNC_KEY = 'guild_sync_config';
+let sbClient = null;
+let syncSpaceId = null;
+let syncEditorToken = null;
+let syncViewerToken = null;
+let autoSyncEnabled = false;
+let autoSyncTimer = null;
+let realtimeChannel = null;
+
+function randomToken(len=32){
+  const a=new Uint8Array(len);crypto.getRandomValues(a);
+  return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('').slice(0,len);
+}
+
+function setSyncDot(status){
+  const dot=document.getElementById('sync-dot');
+  const colors={ok:'#4ECDA4',syncing:'#FAC775',error:'#F09595',off:'#aaa'};
+  const titles={ok:'同期済み',syncing:'同期中...',error:'同期エラー',off:'未接続'};
+  dot.style.background=colors[status]||'#aaa';
+  dot.title=titles[status]||'';
+  if(status==='syncing') dot.style.animation='pulse 1s infinite';
+  else dot.style.animation='';
+}
+
+function openSyncPanel(){
+  const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');
+  if(cfg){
+    document.getElementById('sync-sb-url').value=cfg.sbUrl||'';
+    document.getElementById('sync-sb-key').value=cfg.sbKey||'';
+    document.getElementById('sync-space-id').value=cfg.spaceId||'';
+  }
+  document.getElementById('sync-modal').style.display='flex';
+  if(sbClient&&syncSpaceId){
+    showSyncConnected();
+  }
+}
+function closeSyncModal(){document.getElementById('sync-modal').style.display='none';}
+document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal') closeSyncModal();});
+
+async function connectSync(){
+  const url=document.getElementById('sync-sb-url').value.trim();
+  const key=document.getElementById('sync-sb-key').value.trim();
+  const existingId=document.getElementById('sync-space-id').value.trim();
+  const errEl=document.getElementById('sync-error');
+  errEl.style.display='none';
+
+  if(!url||!key){errEl.textContent='URLとKeyを入力してください';errEl.style.display='block';return;}
+
+  sbClient=supabase.createClient(url,key);
+  setSyncDot('syncing');
+
+  if(existingId){
+    // connect to existing space
+    const {data,error}=await sbClient.from('guild_spaces').select('*').eq('id',existingId).single();
+    if(error||!data){errEl.textContent='Space IDが見つかりません: '+(error?.message||'');errEl.style.display='block';setSyncDot('off');return;}
+    syncSpaceId=existingId;
+    syncEditorToken=data.editor_token;
+    syncViewerToken=data.viewer_token;
+    // load remote data into local
+    state=data.data;
+    state.currentProjectId=state.projects[0].id;
+    save();
+    renderProjectBar();renderEvents();
+  } else {
+    // create new space
+    const id=randomToken(16);
+    const edTok=randomToken(32);
+    const viTok=randomToken(32);
+    const {error}=await sbClient.from('guild_spaces').insert({
+      id,name:'Guild Scheduler',
+      editor_token:edTok,viewer_token:viTok,
+      data:JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}')
+    });
+    if(error){errEl.textContent='作成失敗: '+error.message;errEl.style.display='block';setSyncDot('off');return;}
+    syncSpaceId=id;syncEditorToken=edTok;syncViewerToken=viTok;
+  }
+
+  localStorage.setItem(SYNC_KEY,JSON.stringify({sbUrl:url,sbKey:key,spaceId:syncSpaceId,editorToken:syncEditorToken,viewerToken:syncViewerToken}));
+  setSyncDot('ok');
+  subscribeRealtime();
+  showSyncConnected();
+}
+
+function showSyncConnected(){
+  document.getElementById('sync-setup').style.display='none';
+  document.getElementById('sync-connected').style.display='block';
+  document.getElementById('sync-space-id-display').textContent=syncSpaceId;
+  const base=window.location.origin+window.location.pathname.replace('index.html','')+'index_shared.html';
+  const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'{}');
+  const eu=`${base}?token=${syncEditorToken}&mode=editor&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
+  const vu=`${base}?token=${syncViewerToken}&mode=viewer&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
+  document.getElementById('sync-editor-url').textContent=eu;
+  document.getElementById('sync-viewer-url').textContent=vu;
+  updateAutoSyncBtn();
+}
+
+function copyEditorUrl(){
+  navigator.clipboard.writeText(document.getElementById('sync-editor-url').textContent).then(()=>{
+    const b=event.target;b.textContent='コピー完了';setTimeout(()=>b.textContent='編集者URLコピー',2000);
+  });
+}
+function copyViewerUrl(){
+  navigator.clipboard.writeText(document.getElementById('sync-viewer-url').textContent).then(()=>{
+    const b=event.target;b.textContent='コピー完了';setTimeout(()=>b.textContent='閲覧URLコピー',2000);
+  });
+}
+
+async function pushToCloud(){
+  if(!sbClient||!syncSpaceId) return;
+  setSyncDot('syncing');
+  const data=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
+  const {error}=await sbClient.from('guild_spaces').update({data}).eq('id',syncSpaceId);
+  setSyncDot(error?'error':'ok');
+  if(!error){
+    const now=new Date();
+    document.getElementById('sync-last-time').textContent='最終同期: '+now.toLocaleTimeString('ja-JP');
+  }
+}
+
+function toggleAutoSync(){
+  autoSyncEnabled=!autoSyncEnabled;
+  if(autoSyncEnabled){
+    autoSyncTimer=setInterval(()=>pushToCloud(),30000); // 30秒ごと
+    pushToCloud();
+  } else {
+    clearInterval(autoSyncTimer);
+  }
+  updateAutoSyncBtn();
+}
+function updateAutoSyncBtn(){
+  const btn=document.getElementById('auto-sync-btn');
+  if(!btn) return;
+  btn.textContent='自動同期: '+(autoSyncEnabled?'ON (30秒)':'OFF');
+  btn.style.color=autoSyncEnabled?'#0F6E56':'#666';
+  btn.style.borderColor=autoSyncEnabled?'#1D9E75':'#d0d0c8';
+}
+
+function disconnectSync(){
+  if(!confirm('クラウド同期を切断しますか？')) return;
+  sbClient=null;syncSpaceId=null;
+  if(realtimeChannel) realtimeChannel=null;
+  clearInterval(autoSyncTimer);autoSyncEnabled=false;
+  localStorage.removeItem(SYNC_KEY);
+  setSyncDot('off');
+  document.getElementById('sync-setup').style.display='block';
+  document.getElementById('sync-connected').style.display='none';
+  closeSyncModal();
+}
+
+function subscribeRealtime(){
+  if(!sbClient||!syncSpaceId) return;
+  realtimeChannel=sbClient.channel('space_'+syncSpaceId)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'guild_spaces',filter:`id=eq.${syncSpaceId}`},
+      payload=>{
+        // Only update if change came from elsewhere (avoid loop)
+        const remote=payload.new.data;
+        const local=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
+        if(JSON.stringify(remote)!==JSON.stringify(local)){
+          state=remote;save();
+          renderProjectBar();renderEvents();
+          setSyncDot('ok');
+        }
+      })
+    .subscribe();
+}
+
+// Hook into save() to auto-sync if enabled
+const _origSave=save;
+// Override save to also push if auto-sync on
+function saveAndSync(){
+  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
+  if(autoSyncEnabled&&sbClient&&syncSpaceId) pushToCloud();
+}
+
+// Init sync on load
+(function initSync(){
+  const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');
+  if(!cfg||!cfg.sbUrl||!cfg.sbKey||!cfg.spaceId) return;
+  sbClient=supabase.createClient(cfg.sbUrl,cfg.sbKey);
+  syncSpaceId=cfg.spaceId;
+  syncEditorToken=cfg.editorToken;
+  syncViewerToken=cfg.viewerToken;
+  setSyncDot('ok');
+  subscribeRealtime();
+})();
+// ===== End Supabase Sync =====
+
 </script>
+
+<!-- Sync Panel -->
+<div class="modal-overlay" id="sync-modal" style="display:none">
+  <div class="modal" style="width:380px">
+    <h2>Supabase クラウド同期</h2>
+    <div id="sync-setup" style="">
+      <div class="form-group">
+        <label class="form-label">Project URL</label>
+        <input type="text" class="form-input" id="sync-sb-url" placeholder="https://xxxx.supabase.co"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Publishable Key (anon)</label>
+        <input type="text" class="form-input" id="sync-sb-key" placeholder="eyJ..."/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Space ID（既存スペースに接続する場合）</label>
+        <input type="text" class="form-input" id="sync-space-id" placeholder="空欄で新規作成"/>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-primary" onclick="connectSync()">接続</button>
+        <button class="btn-sm" onclick="closeSyncModal()">キャンセル</button>
+      </div>
+      <div id="sync-error" style="color:#D85A30;font-size:12px;margin-top:8px;display:none"></div>
+    </div>
+    <div id="sync-connected" style="display:none">
+      <div style="font-size:13px;color:#0F6E56;font-weight:500;margin-bottom:12px">✓ 接続済み</div>
+      <div style="font-size:12px;color:#666;margin-bottom:8px">Space ID: <span id="sync-space-id-display" style="font-family:monospace;font-size:11px;color:#444"></span></div>
+      <div style="font-size:12px;color:#666;margin-bottom:4px">編集者用リンク:</div>
+      <div id="sync-editor-url" style="background:#f9f9f6;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;word-break:break-all;border:0.5px solid #e0e0d8;margin-bottom:6px"></div>
+      <div style="font-size:12px;color:#666;margin-bottom:4px">閲覧専用リンク:</div>
+      <div id="sync-viewer-url" style="background:#f9f9f6;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;word-break:break-all;border:0.5px solid #e0e0d8;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="pushToCloud()" style="flex:1">クラウドに今すぐ同期</button>
+        <button class="copy-btn" onclick="copyEditorUrl()">編集者URLコピー</button>
+        <button class="copy-btn" onclick="copyViewerUrl()">閲覧URLコピー</button>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn-sm" onclick="toggleAutoSync()" id="auto-sync-btn">自動同期: OFF</button>
+        <button class="btn-sm danger" onclick="disconnectSync()">切断</button>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-top:8px" id="sync-last-time"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
