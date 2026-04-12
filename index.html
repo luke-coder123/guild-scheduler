@@ -1024,7 +1024,7 @@ function showSyncConnected(){
   document.getElementById('sync-space-id-display').textContent=syncSpaceId;
   const base=window.location.origin+window.location.pathname.replace('index.html','')+'index_shared.html';
   const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'{}');
-  const eu=`${base}?token=${syncEditorToken}&mode=editor&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
+  const eu=`${base}?token=${syncEditorToken}&mode=editor&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey).replace(/%2B/g,'%2B')}`;
   const vu=`${base}?token=${syncViewerToken}&mode=viewer&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
   document.getElementById('sync-editor-url').textContent=eu;
   document.getElementById('sync-viewer-url').textContent=vu;

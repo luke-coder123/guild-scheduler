@@ -936,6 +936,7 @@ function switchTab(t){
 
 document.getElementById('out-date').value=todayJST();
 onTypeChange();renderProjectBar();renderEvents();
+autoConnect();
 
 // ===== Shared Mode =====
 const SHARED_KEY = 'guild_shared_v2';
@@ -953,26 +954,30 @@ function setSyncDot(status){
 }
 
 // Auto-connect from URL params
-(async function autoConnect(){
+async function autoConnect(){
+  // URLSearchParams handles decoding automatically
   const p=new URLSearchParams(window.location.search);
-  const token=p.get('token');
+  const token=p.get('token')||'';
   const mode=p.get('mode')||'editor';
-  const sbu=p.get('sbu')?decodeURIComponent(p.get('sbu')):'';
-  const sbk=p.get('sbk')?decodeURIComponent(p.get('sbk')):'';
+  // sbu/sbk are already encoded with encodeURIComponent in index.html
+  // URLSearchParams.get() auto-decodes them
+  const sbu=p.get('sbu')||'';
+  const sbk=p.get('sbk')||'';
 
   if(sbu) document.getElementById('shared-sb-url').value=sbu;
   if(sbk) document.getElementById('shared-sb-key').value=sbk;
   if(token) document.getElementById('shared-token').value=token;
   if(mode) document.getElementById('shared-mode').value=mode;
 
-  // Try saved config
+  // Try saved config first if no URL params
   const saved=JSON.parse(localStorage.getItem(SHARED_KEY)||'null');
   if(token&&sbu&&sbk){
     await doSharedConnect(sbu,sbk,token,mode);
   } else if(saved&&saved.sbUrl&&saved.sbKey&&saved.spaceId){
     await doSharedConnectById(saved.sbUrl,saved.sbKey,saved.spaceId,saved.role||'editor');
   }
-})();
+  // else: show setup screen with pre-filled fields
+}
 
 async function sharedConnect(){
   const url=document.getElementById('shared-sb-url').value.trim();
