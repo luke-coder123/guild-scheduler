@@ -168,6 +168,8 @@ textarea.form-input{resize:vertical;min-height:72px}
     <span class="project-count" id="project-count"></span>
     <button class="btn-sm" onclick="openEditProject()">編集</button>
     <button class="btn-sm danger" onclick="deleteProject()">削除</button>
+    <button class="btn-sm" onclick="exportData()" title="全データをJSONでダウンロード">エクスポート</button>
+    <label class="btn-sm" style="cursor:pointer;margin:0" title="JSONファイルを読み込む">インポート<input type="file" accept=".json" style="display:none" onchange="importData(event)"/></label>
   </div>
 
   <div class="tabs">
@@ -770,12 +772,16 @@ function generateOutput(){
     const ds=toDS(d),preps=getPreps(ds),evs=getEvs(ds);
     if(!preps.length&&!evs.length) continue;any=true;
     lines.push(`${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]})`);
-    preps.forEach(ev=>{lines.push(`[!] 前日準備: ${ev.name}`);if(ev.prep) lines.push(`   ${ev.prep}`);});
+    preps.forEach(ev=>{
+      const prepDesc=ev.prep?' '+ev.prep:'';
+      lines.push(`・[前日準備] ${ev.name}${prepDesc}`);
+    });
     evs.forEach(ev=>{
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
-      lines.push(`> ${ev.name}${tStr}`);
-      if(ev.desc) lines.push(`   ${ev.desc}`);
-      (ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));}).forEach(t=>lines.push(`   * ${t.text}`));
+      const descStr=ev.desc?' '+ev.desc:'';
+      const tasks=(ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});
+      const taskStr=tasks.length?' ('+tasks.map(t=>t.text).join('／')+')':'';
+      lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
     });
     lines.push('');
   }
@@ -790,6 +796,58 @@ function copyOutput(){
   });
 }
 
+
+
+// --- Export / Import ---
+function exportData(){
+  const data=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date();
+  const ds=date.getFullYear()+String(date.getMonth()+1).padStart(2,'0')+String(date.getDate()).padStart(2,'0');
+  a.href=url;a.download='guild_scheduler_'+ds+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function importData(e){
+  const file=e.target.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.projects||!Array.isArray(data.projects)) throw new Error('invalid');
+      const mode=confirm(
+        'インポート方法を選択してください。\n\n' +
+        'OK → 既存データに追加（プロジェクトをマージ）\n' +
+        'キャンセル → 全データを上書き（既存データは削除）'
+      );
+      if(mode){
+        // merge: add imported projects that don't exist
+        const existing=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
+        const existingIds=(existing.projects||[]).map(p=>p.id);
+        const toAdd=data.projects.filter(p=>!existingIds.includes(p.id));
+        // rename conflicts
+        toAdd.forEach(p=>{p.id='imported_'+Date.now()+'_'+Math.random().toString(36).slice(2);});
+        existing.projects=[...(existing.projects||[]),...toAdd];
+        localStorage.setItem('guildscheduler_v4',JSON.stringify(existing));
+        state=existing;
+      } else {
+        localStorage.setItem('guildscheduler_v4',JSON.stringify(data));
+        state=data;
+      }
+      state.currentProjectId=state.projects[0].id;
+      renderProjectBar();renderEvents();
+      alert('インポート完了しました');
+    } catch(err){
+      alert('ファイルの読み込みに失敗しました。正しいエクスポートファイルか確認してください。');
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
 
 // --- Memo ---
 function getMemos(){return curProj().memos||[];}
