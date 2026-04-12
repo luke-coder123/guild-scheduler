@@ -452,10 +452,28 @@ function utcWeekdayToJST(utcWd, utcTime) {
 // UTC date string + time → JST date string
 function utcDateToJST(utcDateStr, utcTime) {
   if (!utcDateStr) return utcDateStr;
-  const j = utcTimeStr(utcTime || '00:00');
-  const d = new Date(utcDateStr + 'T00:00:00Z');
-  d.setUTCMinutes(d.getUTCMinutes() + JST_OFFSET);
-  if (j.dayOffset > 0) d.setUTCDate(d.getUTCDate() + 1);
+  // Use actual UTC time (empty = 00:00 UTC)
+  const timeStr = utcTime || '00:00';
+  const [hh, mm] = timeStr.split(':').map(Number);
+  // Build UTC datetime and add JST offset
+  const utcMs = Date.UTC(
+    parseInt(utcDateStr.slice(0,4)),
+    parseInt(utcDateStr.slice(5,7))-1,
+    parseInt(utcDateStr.slice(8,10)),
+    hh, mm, 0
+  );
+  const jstMs = utcMs + JST_OFFSET * 60000;
+  const jstDate = new Date(jstMs);
+  return toDS(jstDate);
+}
+
+// JST date string from UTC date + duration (days)
+// Returns JST end date: jstStart + (duration-1) days
+function jstEndDate(utcDateStr, utcTime, durationDays) {
+  const jstStart = utcDateToJST(utcDateStr, utcTime);
+  if (!jstStart) return jstStart;
+  const d = new Date(jstStart + 'T00:00:00');
+  d.setDate(d.getDate() + (durationDays - 1));
   return toDS(d);
 }
 
@@ -651,9 +669,27 @@ function renderEvents(){
 }
 
 // --- Calendar: works in JST dates ---
-function isBiDay(ev,jstDS){if(!ev.biweeklyStart) return false;const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%2;return cyclePos<(ev.duration||1);}
+function isBiDay(ev,jstDS){
+  if(!ev.biweeklyStart) return false;
+  const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);
+  if(!jstStart||jstDS<jstStart) return false;
+  const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+  if(diff<0) return false;
+  const cyclePos=diff%2;
+  return cyclePos<(ev.duration||1);
+}
 
-function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){if(!utcStart) return false;const jstStart=utcDateToJST(utcStart,utcTime||'00:00');if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%intervalDays;return cyclePos<(duration||1);}function getEvs(jstDS){
+function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){
+  if(!utcStart) return false;
+  const jstStart=utcDateToJST(utcStart,utcTime||'00:00');
+  if(!jstStart||jstDS<jstStart) return false;
+  const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+  if(diff<0) return false;
+  const cyclePos=diff%intervalDays;
+  // Duration in JST days from cycle start
+  const dur=duration||1;
+  return cyclePos<dur;
+}function getEvs(jstDS){
   const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
   return curEvs().filter(ev=>{
     if(ev.type==='daily') return true;
