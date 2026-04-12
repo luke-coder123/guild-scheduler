@@ -147,11 +147,6 @@ textarea.form-input{resize:vertical;min-height:72px}
 .custom-dates-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px;min-height:28px}
 .section-header{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
-.event-card{touch-action:none}
-.event-card.dragging{opacity:0.4;background:#f0f8f5}
-.event-card.drag-over{border-top:2px solid #1D9E75}
-.drag-handle{cursor:grab;color:#ccc;font-size:16px;padding:0 4px;flex-shrink:0;user-select:none;touch-action:none}
-.drag-handle:active{cursor:grabbing}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;min-height:400px}
 .modal{background:white;border-radius:14px;padding:24px;width:320px;max-width:90vw}
 .modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
@@ -208,7 +203,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-time" value="00:00" oninput="updateHint('hint-start','f-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-time-none" onchange="toggleTimeNone('f-time','hint-start',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-start"></div></div>
-            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-time-end" value="00:00" oninput="updateHint('hint-end','f-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-time-end-none" onchange="toggleTimeNone('f-time-end','hint-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><input type="time" class="form-input" id="f-time-end" value="00:00" oninput="updateHint('hint-end','f-time-end')"/><div class="utc-hint" id="hint-end"></div></div>
           </div>
         </div>
         <div class="form-section" style="margin-top:8px">
@@ -224,8 +219,8 @@ textarea.form-input{resize:vertical;min-height:72px}
         <div class="form-section">
           <div class="form-section-title">スケジュール（UTC入力）</div>
           <div class="form-row">
-            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-daily-time" value="00:00" oninput="updateHint('hint-daily','f-daily-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-daily-time-none" onchange="toggleTimeNone('f-daily-time','hint-daily',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-daily"></div></div>
-            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-daily-time-end" value="00:00" oninput="updateHint('hint-daily-end','f-daily-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-daily-time-end-none" onchange="toggleTimeNone('f-daily-time-end','hint-daily-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-daily-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-daily-time" value="00:00" oninput="updateHint('hint-daily','f-daily-time')"/><div class="utc-hint" id="hint-daily"></div></div>
+            <div></div>
           </div>
           <label class="form-label" style="margin-top:8px;display:block">毎日タスク</label>
           <div id="daily-tasks" style="margin-top:6px"></div>
@@ -238,8 +233,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-section-title">隔日スケジュール（UTC入力）</div>
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-biweekly-start"/></div>
-            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time" value="00:00" oninput="updateHint('hint-biweekly','f-biweekly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-none" onchange="toggleTimeNone('f-biweekly-time','hint-biweekly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly"></div></div>
-            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time-end" value="00:00" oninput="updateHint('hint-biweekly-end','f-biweekly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-end-none" onchange="toggleTimeNone('f-biweekly-time-end','hint-biweekly-end',this)"/> 指定なし(24h)</label></div><div class="utc-hint" id="hint-biweekly-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time" value="00:00" oninput="updateHint('hint-biweekly','f-biweekly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-none" onchange="toggleTimeNone('f-biweekly-time','hint-biweekly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly"></div></div>
           </div>
 
           <div class="form-row" style="margin-top:8px">
@@ -256,7 +250,6 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-bimonthly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-bimonthly-time" value="00:00" oninput="updateHint('hint-bimonthly','f-bimonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-bimonthly-time-none" onchange="toggleTimeNone('f-bimonthly-time','hint-bimonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-bimonthly"></div></div>
-            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-bimonthly-time-end" value="00:00" oninput="updateHint('hint-bimonthly-end','f-bimonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-bimonthly-time-end-none" onchange="toggleTimeNone('f-bimonthly-time-end','hint-bimonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-bimonthly-end"></div></div>
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-bimonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
@@ -279,7 +272,6 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-trimonthly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-trimonthly-time" value="00:00" oninput="updateHint('hint-trimonthly','f-trimonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-trimonthly-time-none" onchange="toggleTimeNone('f-trimonthly-time','hint-trimonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-trimonthly"></div></div>
-            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-trimonthly-time-end" value="00:00" oninput="updateHint('hint-trimonthly-end','f-trimonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-trimonthly-time-end-none" onchange="toggleTimeNone('f-trimonthly-time-end','hint-trimonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-trimonthly-end"></div></div>
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-trimonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
@@ -302,7 +294,6 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-quadmonthly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quadmonthly-time" value="00:00" oninput="updateHint('hint-quadmonthly','f-quadmonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quadmonthly-time-none" onchange="toggleTimeNone('f-quadmonthly-time','hint-quadmonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-quadmonthly"></div></div>
-            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quadmonthly-time-end" value="00:00" oninput="updateHint('hint-quadmonthly-end','f-quadmonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quadmonthly-time-end-none" onchange="toggleTimeNone('f-quadmonthly-time-end','hint-quadmonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-quadmonthly-end"></div></div>
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-quadmonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
@@ -324,7 +315,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-section-title">毎月スケジュール（UTC入力）</div>
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">毎月何日 (UTC)</label><input type="number" class="form-input" id="f-monthday" min="1" max="31" value="1"/></div>
-            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-monthly-time" value="00:00" oninput="updateHint('hint-monthly','f-monthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-monthly-time-none" onchange="toggleTimeNone('f-monthly-time','hint-monthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-monthly"></div></div></div><div class="form-row" style="margin-top:8px"><div></div><div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-monthly-time-end" value="00:00" oninput="updateHint('hint-monthly-end','f-monthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-monthly-time-end-none" onchange="toggleTimeNone('f-monthly-time-end','hint-monthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-monthly-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-monthly-time" value="00:00" oninput="updateHint('hint-monthly','f-monthly-time')"/><div class="utc-hint" id="hint-monthly"></div></div>
           </div>
         </div>
       </div>
@@ -336,10 +327,7 @@ textarea.form-input{resize:vertical;min-height:72px}
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-temp-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">終了日 (UTC)</label><input type="date" class="form-input" id="f-temp-end"/></div>
           </div>
-          <div class="form-row" style="margin-top:8px">
-            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-temp-time" value="00:00" oninput="updateHint('hint-temp','f-temp-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-temp-time-none" onchange="toggleTimeNone('f-temp-time','hint-temp',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-temp"></div></div>
-            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-temp-time-end" value="00:00" oninput="updateHint('hint-temp-end','f-temp-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-temp-time-end-none" onchange="toggleTimeNone('f-temp-time-end','hint-temp-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-temp-end"></div></div>
-          </div>
+          <div class="form-group" style="margin-top:8px"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-temp-time" value="00:00" oninput="updateHint('hint-temp','f-temp-time')"/><div class="utc-hint" id="hint-temp"></div></div>
         </div>
       </div>
 
@@ -348,7 +336,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-section-title">カスタム日程指定（UTC入力）</div>
           <div style="display:flex;gap:8px;align-items:flex-start">
             <div style="flex:1"><input type="date" class="form-input" id="f-custom-date-input"/></div>
-            <div><input type="time" class="form-input" id="f-custom-time" value="00:00" style="width:100px" oninput="updateHint('hint-custom','f-custom-time')"/><label style="font-size:11px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:3px"><input type="checkbox" id="f-custom-time-none" onchange="toggleTimeNone('f-custom-time','hint-custom',this)"/> 指定なし</label><input type="time" class="form-input" id="f-custom-time-end" value="00:00" style="width:100px" oninput="updateHint('hint-custom-end','f-custom-time-end')"/><label style="font-size:11px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:3px"><input type="checkbox" id="f-custom-time-end-none" onchange="toggleTimeNone('f-custom-time-end','hint-custom-end',this)" checked/> 終了指定なし</label><div class="utc-hint" id="hint-custom"></div><div class="utc-hint" id="hint-custom-end"></div></div>
+            <div><input type="time" class="form-input" id="f-custom-time" value="00:00" style="width:120px" oninput="updateHint('hint-custom','f-custom-time')"/><div class="utc-hint" id="hint-custom"></div></div>
             <button class="add-task-btn" style="margin-top:2px" onclick="addCustomDate()">+ 追加</button>
           </div>
           <div class="custom-dates-list" id="custom-dates-list"></div>
@@ -464,44 +452,11 @@ function utcWeekdayToJST(utcWd, utcTime) {
 // UTC date string + time → JST date string
 function utcDateToJST(utcDateStr, utcTime) {
   if (!utcDateStr) return utcDateStr;
-  // Use actual UTC time (empty = 00:00 UTC)
-  const timeStr = utcTime || '00:00';
-  const [hh, mm] = timeStr.split(':').map(Number);
-  // Build UTC datetime and add JST offset
-  const utcMs = Date.UTC(
-    parseInt(utcDateStr.slice(0,4)),
-    parseInt(utcDateStr.slice(5,7))-1,
-    parseInt(utcDateStr.slice(8,10)),
-    hh, mm, 0
-  );
-  const jstMs = utcMs + JST_OFFSET * 60000;
-  const jstDate = new Date(jstMs);
-  return toDS(jstDate);
-}
-
-// Returns [jstStart, jstEnd] for a UTC-based event with duration in UTC days
-// UTC 1 day = 24h exactly; JST range spans calendar days accordingly
-function jstRangeForEvent(utcDateStr, utcTime, durationDays) {
-  const timeStr = utcTime || '00:00';
-  const [hh, mm] = timeStr.split(':').map(Number);
-  const utcStartMs = Date.UTC(
-    parseInt(utcDateStr.slice(0,4)),
-    parseInt(utcDateStr.slice(5,7))-1,
-    parseInt(utcDateStr.slice(8,10)),
-    hh, mm, 0
-  );
-  // UTC end = exclusive end (start + duration*24h)
-  const utcEndMs = utcStartMs + durationDays * 86400000;
-  // JST end datetime
-  let jstEndMs = utcEndMs + JST_OFFSET * 60000;
-  // If JST end lands exactly on midnight, back off 1 min so we don't include next day
-  const jstEndDate = new Date(jstEndMs);
-  if (jstEndDate.getHours() === 0 && jstEndDate.getMinutes() === 0) {
-    jstEndMs -= 60000;
-  }
-  const jstStart = toDS(new Date(utcStartMs + JST_OFFSET * 60000));
-  const jstEnd = toDS(new Date(jstEndMs));
-  return [jstStart, jstEnd];
+  const j = utcTimeStr(utcTime || '00:00');
+  const d = new Date(utcDateStr + 'T00:00:00Z');
+  d.setUTCMinutes(d.getUTCMinutes() + JST_OFFSET);
+  if (j.dayOffset > 0) d.setUTCDate(d.getUTCDate() + 1);
+  return toDS(d);
 }
 
 function updateHint(hintId, inputId) {
@@ -530,14 +485,7 @@ if (!state) {
 let editingId=null,calYear,calMonth,selectedDate,customDates=[];
 let modalMode='add',editingProjectId=null;
 
-function save(){
-  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
-  if(typeof sbClient!=='undefined'&&sbClient&&typeof syncSpaceId!=='undefined'&&syncSpaceId){
-    setSyncDot('syncing');
-    sbClient.from('guild_spaces').update({data:state}).eq('id',syncSpaceId)
-      .then(({error})=>setSyncDot(error?'error':'ok'));
-  }
-}
+function save(){localStorage.setItem('guildscheduler_v4',JSON.stringify(state));}
 function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function todayJST(){
   const now=new Date();
@@ -628,20 +576,11 @@ function onTypeChange(){
 }
 function addTask(cid){
   const r=document.createElement('div');r.className='task-row';
-  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select onchange="onTaskWhenChange(this)"><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option><option value="非表示">非表示</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
+  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
   document.getElementById(cid).appendChild(r);
 }
-function onTaskWhenChange(sel){
-  const inp=sel.parentElement.querySelector('input');
-  if(!inp) return;
-  if(sel.value==='非表示'){
-    inp.placeholder='非表示にする日番号（例: 2,4）空欄=全日';
-  } else {
-    inp.placeholder='タスク内容';
-  }
-}
 function getTasks(cid){const t=[];document.querySelectorAll(`#${cid} .task-row`).forEach(r=>{const i=r.querySelector('input'),s=r.querySelector('select');if(i&&i.value.trim()) t.push({text:i.value.trim(),when:s?s.value:'毎日'});});return t;}
-function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option><option value="1"${t.when==='1'?' selected':''}>1日目</option><option value="2"${t.when==='2'?' selected':''}>2日目</option><option value="3"${t.when==='3'?' selected':''}>3日目</option><option value="4"${t.when==='4'?' selected':''}>4日目</option><option value="5"${t.when==='5'?' selected':''}>5日目</option><option value="6"${t.when==='6'?' selected':''}>6日目</option><option value="7"${t.when==='7'?' selected':''}>7日目</option><option value="非表示"${t.when==='非表示'?' selected':''}>非表示</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
+function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option><option value="1"${t.when==='1'?' selected':''}>1日目</option><option value="2"${t.when==='2'?' selected':''}>2日目</option><option value="3"${t.when==='3'?' selected':''}>3日目</option><option value="4"${t.when==='4'?' selected':''}>4日目</option><option value="5"${t.when==='5'?' selected':''}>5日目</option><option value="6"${t.when==='6'?' selected':''}>6日目</option><option value="7"${t.when==='7'?' selected':''}>7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
 function addCustomDate(){
   const d=document.getElementById('f-custom-date-input').value;if(!d||customDates.includes(d)) return;
   customDates.push(d);customDates.sort();renderCD();
@@ -656,11 +595,11 @@ function saveEvent(){
   let ev={id:editingId||Date.now().toString(),name,type,desc};
   ev.color=editingId?(evs.find(e=>e.id===editingId)||{}).color||COLORS[evs.length%COLORS.length]:COLORS[evs.length%COLORS.length];
   if(type==='weekly'){ev.weekday=+document.getElementById('f-weekday').value;ev.weekdayEnd=+document.getElementById('f-weekday-end').value;ev.time=getTimeVal('f-time','f-time-none');ev.timeEnd=getTimeVal('f-time-end','f-time-end-none');ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasks('weekly-tasks');}
-  else if(type==='daily'){ev.time=getTimeVal('f-daily-time','f-daily-time-none');ev.timeEnd=getTimeVal('f-daily-time-end','f-daily-time-end-none');ev.tasks=getTasks('daily-tasks');}
-  else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=getTimeVal('f-biweekly-time','f-biweekly-time-none');ev.timeEnd=getTimeVal('f-biweekly-time-end','f-biweekly-time-end-none');ev.duration=parseInt(document.getElementById('f-biweekly-duration').value)||1;}
-  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.timeEnd=getTimeVal('f-bimonthly-time-end','f-bimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.timeEnd=getTimeVal('f-trimonthly-time-end','f-trimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.timeEnd=getTimeVal('f-quadmonthly-time-end','f-quadmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=getTimeVal('f-monthly-time','f-monthly-time-none');ev.timeEnd=getTimeVal('f-monthly-time-end','f-monthly-time-end-none');}
-  else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=getTimeVal('f-temp-time','f-temp-time-none');ev.timeEnd=getTimeVal('f-temp-time-end','f-temp-time-end-none');}
-  else if(type==='custom'){ev.customDates=[...customDates];ev.time=getTimeVal('f-custom-time','f-custom-time-none');ev.timeEnd=getTimeVal('f-custom-time-end','f-custom-time-end-none');}
+  else if(type==='daily'){ev.time=getTimeVal('f-daily-time','f-daily-time-none');ev.tasks=getTasks('daily-tasks');}
+  else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=getTimeVal('f-biweekly-time','f-biweekly-time-none');ev.duration=parseInt(document.getElementById('f-biweekly-duration').value)||1;}
+  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=document.getElementById('f-monthly-time').value;}
+  else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=document.getElementById('f-temp-time').value;}
+  else if(type==='custom'){ev.customDates=[...customDates];ev.time=document.getElementById('f-custom-time').value;}
   if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
   proj.events=evs;save();editingId=null;clearForm();renderEvents();
 }
@@ -678,11 +617,11 @@ function editEvent(id){
   document.getElementById('f-name').value=ev.name;document.getElementById('f-type').value=ev.type;document.getElementById('f-desc').value=ev.desc||'';
   onTypeChange();
   if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'00:00';document.getElementById('f-time-end').value=ev.timeEnd||'13:00';document.getElementById('f-prep').value=ev.prep||'';setTasks('weekly-tasks',ev.tasks);updateHint('hint-start','f-time');updateHint('hint-end','f-time-end');}
-  else if(ev.type==='daily'){setTimeNone('f-daily-time','f-daily-time-none',ev.time);setTimeNone('f-daily-time-end','f-daily-time-end-none',ev.timeEnd);setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');updateHint('hint-daily-end','f-daily-time-end');}
-  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';setTimeNone('f-biweekly-time','f-biweekly-time-none',ev.time);setTimeNone('f-biweekly-time-end','f-biweekly-time-end-none',ev.timeEnd);updateHint('hint-biweekly','f-biweekly-time');updateHint('hint-biweekly-end','f-biweekly-time-end');document.getElementById('f-biweekly-duration').value=ev.duration||1;}
-  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);setTimeNone('f-bimonthly-time-end','f-bimonthly-time-end-none',ev.timeEnd);updateHint('hint-bimonthly','f-bimonthly-time');updateHint('hint-bimonthly-end','f-bimonthly-time-end');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);setTimeNone('f-trimonthly-time-end','f-trimonthly-time-end-none',ev.timeEnd);updateHint('hint-trimonthly','f-trimonthly-time');updateHint('hint-trimonthly-end','f-trimonthly-time-end');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);setTimeNone('f-quadmonthly-time-end','f-quadmonthly-time-end-none',ev.timeEnd);updateHint('hint-quadmonthly','f-quadmonthly-time');updateHint('hint-quadmonthly-end','f-quadmonthly-time-end');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;setTimeNone('f-monthly-time','f-monthly-time-none',ev.time);setTimeNone('f-monthly-time-end','f-monthly-time-end-none',ev.timeEnd);updateHint('hint-monthly','f-monthly-time');updateHint('hint-monthly-end','f-monthly-time-end');updateHint('hint-monthly','f-monthly-time');}
-  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';setTimeNone('f-temp-time','f-temp-time-none',ev.time);setTimeNone('f-temp-time-end','f-temp-time-end-none',ev.timeEnd);updateHint('hint-temp','f-temp-time');updateHint('hint-temp-end','f-temp-time-end');updateHint('hint-temp','f-temp-time');}
-  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];setTimeNone('f-custom-time','f-custom-time-none',ev.time);setTimeNone('f-custom-time-end','f-custom-time-end-none',ev.timeEnd);renderCD();updateHint('hint-custom','f-custom-time');updateHint('hint-custom-end','f-custom-time-end');}
+  else if(ev.type==='daily'){document.getElementById('f-daily-time').value=ev.time||'00:00';setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');}
+  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';setTimeNone('f-biweekly-time','f-biweekly-time-none',ev.time);updateHint('hint-biweekly','f-biweekly-time');document.getElementById('f-biweekly-duration').value=ev.duration||1;}
+  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);updateHint('hint-bimonthly','f-bimonthly-time');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);updateHint('hint-trimonthly','f-trimonthly-time');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);updateHint('hint-quadmonthly','f-quadmonthly-time');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'00:00';updateHint('hint-monthly','f-monthly-time');}
+  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';document.getElementById('f-temp-time').value=ev.time||'00:00';updateHint('hint-temp','f-temp-time');}
+  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];document.getElementById('f-custom-time').value=ev.time||'00:00';renderCD();updateHint('hint-custom','f-custom-time');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function deleteEvent(id){if(!confirm('削除しますか？')) return;const p=curProj();p.events=(p.events||[]).filter(e=>e.id!==id);save();renderEvents();}
@@ -695,65 +634,29 @@ function schedLabel(ev){
     const wdPart=jstWdEnd>=0&&jstWdEnd!==jstWdStart?`${DAYS[jstWdStart]}〜${DAYS[jstWdEnd]}曜`:DAYS[jstWdStart]+'曜';
     return`毎週${wdPart} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}`;
   }
-  if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
-  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}${ev.duration>1?' '+ev.duration+'日間開催':''}`;
-  if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
+  if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}`;
+  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;
+  if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}`;
   if(ev.type==='temp') return`${ev.start||'?'}〜${ev.end||'?'}(UTC) ${fmtJST(ev.time)}`;
-  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
+  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}`;
   return'';
 }
 
 function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
-  el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card" draggable="true" data-id="${ev.id}" data-idx="${idx}"
-      ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)"
-      ontouchstart="onTouchStart(event)" ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
-      <div class="drag-handle" title="ドラッグで並べ替え">⠿</div>
-      <div class="event-dot" style="background:${ev.color}"></div>
-      <div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div>
-      <div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div>
-    </div>`;
+  el.innerHTML=evs.map(ev=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
+    return`<div class="event-card" data-id="${ev.id}" data-idx="${idx}"><div class="drag-handle" title="ドラッグで並べ替え" style="cursor:grab;color:#ccc;font-size:18px;padding:0 4px;flex-shrink:0;user-select:none">⠿</div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
+  setTimeout(initDragSort, 0);
 }
 
 // --- Calendar: works in JST dates ---
-function isBiDay(ev,jstDS){
-  if(!ev.biweeklyStart) return false;
-  const dur=ev.duration||1;
-  const jstStart=utcDateToJST(ev.biweeklyStart,ev.time||'');
-  if(!jstStart||jstDS<jstStart) return false;
-  const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
-  if(diff<0) return false;
-  return (diff%2)<dur;
-}
+function isBiDay(ev,jstDS){if(!ev.biweeklyStart) return false;const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%2;return cyclePos<(ev.duration||1);}
 
-function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){
-  if(!utcStart) return false;
-  const dur=duration||1;
-  const jstStart=utcDateToJST(utcStart,utcTime||'');
-  if(!jstStart||jstDS<jstStart) return false;
-  const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
-  if(diff<0) return false;
-  return (diff%intervalDays)<dur;
-}function isHiddenDay(ev, jstDS){
-  if(!ev.tasks||!ev.tasks.length) return false;
-  const hiddenTasks=(ev.tasks||[]).filter(t=>t.when==='非表示');
-  if(!hiddenTasks.length) return false;
-  const day=getDayOfEvent(ev,jstDS);
-  return hiddenTasks.some(t=>{
-    // text = comma-separated day numbers e.g. "2,4,6"
-    // if text is empty → hide ALL days of this event
-    if(!t.text||!t.text.trim()) return true;
-    const days=t.text.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
-    return days.includes(day);
-  });
-}
-function getEvs(jstDS){
+function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){if(!utcStart) return false;const jstStart=utcDateToJST(utcStart,utcTime||'00:00');if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%intervalDays;return cyclePos<(duration||1);}function getEvs(jstDS){
   const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
   return curEvs().filter(ev=>{
-    if(isHiddenDay(ev,jstDS)) return false;
     if(ev.type==='daily') return true;
     if(ev.type==='weekly'){
       const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
@@ -1038,36 +941,23 @@ let sbClient = null;
 let syncSpaceId = null;
 let syncEditorToken = null;
 let syncViewerToken = null;
-let autoSyncEnabled = false;
-let autoSyncTimer = null;
 let realtimeChannel = null;
 
 function randomToken(len=32){
   const a=new Uint8Array(len);crypto.getRandomValues(a);
   return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('').slice(0,len);
 }
-
 function setSyncDot(status){
   const dot=document.getElementById('sync-dot');
   const colors={ok:'#4ECDA4',syncing:'#FAC775',error:'#F09595',off:'#aaa'};
-  const titles={ok:'同期済み',syncing:'同期中...',error:'同期エラー',off:'未接続'};
   dot.style.background=colors[status]||'#aaa';
-  dot.title=titles[status]||'';
-  if(status==='syncing') dot.style.animation='pulse 1s infinite';
-  else dot.style.animation='';
+  dot.title=status==='ok'?'同期済み':status==='syncing'?'同期中...':status==='error'?'同期エラー':'未接続';
 }
-
 function openSyncPanel(){
   const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');
-  if(cfg){
-    document.getElementById('sync-sb-url').value=cfg.sbUrl||'';
-    document.getElementById('sync-sb-key').value=cfg.sbKey||'';
-    document.getElementById('sync-space-id').value=cfg.spaceId||'';
-  }
+  if(cfg){document.getElementById('sync-sb-url').value=cfg.sbUrl||'';document.getElementById('sync-sb-key').value=cfg.sbKey||'';}
   document.getElementById('sync-modal').style.display='flex';
-  if(sbClient&&syncSpaceId){
-    showSyncConnected();
-  }
+  if(sbClient&&syncSpaceId) showSyncConnected();
 }
 function closeSyncModal(){document.getElementById('sync-modal').style.display='none';}
 document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal') closeSyncModal();});
@@ -1078,178 +968,170 @@ async function connectSync(){
   const existingId=document.getElementById('sync-space-id').value.trim();
   const errEl=document.getElementById('sync-error');
   errEl.style.display='none';
-
   if(!url||!key){errEl.textContent='URLとKeyを入力してください';errEl.style.display='block';return;}
-
   sbClient=supabase.createClient(url,key);
   setSyncDot('syncing');
-
   if(existingId){
-    // connect to existing space
     const {data,error}=await sbClient.from('guild_spaces').select('*').eq('id',existingId).single();
-    if(error||!data){errEl.textContent='Space IDが見つかりません: '+(error?.message||'');errEl.style.display='block';setSyncDot('off');return;}
-    syncSpaceId=existingId;
-    syncEditorToken=data.editor_token;
-    syncViewerToken=data.viewer_token;
-    // load remote data into local
-    state=data.data;
-    state.currentProjectId=state.projects[0].id;
-    save();
-    renderProjectBar();renderEvents();
+    if(error||!data){errEl.textContent='Space IDが見つかりません';errEl.style.display='block';setSyncDot('off');return;}
+    syncSpaceId=existingId;syncEditorToken=data.editor_token;syncViewerToken=data.viewer_token;
+    state=data.data;state.currentProjectId=state.projects[0].id;save();renderProjectBar();renderEvents();
   } else {
-    // create new space
-    const id=randomToken(16);
-    const edTok=randomToken(32);
-    const viTok=randomToken(32);
-    const {error}=await sbClient.from('guild_spaces').insert({
-      id,name:'Guild Scheduler',
-      editor_token:edTok,viewer_token:viTok,
-      data:JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}')
-    });
+    const id=randomToken(16),edTok=randomToken(32),viTok=randomToken(32);
+    const {error}=await sbClient.from('guild_spaces').insert({id,name:'Guild Scheduler',editor_token:edTok,viewer_token:viTok,data:JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}')});
     if(error){errEl.textContent='作成失敗: '+error.message;errEl.style.display='block';setSyncDot('off');return;}
     syncSpaceId=id;syncEditorToken=edTok;syncViewerToken=viTok;
   }
-
   localStorage.setItem(SYNC_KEY,JSON.stringify({sbUrl:url,sbKey:key,spaceId:syncSpaceId,editorToken:syncEditorToken,viewerToken:syncViewerToken}));
-  setSyncDot('ok');
-  subscribeRealtime();
-  showSyncConnected();
+  setSyncDot('ok');subscribeRealtime();showSyncConnected();
 }
 
 function showSyncConnected(){
   document.getElementById('sync-setup').style.display='none';
   document.getElementById('sync-connected').style.display='block';
   document.getElementById('sync-space-id-display').textContent=syncSpaceId;
-  const base=window.location.origin+window.location.pathname.replace('index.html','')+'index_shared.html';
   const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'{}');
-  const eu=`${base}?token=${syncEditorToken}&mode=editor&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey).replace(/%2B/g,'%2B')}`;
-  const vu=`${base}?token=${syncViewerToken}&mode=viewer&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
-  document.getElementById('sync-editor-url').textContent=eu;
-  document.getElementById('sync-viewer-url').textContent=vu;
+  const base=window.location.origin+window.location.pathname.replace('index.html','')+'index_shared.html';
+  document.getElementById('sync-editor-url').textContent=`${base}?token=${syncEditorToken}&mode=editor&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
+  document.getElementById('sync-viewer-url').textContent=`${base}?token=${syncViewerToken}&mode=viewer&sbu=${encodeURIComponent(cfg.sbUrl)}&sbk=${encodeURIComponent(cfg.sbKey)}`;
   updateAutoSyncBtn();
 }
-
-function copyEditorUrl(){
-  navigator.clipboard.writeText(document.getElementById('sync-editor-url').textContent).then(()=>{
-    const b=event.target;b.textContent='コピー完了';setTimeout(()=>b.textContent='編集者URLコピー',2000);
-  });
-}
-function copyViewerUrl(){
-  navigator.clipboard.writeText(document.getElementById('sync-viewer-url').textContent).then(()=>{
-    const b=event.target;b.textContent='コピー完了';setTimeout(()=>b.textContent='閲覧URLコピー',2000);
-  });
-}
+function copyEditorUrl(){navigator.clipboard.writeText(document.getElementById('sync-editor-url').textContent).then(()=>{const b=event.target;b.textContent='コピー完了';setTimeout(()=>b.textContent='編集者URLコピー',2000);});}
+function copyViewerUrl(){navigator.clipboard.writeText(document.getElementById('sync-viewer-url').textContent).then(()=>{const b=event.target;b.textContent='コピー完了';setTimeout(()=>b.textContent='閲覧URLコピー',2000);});}
 
 async function pushToCloud(){
   if(!sbClient||!syncSpaceId) return;
   setSyncDot('syncing');
-  const data=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
-  const {error}=await sbClient.from('guild_spaces').update({data}).eq('id',syncSpaceId);
+  const {error}=await sbClient.from('guild_spaces').update({data:state}).eq('id',syncSpaceId);
   setSyncDot(error?'error':'ok');
-  if(!error){
-    const now=new Date();
-    document.getElementById('sync-last-time').textContent='最終同期: '+now.toLocaleTimeString('ja-JP');
-  }
+  if(!error) document.getElementById('sync-last-time').textContent='最終同期: '+new Date().toLocaleTimeString('ja-JP');
 }
-
-function toggleAutoSync(){
-  // No-op: sync is now always immediate on save
-}
-function updateAutoSyncBtn(){
-  const btn=document.getElementById('auto-sync-btn');
-  if(!btn) return;
-  btn.textContent='即時同期: ON';
-  btn.style.color='#0F6E56';
-  btn.style.borderColor='#1D9E75';
-  btn.disabled=true;
-}
-
+function toggleAutoSync(){}
+function updateAutoSyncBtn(){const btn=document.getElementById('auto-sync-btn');if(!btn) return;btn.textContent='即時同期: ON';btn.style.color='#0F6E56';btn.style.borderColor='#1D9E75';btn.disabled=true;}
 function disconnectSync(){
   if(!confirm('クラウド同期を切断しますか？')) return;
-  sbClient=null;syncSpaceId=null;
-  if(realtimeChannel) realtimeChannel=null;
-  clearInterval(autoSyncTimer);autoSyncEnabled=false;
-  localStorage.removeItem(SYNC_KEY);
-  setSyncDot('off');
+  sbClient=null;syncSpaceId=null;if(realtimeChannel) realtimeChannel=null;
+  localStorage.removeItem(SYNC_KEY);setSyncDot('off');
   document.getElementById('sync-setup').style.display='block';
   document.getElementById('sync-connected').style.display='none';
   closeSyncModal();
 }
-
 function subscribeRealtime(){
   if(!sbClient||!syncSpaceId) return;
   realtimeChannel=sbClient.channel('space_'+syncSpaceId)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'guild_spaces',filter:`id=eq.${syncSpaceId}`},
-      payload=>{
-        // Only update if change came from elsewhere (avoid loop)
-        const remote=payload.new.data;
-        const local=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
-        if(JSON.stringify(remote)!==JSON.stringify(local)){
-          state=remote;save();
-          renderProjectBar();renderEvents();
-          setSyncDot('ok');
-        }
-      })
+      payload=>{const remote=payload.new.data;if(JSON.stringify(remote)!==JSON.stringify(state)){state=remote;save();renderProjectBar();renderEvents();setSyncDot('ok');}})
     .subscribe();
 }
-
-// Init sync on load
 (function initSync(){
   const cfg=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');
   if(!cfg||!cfg.sbUrl||!cfg.sbKey||!cfg.spaceId) return;
   sbClient=supabase.createClient(cfg.sbUrl,cfg.sbKey);
-  syncSpaceId=cfg.spaceId;
-  syncEditorToken=cfg.editorToken;
-  syncViewerToken=cfg.viewerToken;
-  setSyncDot('ok');
-  subscribeRealtime();
+  syncSpaceId=cfg.spaceId;syncEditorToken=cfg.editorToken;syncViewerToken=cfg.viewerToken;
+  setSyncDot('ok');subscribeRealtime();
 })();
 // ===== End Supabase Sync =====
 
+
+// ===== Drag & Drop sort =====
+let dragState = null;
+
+function initDragSort(){
+  const list = document.getElementById('event-list');
+  if(!list) return;
+  list.querySelectorAll('.drag-handle').forEach(handle=>{
+    handle.addEventListener('mousedown', onHandleDown, {passive:false});
+    handle.addEventListener('touchstart', onHandleDown, {passive:false});
+  });
+}
+
+function onHandleDown(e){
+  e.preventDefault();
+  const card = e.currentTarget.closest('.event-card');
+  if(!card) return;
+  const isTouch = e.type === 'touchstart';
+  const startY = isTouch ? e.touches[0].clientY : e.clientY;
+  const cards = [...document.querySelectorAll('.event-card')];
+  const srcIdx = cards.indexOf(card);
+  const rect = card.getBoundingClientRect();
+  const clone = card.cloneNode(true);
+  clone.style.cssText = 'position:fixed;left:'+rect.left+'px;top:'+rect.top+'px;width:'+rect.width+'px;opacity:0.85;z-index:999;pointer-events:none;background:white;border:1.5px solid #1D9E75;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15)';
+  document.body.appendChild(clone);
+  card.style.opacity = '0.3';
+  dragState = {card, clone, srcIdx, startY, initTop:rect.top, currentIdx:srcIdx};
+  const moveEvt = isTouch ? 'touchmove' : 'mousemove';
+  const endEvt = isTouch ? 'touchend' : 'mouseup';
+  document.addEventListener(moveEvt, onDragMove, {passive:false});
+  document.addEventListener(endEvt, onDragEnd, {once:true});
+}
+
+function onDragMove(e){
+  if(!dragState) return;
+  e.preventDefault();
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const dy = clientY - dragState.startY;
+  dragState.clone.style.top = (dragState.initTop + dy) + 'px';
+  const cards = [...document.querySelectorAll('.event-card')];
+  cards.forEach(c=>c.classList.remove('drag-over'));
+  const target = cards.find(c=>{
+    if(c === dragState.card) return false;
+    const r = c.getBoundingClientRect();
+    return clientY >= r.top && clientY <= r.bottom;
+  });
+  if(target){target.classList.add('drag-over');dragState.currentIdx=cards.indexOf(target);}
+  else dragState.currentIdx=dragState.srcIdx;
+}
+
+function onDragEnd(e){
+  if(!dragState) return;
+  const {card, clone, srcIdx, currentIdx} = dragState;
+  clone.remove();
+  card.style.opacity = '';
+  document.querySelectorAll('.event-card').forEach(c=>c.classList.remove('drag-over'));
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('touchmove', onDragMove);
+  if(currentIdx !== srcIdx){
+    const proj = curProj();
+    const evs = proj.events;
+    const moved = evs.splice(srcIdx,1)[0];
+    evs.splice(currentIdx,0,moved);
+    proj.events = evs;
+    save(); renderEvents();
+  }
+  dragState = null;
+}
+// ===== End Drag & Drop =====
+
 </script>
 
-<!-- Sync Panel -->
-<div class="modal-overlay" id="sync-modal" style="display:none">
-  <div class="modal" style="width:380px">
-    <h2>Supabase クラウド同期</h2>
-    <div id="sync-setup" style="">
-      <div class="form-group">
-        <label class="form-label">Project URL</label>
-        <input type="text" class="form-input" id="sync-sb-url" placeholder="https://xxxx.supabase.co"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Publishable Key (anon)</label>
-        <input type="text" class="form-input" id="sync-sb-key" placeholder="eyJ..."/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Space ID（既存スペースに接続する場合）</label>
-        <input type="text" class="form-input" id="sync-space-id" placeholder="空欄で新規作成"/>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:4px">
-        <button class="btn-primary" onclick="connectSync()">接続</button>
-        <button class="btn-sm" onclick="closeSyncModal()">キャンセル</button>
-      </div>
-      <div id="sync-error" style="color:#D85A30;font-size:12px;margin-top:8px;display:none"></div>
+<!-- Shared Setup Overlay -->
+<div id="shared-setup" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:200">
+  <div style="background:white;border-radius:14px;padding:24px;width:360px;max-width:92vw">
+    <h2 style="font-size:16px;font-weight:500;margin-bottom:8px">Guild Scheduler – 共有版</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.6">管理者から受け取ったURLで自動接続します。<br>手動で接続する場合は以下を入力してください。</p>
+    <div class="form-group">
+      <label class="form-label">Project URL</label>
+      <input type="text" class="form-input" id="shared-sb-url" placeholder="https://xxxx.supabase.co"/>
     </div>
-    <div id="sync-connected" style="display:none">
-      <div style="font-size:13px;color:#0F6E56;font-weight:500;margin-bottom:12px">✓ 接続済み</div>
-      <div style="font-size:12px;color:#666;margin-bottom:8px">Space ID: <span id="sync-space-id-display" style="font-family:monospace;font-size:11px;color:#444"></span></div>
-      <div style="font-size:12px;color:#666;margin-bottom:4px">編集者用リンク:</div>
-      <div id="sync-editor-url" style="background:#f9f9f6;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;word-break:break-all;border:0.5px solid #e0e0d8;margin-bottom:6px"></div>
-      <div style="font-size:12px;color:#666;margin-bottom:4px">閲覧専用リンク:</div>
-      <div id="sync-viewer-url" style="background:#f9f9f6;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;word-break:break-all;border:0.5px solid #e0e0d8;margin-bottom:12px"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn-primary" onclick="pushToCloud()" style="flex:1">クラウドに今すぐ同期</button>
-        <button class="copy-btn" onclick="copyEditorUrl()">編集者URLコピー</button>
-        <button class="copy-btn" onclick="copyViewerUrl()">閲覧URLコピー</button>
-      </div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button class="btn-sm" onclick="toggleAutoSync()" id="auto-sync-btn">自動同期: OFF</button>
-        <button class="btn-sm danger" onclick="disconnectSync()">切断</button>
-      </div>
-      <div style="font-size:11px;color:#aaa;margin-top:8px" id="sync-last-time"></div>
+    <div class="form-group">
+      <label class="form-label">Publishable Key</label>
+      <input type="text" class="form-input" id="shared-sb-key" placeholder="eyJ..."/>
     </div>
+    <div class="form-group">
+      <label class="form-label">トークン（URLから自動入力）</label>
+      <input type="text" class="form-input" id="shared-token" placeholder=""/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">モード</label>
+      <select class="form-input" id="shared-mode">
+        <option value="editor">編集者</option>
+        <option value="viewer">閲覧専用</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="sharedConnect()" style="width:100%">接続</button>
+    <div id="shared-error" style="color:#D85A30;font-size:12px;margin-top:8px;display:none"></div>
   </div>
 </div>
+
 </body>
 </html>
