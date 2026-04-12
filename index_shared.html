@@ -936,7 +936,6 @@ function switchTab(t){
 
 document.getElementById('out-date').value=todayJST();
 onTypeChange();renderProjectBar();renderEvents();
-autoConnect();
 
 // ===== Shared Mode =====
 const SHARED_KEY = 'guild_shared_v2';
@@ -1083,6 +1082,7 @@ function save(){
 function openSyncPanel(){}
 function closeSyncModal(){}
 // ===== End Shared Mode =====
+autoConnect();
 
 </script>
 
