@@ -467,14 +467,29 @@ function utcDateToJST(utcDateStr, utcTime) {
   return toDS(jstDate);
 }
 
-// JST date string from UTC date + duration (days)
-// Returns JST end date: jstStart + (duration-1) days
-function jstEndDate(utcDateStr, utcTime, durationDays) {
-  const jstStart = utcDateToJST(utcDateStr, utcTime);
-  if (!jstStart) return jstStart;
-  const d = new Date(jstStart + 'T00:00:00');
-  d.setDate(d.getDate() + (durationDays - 1));
-  return toDS(d);
+// Returns [jstStart, jstEnd] for a UTC-based event with duration in UTC days
+// UTC 1 day = 24h exactly; JST range spans calendar days accordingly
+function jstRangeForEvent(utcDateStr, utcTime, durationDays) {
+  const timeStr = utcTime || '00:00';
+  const [hh, mm] = timeStr.split(':').map(Number);
+  const utcStartMs = Date.UTC(
+    parseInt(utcDateStr.slice(0,4)),
+    parseInt(utcDateStr.slice(5,7))-1,
+    parseInt(utcDateStr.slice(8,10)),
+    hh, mm, 0
+  );
+  // UTC end = exclusive end (start + duration*24h)
+  const utcEndMs = utcStartMs + durationDays * 86400000;
+  // JST end datetime
+  let jstEndMs = utcEndMs + JST_OFFSET * 60000;
+  // If JST end lands exactly on midnight, back off 1 min so we don't include next day
+  const jstEndDate = new Date(jstEndMs);
+  if (jstEndDate.getHours() === 0 && jstEndDate.getMinutes() === 0) {
+    jstEndMs -= 60000;
+  }
+  const jstStart = toDS(new Date(utcStartMs + JST_OFFSET * 60000));
+  const jstEnd = toDS(new Date(jstEndMs));
+  return [jstStart, jstEnd];
 }
 
 function updateHint(hintId, inputId) {
@@ -671,24 +686,30 @@ function renderEvents(){
 // --- Calendar: works in JST dates ---
 function isBiDay(ev,jstDS){
   if(!ev.biweeklyStart) return false;
-  const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);
+  const dur=ev.duration||1;
+  const [jstStart]=jstRangeForEvent(ev.biweeklyStart,ev.time||'',1);
   if(!jstStart||jstDS<jstStart) return false;
   const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
   if(diff<0) return false;
   const cyclePos=diff%2;
-  return cyclePos<(ev.duration||1);
+  const [,jstCycleEnd]=jstRangeForEvent(ev.biweeklyStart,ev.time||'',dur);
+  const jstDurDays=Math.round((new Date(jstCycleEnd+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000)+1;
+  return cyclePos<jstDurDays;
 }
 
 function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){
   if(!utcStart) return false;
-  const jstStart=utcDateToJST(utcStart,utcTime||'00:00');
+  const dur=duration||1;
+  const [jstStart]=jstRangeForEvent(utcStart,utcTime||'',1);
   if(!jstStart||jstDS<jstStart) return false;
   const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
   if(diff<0) return false;
+  // cyclePos: which day within the interval are we on?
   const cyclePos=diff%intervalDays;
-  // Duration in JST days from cycle start
-  const dur=duration||1;
-  return cyclePos<dur;
+  // How many JST days does one "dur UTC days" span?
+  const [,jstCycleEnd]=jstRangeForEvent(utcStart,utcTime||'',dur);
+  const jstDurDays=Math.round((new Date(jstCycleEnd+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000)+1;
+  return cyclePos<jstDurDays;
 }function getEvs(jstDS){
   const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
   return curEvs().filter(ev=>{
