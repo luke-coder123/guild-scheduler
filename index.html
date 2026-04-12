@@ -147,6 +147,11 @@ textarea.form-input{resize:vertical;min-height:72px}
 .custom-dates-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px;min-height:28px}
 .section-header{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
+.event-card{touch-action:none}
+.event-card.dragging{opacity:0.4;background:#f0f8f5}
+.event-card.drag-over{border-top:2px solid #1D9E75}
+.drag-handle{cursor:grab;color:#ccc;font-size:16px;padding:0 4px;flex-shrink:0;user-select:none;touch-action:none}
+.drag-handle:active{cursor:grabbing}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;min-height:400px}
 .modal{background:white;border-radius:14px;padding:24px;width:320px;max-width:90vw}
 .modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
@@ -701,8 +706,15 @@ function schedLabel(ev){
 function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
-  el.innerHTML=evs.map(ev=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card"><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+  el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
+    return`<div class="event-card" draggable="true" data-id="${ev.id}" data-idx="${idx}"
+      ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)"
+      ontouchstart="onTouchStart(event)" ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
+      <div class="drag-handle" title="ドラッグで並べ替え">⠿</div>
+      <div class="event-dot" style="background:${ev.color}"></div>
+      <div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div>
+      <div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div>
+    </div>`;
   }).join('');
 }
 
