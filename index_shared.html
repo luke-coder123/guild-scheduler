@@ -954,31 +954,36 @@ function setSyncDot(status){
 
 // Auto-connect from URL params
 async function autoConnect(){
-  // URLSearchParams handles decoding automatically
   const p=new URLSearchParams(window.location.search);
   const token=p.get('token')||'';
   const mode=p.get('mode')||'editor';
-  // sbu/sbk are already encoded with encodeURIComponent in index.html
-  // URLSearchParams.get() auto-decodes them
   const sbu=p.get('sbu')||'';
   const sbk=p.get('sbk')||'';
 
-  if(sbu) document.getElementById('shared-sb-url').value=sbu;
-  if(sbk) document.getElementById('shared-sb-key').value=sbk;
-  if(token) document.getElementById('shared-token').value=token;
-  if(mode) document.getElementById('shared-mode').value=mode;
-
-  // Try saved config first if no URL params
-  const saved=JSON.parse(localStorage.getItem(SHARED_KEY)||'null');
+  // URL params always take priority - connect directly without using form fields
   if(token&&sbu&&sbk){
+    // Pre-fill form in case of error display
+    const elUrl=document.getElementById('shared-sb-url');
+    const elKey=document.getElementById('shared-sb-key');
+    const elTok=document.getElementById('shared-token');
+    const elMode=document.getElementById('shared-mode');
+    if(elUrl) elUrl.value=sbu;
+    if(elKey) elKey.value=sbk;
+    if(elTok) elTok.value=token;
+    if(elMode) elMode.value=mode;
+    // Connect directly with URL values (bypass form entirely)
     await doSharedConnect(sbu,sbk,token,mode);
-  } else if(saved&&saved.sbUrl&&saved.sbKey&&saved.spaceId){
-    await doSharedConnectById(saved.sbUrl,saved.sbKey,saved.spaceId,saved.role||'editor');
+    return;
   }
-  // else: show setup screen with pre-filled fields
-  // Show connect button state
-  const btn=document.querySelector('#shared-setup button.btn-primary');
-  if(btn) btn.textContent='接続';
+  // No URL params - try saved config
+  const saved=JSON.parse(localStorage.getItem(SHARED_KEY)||'null');
+  if(saved&&saved.sbUrl&&saved.sbKey&&saved.spaceId){
+    await doSharedConnectById(saved.sbUrl,saved.sbKey,saved.spaceId,saved.role||'editor');
+    return;
+  }
+  // Show setup screen
+  const overlay=document.getElementById('shared-setup');
+  if(overlay) overlay.style.display='flex';
 }
 
 async function sharedConnect(){
@@ -1106,7 +1111,7 @@ autoConnect();
 </script>
 
 <!-- Shared Setup Overlay -->
-<div id="shared-setup" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200">
+<div id="shared-setup" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:200">
   <div style="background:white;border-radius:14px;padding:24px;width:360px;max-width:92vw">
     <h2 style="font-size:16px;font-weight:500;margin-bottom:8px">Guild Scheduler – 共有版</h2>
     <p style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.6">管理者から受け取ったURLで自動接続します。<br>手動で接続する場合は以下を入力してください。</p>
