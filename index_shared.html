@@ -4,480 +4,1111 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guild Scheduler – Shared</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
-.setup-screen{max-width:480px;margin:60px auto;padding:24px;background:white;border-radius:14px;border:0.5px solid #e0e0d8}
-.setup-screen h1{font-size:18px;font-weight:500;margin-bottom:8px}
-.setup-screen p{font-size:13px;color:#666;margin-bottom:20px;line-height:1.6}
-.form-group{margin-bottom:14px}
-.form-label{font-size:12px;color:#666;margin-bottom:4px;display:block}
-.form-input{width:100%;padding:8px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:14px;background:white;color:#1a1a1a;font-family:inherit}
-.form-input:focus{outline:none;border-color:#1D9E75}
-.btn-primary{width:100%;padding:10px;background:#1D9E75;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;font-family:inherit;margin-top:4px}
-.btn-primary:hover{background:#0F6E56}
-.btn-sm{padding:5px 11px;font-size:12px;border:0.5px solid #d0d0c8;border-radius:7px;background:none;cursor:pointer;color:#666;font-family:inherit}
-.btn-sm:hover{background:#f5f5f0}
-.divider{text-align:center;color:#aaa;font-size:12px;margin:16px 0;position:relative}
-.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:0.5px;background:#e0e0d8}
-.divider::before{left:0}.divider::after{right:0}
-.badge-role{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
-.badge-owner{background:#E1F5EE;color:#0F6E56}
-.badge-editor{background:#E6F1FB;color:#185FA5}
-.badge-viewer{background:#f5f5f0;color:#888}
-.badge-readonly{background:#FAEEDA;color:#854F0B}
-
-/* main app (same styling as index.html) */
 .header{background:#0F6E56;color:white;padding:12px 20px;display:flex;align-items:center;gap:12px}
-.header h1{font-size:15px;font-weight:500;flex:1}
-.header-role{font-size:11px;opacity:0.8}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:#4ECDA4;display:inline-block;margin-right:4px}
-.sync-dot.syncing{background:#FAC775;animation:pulse 1s infinite}
-.sync-dot.error{background:#F09595}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.project-bar{background:#0a5240;padding:0 16px;display:flex;align-items:center;gap:4px;overflow-x:auto;min-height:44px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.project-bar::-webkit-scrollbar{display:none}
+.header h1{font-size:15px;font-weight:500}
+.project-bar{background:#0a5240;padding:0 16px;display:flex;align-items:center;gap:4px;overflow-x:auto;min-height:44px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.project-bar::-webkit-scrollbar{display:none}
 .project-tab{padding:8px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.6);white-space:nowrap;border-bottom:2px solid transparent;font-family:inherit;flex-shrink:0}
 .project-tab.active{color:white;border-bottom-color:#4ECDA4}
+.project-tab:hover{color:rgba(255,255,255,0.85)}
 .project-add-btn{padding:5px 12px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.3);background:none;color:rgba(255,255,255,0.7);border-radius:6px;white-space:nowrap;font-family:inherit;flex-shrink:0;margin-left:6px}
+.project-add-btn:hover{background:rgba(255,255,255,0.1);color:white}
 .container{max-width:900px;margin:0 auto;padding:20px 16px}
-.project-settings{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px 16px;background:white;border-radius:12px;border:0.5px solid #e0e0d8;flex-wrap:wrap}
-.project-name-display{font-size:15px;font-weight:500;flex:1;min-width:120px}
+.project-settings{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px 16px;background:white;border-radius:12px;border:0.5px solid #e0e0d8}
+.project-name-display{font-size:15px;font-weight:500;flex:1}
+.project-count{font-size:12px;color:#aaa}
 .tabs{display:flex;gap:4px;margin-bottom:20px;background:white;border-radius:10px;padding:4px;border:0.5px solid #e0e0d8}
 .tab{flex:1;padding:8px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-radius:7px;font-family:inherit}
 .tab.active{background:#0F6E56;color:white;font-weight:500}
 .panel{display:none}.panel.active{display:block}
 .card{background:white;border-radius:12px;border:0.5px solid #e0e0d8;padding:16px;margin-bottom:12px}
-.share-url-box{background:#f9f9f6;border-radius:8px;padding:12px;font-family:monospace;font-size:12px;word-break:break-all;border:0.5px solid #e0e0d8;margin:8px 0}
-.copy-btn{padding:6px 14px;background:none;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;cursor:pointer;color:#666;font-family:inherit}
+.card-title{font-size:13px;font-weight:500;margin-bottom:12px;color:#444}
+.form-group{margin-bottom:12px}
+.form-label{font-size:12px;color:#666;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:14px;background:white;color:#1a1a1a;font-family:inherit}
+.form-input:focus{outline:none;border-color:#1D9E75}
+select.form-input{cursor:pointer}
+textarea.form-input{resize:vertical;min-height:72px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+
+/* Responsive */
+@media(max-width:640px){.form-row-3{grid-template-columns:1fr 1fr!important}.event-actions{flex-wrap:wrap}
+  .container{padding:12px 10px}
+  .header h1{font-size:14px}
+  .project-tab{padding:6px 10px;font-size:11px}
+  .project-add-btn{padding:4px 8px;font-size:11px}
+  .project-settings{flex-wrap:wrap;gap:6px;padding:10px 12px}
+  .project-name-display{font-size:13px;width:100%}
+  .project-count{font-size:11px}
+  .tabs{gap:2px;padding:3px}
+  .tab{padding:7px 4px;font-size:12px}
+  .card{padding:12px}
+  .card-title{font-size:12px}
+  .form-label{font-size:11px}
+  .form-input{font-size:13px;padding:7px 10px}
+  .form-section{padding:8px}
+  .form-section-title{font-size:10px}
+  .btn-primary{padding:8px 16px;font-size:13px}
+  .btn-sm{padding:4px 8px;font-size:11px}
+  .event-card{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  .event-actions{width:100%;justify-content:flex-end}
+  .event-name{font-size:13px}
+  .event-meta{font-size:11px}
+  .event-tasks{font-size:10px}
+  .badge{font-size:10px;padding:2px 6px}
+  .cal-hdr{font-size:10px;padding:2px}
+  .cal-day{min-height:52px;padding:3px}
+  .cal-day-num{font-size:10px}
+  .cal-chip{font-size:9px;padding:1px 2px}
+  .cal-title{font-size:13px}
+  .cal-nav-btn{padding:4px 8px;font-size:12px}
+  .detail-pane{padding:10px 12px}
+  .detail-row{font-size:12px}
+  .output-controls{gap:6px}
+  .output-controls label{font-size:12px}
+  .output-box{font-size:11px;padding:12px}
+  .copy-btn{padding:7px 12px;font-size:12px}
+  .modal{width:95vw;padding:16px}
+  .section-header{font-size:10px}
+  .task-row{flex-wrap:wrap;gap:6px}
+  .task-row input{min-width:0}
+  .task-row select{font-size:11px}
+  .add-task-btn{font-size:11px}
+  .utc-hint{font-size:10px}
+  .custom-date-tag{font-size:11px}
+  .project-bar{gap:2px;padding:0 8px}
+}
+@media(max-width:400px){
+  .tabs{flex-wrap:nowrap}
+  .tab{font-size:11px;padding:6px 2px}
+  .calendar-grid{gap:2px}
+  .cal-day{min-height:48px}
+  .cal-chip{font-size:8px;padding:1px 2px}
+  .output-controls{flex-direction:column;align-items:flex-start}
+}
+.form-section{margin-bottom:8px;padding:10px;background:#f9f9f6;border-radius:8px;border:0.5px solid #e8e8e0}
+.form-section-title{font-size:11px;font-weight:500;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em}
+.utc-hint{font-size:11px;color:#1D9E75;margin-top:4px}
+.btn-primary{padding:9px 22px;background:#1D9E75;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit}
+.btn-primary:hover{background:#0F6E56}
+.btn-sm{padding:5px 11px;font-size:12px;border:0.5px solid #d0d0c8;border-radius:7px;background:none;cursor:pointer;color:#666;font-family:inherit}
+.btn-sm:hover{background:#f5f5f0}
+.btn-sm.danger:hover{color:#D85A30;border-color:#D85A30}
+.copy-btn{padding:8px 16px;background:none;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;cursor:pointer;color:#666;font-family:inherit}
 .copy-btn:hover{background:#f5f5f0}
 .copy-btn.copied{color:#1D9E75;border-color:#1D9E75}
-.readonly-banner{background:#FAEEDA;border-radius:8px;padding:10px 14px;font-size:12px;color:#854F0B;margin-bottom:12px}
+.event-card{background:white;border:0.5px solid #e0e0d8;border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+.event-card:hover{border-color:#c0c0b8}
+.event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.event-info{flex:1;min-width:0}
+.event-name{font-size:14px;font-weight:500}
+.event-meta{font-size:12px;color:#666;margin-top:2px}
+.event-tasks{font-size:11px;color:#888;margin-top:3px}
+.event-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-weekly{background:#E1F5EE;color:#0F6E56}.b-daily{background:#EEEDFE;color:#534AB7}
+.b-biweekly{background:#FAEEDA;color:#854F0B}.b-monthly{background:#FAECE7;color:#993C1D}
+.b-temp{background:#FAECE7;color:#993C1D}.b-custom{background:#E6F1FB;color:#185FA5}
+.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cal-nav-btn{padding:5px 12px;border:0.5px solid #d0d0c8;border-radius:8px;background:white;cursor:pointer;font-size:13px;font-family:inherit}
+.cal-nav-btn:hover{background:#f5f5f0}
+.cal-title{font-size:15px;font-weight:500;flex:1}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
+.cal-hdr{text-align:center;font-size:11px;color:#888;padding:4px}
+.cal-day{min-height:68px;background:white;border:0.5px solid #e0e0d8;border-radius:8px;padding:4px;cursor:pointer}
+.cal-day:hover{border-color:#aaa}
+.cal-day.today{border-color:#1D9E75;border-width:1.5px}
+.cal-day.selected{background:#E1F5EE;border-color:#1D9E75}
+.cal-day.empty{background:none;border-color:transparent;cursor:default}
+.cal-day.prep-day{background:#fffbf0}
+.cal-day-num{font-size:11px;color:#888;margin-bottom:2px}
+.cal-day.today .cal-day-num{color:#0F6E56;font-weight:600}
+.cal-chip{font-size:9px;padding:1px 3px;border-radius:3px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;line-height:1.3}
+.cal-chip.prep{opacity:0.6;font-style:italic}
+.detail-pane{background:white;border:0.5px solid #e0e0d8;border-radius:12px;padding:12px 16px;min-height:80px}
+.detail-row{font-size:13px;padding:6px 0;border-bottom:0.5px solid #f0f0e8;display:flex;align-items:flex-start;gap:8px}
+.detail-row:last-child{border-bottom:none}
+.output-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;row-gap:8px}
+.output-controls label{font-size:13px;color:#666}
+.output-box{background:#f9f9f6;border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;color:#1a1a1a;white-space:pre-wrap;border:0.5px solid #e0e0d8;min-height:200px}
+.task-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.task-row input{flex:1;padding:6px 10px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:13px;font-family:inherit}
+.task-row input:focus{outline:none;border-color:#1D9E75}
+.task-row select{padding:6px 8px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer}
+.add-task-btn{padding:4px 10px;font-size:12px;border:0.5px solid #1D9E75;color:#1D9E75;border-radius:7px;background:none;cursor:pointer;font-family:inherit}
+.add-task-btn:hover{background:#E1F5EE}
+.remove-task-btn{padding:2px 6px;font-size:14px;border:none;background:none;cursor:pointer;color:#aaa}
+.remove-task-btn:hover{color:#D85A30}
+.custom-date-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#E6F1FB;color:#185FA5;border-radius:20px;font-size:12px;margin:2px}
+.custom-date-tag button{background:none;border:none;cursor:pointer;color:#185FA5;font-size:14px;line-height:1;padding:0}
+.custom-dates-list{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px;min-height:28px}
+.section-header{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px}
 .empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
-.user-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.user-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9f9f6;border-radius:8px;font-size:13px}
-.user-row-name{flex:1}
-
-@media(max-width:640px){
-  .container{padding:12px 10px}
-  .tabs .tab{font-size:12px;padding:7px 4px}
-  .project-settings{gap:6px}
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;min-height:400px}
+.modal{background:white;border-radius:14px;padding:24px;width:320px;max-width:90vw}
+.modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<!-- Setup screen -->
-<div id="setup-screen" class="setup-screen">
-  <h1>Guild Scheduler – 共有版</h1>
-  <p>ログイン不要でギルドメンバーとスケジュールを共有管理できます。<br>初回はSupabaseの設定が必要です。</p>
-
-  <div id="setup-config" style="margin-bottom:16px;padding:12px;background:#f9f9f6;border-radius:8px;border:0.5px solid #e0e0d8">
-    <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:#444">Supabase設定</div>
-    <div class="form-group">
-      <label class="form-label">Project URL</label>
-      <input type="text" class="form-input" id="sb-url" placeholder="https://xxxx.supabase.co"/>
-    </div>
-    <div class="form-group" style="margin-bottom:0">
-      <label class="form-label">Anon Key</label>
-      <input type="text" class="form-input" id="sb-key" placeholder="eyJ..."/>
-    </div>
-    <p style="font-size:11px;color:#aaa;margin-top:6px">supabase.com → プロジェクト → Settings → API から取得</p>
-  </div>
-
-  <div class="divider">接続方法を選択</div>
-
-  <div class="form-group">
-    <label class="form-label">新しい共有スペースを作成（管理者）</label>
-    <input type="text" class="form-input" id="new-space-name" placeholder="例: King Shot Alliance"/>
-    <button class="btn-primary" style="margin-top:8px" onclick="createSpace()">作成して管理者として開始</button>
-  </div>
-
-  <div class="divider">または</div>
-
-  <div class="form-group">
-    <label class="form-label">招待URLから参加（編集者）</label>
-    <input type="text" class="form-input" id="join-token" placeholder="共有URLを貼り付け"/>
-    <button class="btn-primary" style="margin-top:8px;background:#378ADD" onclick="joinSpace()">参加する</button>
-  </div>
-
-  <div id="setup-error" style="color:#D85A30;font-size:12px;margin-top:8px;display:none"></div>
+<div class="header">
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="white" stroke-width="1.5"/><line x1="2" y1="7" x2="18" y2="7" stroke="white" stroke-width="1.5"/><line x1="6" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+  <h1>Guild Event Scheduler</h1>
+  <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0"></span>
+  <span id="role-badge" style="font-size:11px;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:10px"></span>
 </div>
 
-<!-- Main app -->
-<div id="app" style="display:none">
-  <div class="header">
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="white" stroke-width="1.5"/><line x1="2" y1="7" x2="18" y2="7" stroke="white" stroke-width="1.5"/><line x1="6" y1="11" x2="8" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-    <h1 id="app-title">Guild Scheduler</h1>
-    <span class="sync-dot" id="sync-dot"></span>
-    <span id="role-badge"></span>
-    <button class="btn-sm" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3);font-size:11px" onclick="showSharePanel()">共有設定</button>
+<div class="project-bar" id="project-bar"></div>
+
+<div class="container">
+  <div id="readonly-banner" style="display:none;background:#FAEEDA;border-radius:8px;padding:10px 14px;font-size:12px;color:#854F0B;margin-bottom:12px">
+    👁 閲覧専用モードです。編集はできません。
+  </div>
+  <div class="project-settings">
+    <div class="project-name-display" id="project-name-display"></div>
+    <span class="project-count" id="project-count"></span>
+    <button class="btn-sm" onclick="openEditProject()">編集</button>
+    <button class="btn-sm danger" onclick="deleteProject()">削除</button>
+    <button class="btn-sm" onclick="exportData()" title="全データをJSONでダウンロード">エクスポート</button>
+    <label class="btn-sm" style="cursor:pointer;margin:0" title="JSONファイルを読み込む">インポート<input type="file" accept=".json" style="display:none" onchange="importData(event)"/></label>
   </div>
 
-  <div class="project-bar" id="project-bar"></div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('events')">イベント管理</button>
+    <button class="tab" onclick="switchTab('calendar')">カレンダー</button>
+    <button class="tab" onclick="switchTab('output')">通知テキスト</button>
+    <button class="tab" onclick="switchTab('memo')">メモ</button>
+  </div>
 
-  <div class="container">
-    <div id="readonly-banner" class="readonly-banner" style="display:none">
-      👁 閲覧専用モードです。編集はできません。
-    </div>
-
-    <div class="project-settings">
-      <div class="project-name-display" id="project-name-display"></div>
-      <button class="btn-sm" id="btn-edit-proj" onclick="openEditProject()">編集</button>
-      <button class="btn-sm danger" id="btn-del-proj" onclick="deleteProject()">削除</button>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('events')">イベント管理</button>
-      <button class="tab" onclick="switchTab('share')">共有設定</button>
-    </div>
-
-    <div id="tab-events" class="panel active">
-      <div class="empty-state" id="events-loading">読み込み中...</div>
-      <div id="event-list"></div>
-      <div id="btn-add-event-area" style="margin-top:8px"></div>
-    </div>
-
-    <div id="tab-share" class="panel">
-      <div class="card">
-        <div style="font-size:14px;font-weight:500;margin-bottom:12px">共有リンク</div>
-
-        <div style="font-size:12px;color:#666;margin-bottom:4px">編集者用リンク（このリンクを知っている人は編集できます）</div>
-        <div class="share-url-box" id="editor-url"></div>
-        <button class="copy-btn" onclick="copyShareUrl('editor')">コピー</button>
-
-        <div style="font-size:12px;color:#666;margin-top:16px;margin-bottom:4px">閲覧専用リンク（編集不可）</div>
-        <div class="share-url-box" id="viewer-url"></div>
-        <button class="copy-btn" onclick="copyShareUrl('viewer')">コピー</button>
-
-        <div style="font-size:11px;color:#aaa;margin-top:12px">※ リンクを知っている人は誰でもアクセスできます。ゲーム内の知人のみに共有してください。</div>
+  <div id="tab-events" class="panel active">
+    <div class="card">
+      <div class="card-title" id="form-title">イベントを追加</div>
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group" style="margin:0"><label class="form-label">イベント名</label><input type="text" class="form-input" id="f-name" placeholder="例: 国家戦争"/></div>
+        <div class="form-group" style="margin:0"><label class="form-label">種別</label>
+          <select class="form-input" id="f-type" onchange="onTypeChange()">
+            <option value="weekly">毎週</option><option value="daily">毎日</option><option value="biweekly">隔日</option><option value="monthly">毎月</option><option value="temp">臨時</option><option value="bimonthly">2週に1回</option><option value="trimonthly">3週に1回</option><option value="quadmonthly">4週に1回</option><option value="custom">カスタム</option>
+          </select>
+        </div>
       </div>
 
-      <div class="card">
-        <div style="font-size:14px;font-weight:500;margin-bottom:12px">アクセス中のメンバー</div>
-        <div class="user-list" id="user-list"><div style="color:#aaa;font-size:13px">読み込み中...</div></div>
+      <div id="fields-weekly">
+        <div class="form-section">
+          <div class="form-section-title">開催スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始曜日 (UTC)</label><select class="form-input" id="f-weekday"><option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option><option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了曜日 (UTC)</label><select class="form-input" id="f-weekday-end"><option value="-1">同日</option><option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option><option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option></select></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-time" value="00:00" oninput="updateHint('hint-start','f-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-time-none" onchange="toggleTimeNone('f-time','hint-start',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-start"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><input type="time" class="form-input" id="f-time-end" value="00:00" oninput="updateHint('hint-end','f-time-end')"/><div class="utc-hint" id="hint-end"></div></div>
+          </div>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中の毎日タスク</label>
+          <div id="weekly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('weekly-tasks')">+ タスク追加</button>
+        </div>
       </div>
 
-      <div class="card" id="danger-zone">
-        <div style="font-size:14px;font-weight:500;margin-bottom:8px;color:#D85A30">管理者設定</div>
-        <button class="btn-sm danger" onclick="revokeEditorAccess()">編集者リンクを無効化（再発行）</button>
-        <div style="font-size:11px;color:#aaa;margin-top:6px">現在の編集者リンクを無効にして新しいリンクを発行します。</div>
+      <div id="fields-daily" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-daily-time" value="00:00" oninput="updateHint('hint-daily','f-daily-time')"/><div class="utc-hint" id="hint-daily"></div></div>
+            <div></div>
+          </div>
+          <label class="form-label" style="margin-top:8px;display:block">毎日タスク</label>
+          <div id="daily-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('daily-tasks')">+ タスク追加</button>
+        </div>
       </div>
+
+      <div id="fields-biweekly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">隔日スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-biweekly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time" value="00:00" oninput="updateHint('hint-biweekly','f-biweekly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-none" onchange="toggleTimeNone('f-biweekly-time','hint-biweekly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly"></div></div>
+          </div>
+
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-biweekly-duration" min="1" max="30" value="1" style="width:100%"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
+            <div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 曜日変更があった場合は開始日を更新してください</p>
+        </div>
+      </div>
+
+      <div id="fields-bimonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">2週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-bimonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-bimonthly-time" value="00:00" oninput="updateHint('hint-bimonthly','f-bimonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-bimonthly-time-none" onchange="toggleTimeNone('f-bimonthly-time','hint-bimonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-bimonthly"></div></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-bimonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
+            <div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日かと2週間隔で繰り返し。曜日変更時は開始日を更新</p>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-bimonthly-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中タスク</label>
+          <div id="bimonthly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('bimonthly-tasks')">+ タスク追加</button>
+        </div>
+      </div>
+
+      <div id="fields-trimonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">3週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-trimonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-trimonthly-time" value="00:00" oninput="updateHint('hint-trimonthly','f-trimonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-trimonthly-time-none" onchange="toggleTimeNone('f-trimonthly-time','hint-trimonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-trimonthly"></div></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-trimonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
+            <div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日かと3週間隔で繰り返し。曜日変更時は開始日を更新</p>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-trimonthly-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中タスク</label>
+          <div id="trimonthly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('trimonthly-tasks')">+ タスク追加</button>
+        </div>
+      </div>
+
+      <div id="fields-quadmonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">4週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-quadmonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quadmonthly-time" value="00:00" oninput="updateHint('hint-quadmonthly','f-quadmonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quadmonthly-time-none" onchange="toggleTimeNone('f-quadmonthly-time','hint-quadmonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-quadmonthly"></div></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-quadmonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
+            <div></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日から4週間隔で繰り返し。曜日変更時は開始日を更新</p>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-quadmonthly-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中タスク</label>
+          <div id="quadmonthly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('quadmonthly-tasks')">+ タスク追加</button>
+        </div>
+      </div>
+
+      <div id="fields-monthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">毎月スケジュール（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">毎月何日 (UTC)</label><input type="number" class="form-input" id="f-monthday" min="1" max="31" value="1"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-monthly-time" value="00:00" oninput="updateHint('hint-monthly','f-monthly-time')"/><div class="utc-hint" id="hint-monthly"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="fields-temp" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">臨時イベント期間（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-temp-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了日 (UTC)</label><input type="date" class="form-input" id="f-temp-end"/></div>
+          </div>
+          <div class="form-group" style="margin-top:8px"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-temp-time" value="00:00" oninput="updateHint('hint-temp','f-temp-time')"/><div class="utc-hint" id="hint-temp"></div></div>
+        </div>
+      </div>
+
+      <div id="fields-custom" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">カスタム日程指定（UTC入力）</div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div style="flex:1"><input type="date" class="form-input" id="f-custom-date-input"/></div>
+            <div><input type="time" class="form-input" id="f-custom-time" value="00:00" style="width:120px" oninput="updateHint('hint-custom','f-custom-time')"/><div class="utc-hint" id="hint-custom"></div></div>
+            <button class="add-task-btn" style="margin-top:2px" onclick="addCustomDate()">+ 追加</button>
+          </div>
+          <div class="custom-dates-list" id="custom-dates-list"></div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:12px"><label class="form-label">メモ・全体注意事項</label><textarea class="form-input" id="f-desc" placeholder="例: 参加必須。当日20分前に集合"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-primary" onclick="saveEvent()">保存</button>
+        <button class="btn-sm" onclick="cancelEdit()">キャンセル</button>
+      </div>
+    </div>
+    <div class="section-header">登録済みイベント</div>
+    <div id="event-list"></div>
+  </div>
+
+  <div id="tab-calendar" class="panel">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
+      <div class="cal-title" id="cal-title"></div>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
+    </div>
+    <div class="calendar-grid" id="cal-grid"></div>
+    <div class="detail-pane" id="detail-pane"><div style="color:#aaa;font-size:13px">日付をクリックするとイベント詳細を表示</div></div>
+  </div>
+
+  <div id="tab-output" class="panel">
+    <div class="output-controls">
+      <label>起点日:</label><input type="date" class="form-input" id="out-date" style="width:auto"/>
+      <label>範囲:</label>
+      <select class="form-input" id="out-range" style="width:auto">
+        <option value="1">当日</option><option value="3">3日間</option><option value="7" selected>1週間</option><option value="14">2週間</option>
+      </select>
+      <button class="btn-primary" onclick="generateOutput()">生成</button>
+      <button class="copy-btn" id="copy-btn" onclick="copyOutput()">コピー</button>
+    </div>
+    <div class="output-box" id="output-box">← 生成ボタンを押してください</div>
+  </div>
+  <div id="tab-memo" class="panel">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <select class="form-input" id="memo-select" style="flex:1" onchange="loadMemo()"></select>
+      <button class="btn-primary" onclick="addMemo()">+ 新規</button>
+      <button class="btn-sm danger" onclick="deleteMemo()">削除</button>
+    </div>
+    <div id="memo-editor" style="display:none">
+      <div class="form-group">
+        <label class="form-label">タイトル</label>
+        <input type="text" class="form-input" id="memo-title" placeholder="例: 国家戦争 タスク一覧" oninput="saveMemoAuto()"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">内容（コピペ配信用）</label>
+        <textarea class="form-input" id="memo-body" rows="12" placeholder="ここにタスク・説明・告知文などを入力..." oninput="saveMemoAuto()" style="min-height:220px;font-family:var(--font-mono,monospace);font-size:13px"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="copy-btn" id="memo-copy-btn" onclick="copyMemo()">コピー</button>
+        <span style="font-size:12px;color:#aaa" id="memo-saved-hint"></span>
+      </div>
+    </div>
+    <div id="memo-empty" style="text-align:center;padding:40px;color:#aaa;font-size:13px">
+      「+ 新規」でメモを作成
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <h2 id="modal-title">新しいゲームを追加</h2>
+    <div class="form-group"><label class="form-label">ゲーム名</label><input type="text" class="form-input" id="modal-game-name" placeholder="例: Whiteout Survival"/></div>
+    <div class="form-group"><label class="form-label">ギルド名（任意）</label><input type="text" class="form-input" id="modal-guild-name" placeholder="例: King Shot"/></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" id="modal-save-btn" onclick="saveProject()">追加</button>
     </div>
   </div>
 </div>
 
 <script>
-const SUPABASE_TABLE = 'guild_spaces';
-const LOCAL_KEY = 'guild_shared_config';
+const DAYS=['日','月','火','水','木','金','土'];
+const COLORS=['#1D9E75','#534AB7','#D85A30','#BA7517','#378ADD','#639922','#D4537E','#888780'];
+const TYPE_LABELS={weekly:'毎週',daily:'毎日',biweekly:'隔日',bimonthly:'2週に1回',trimonthly:'3週に1回',quadmonthly:'4週に1回',monthly:'毎月',temp:'臨時',custom:'カスタム'};
+const TYPE_BADGE={weekly:'b-weekly',daily:'b-daily',biweekly:'b-biweekly',monthly:'b-monthly',temp:'b-temp',custom:'b-custom'};
+const JST_OFFSET=9*60; // minutes
+const MAX=20;
 
-let sb = null;
-let spaceId = null;
-let role = 'viewer'; // owner / editor / viewer
-let editorToken = null;
-let viewerToken = null;
-let realtimeChannel = null;
-let spaceData = null;
-
-// --- Init ---
-window.addEventListener('load', async () => {
-  // Check URL for token
-  const params = new URLSearchParams(window.location.search);
-  const urlToken = params.get('token');
-  const urlMode = params.get('mode');
-
-  // Load saved config
-  const saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null');
-
-  if (saved && saved.sbUrl && saved.sbKey) {
-    initSupabase(saved.sbUrl, saved.sbKey);
-    document.getElementById('sb-url').value = saved.sbUrl;
-    document.getElementById('sb-key').value = saved.sbKey;
-  }
-
-  if (urlToken && sb) {
-    // Joining via link
-    await joinViaToken(urlToken, urlMode || 'editor');
-  } else if (saved && saved.spaceId && sb) {
-    await loadSpace(saved.spaceId, saved.role, saved.editorToken, saved.viewerToken);
-  }
-});
-
-function initSupabase(url, key) {
-  sb = supabase.createClient(url, key);
+// --- UTC <-> JST utilities ---
+function utcTimeToJST(utcHH, utcMM) {
+  const total = utcHH * 60 + utcMM + JST_OFFSET;
+  const dayOffset = Math.floor(total / 1440); // day overflow
+  const mins = ((total % 1440) + 1440) % 1440;
+  return { h: Math.floor(mins / 60), m: mins % 60, dayOffset };
 }
 
-function showError(msg) {
-  const el = document.getElementById('setup-error');
-  el.textContent = msg;
-  el.style.display = 'block';
+function utcTimeStr(hhmm) {
+  if (!hhmm) return null;
+  const [h, m] = hhmm.split(':').map(Number);
+  return utcTimeToJST(h, m);
 }
 
-async function createSpace() {
-  const sbUrl = document.getElementById('sb-url').value.trim();
-  const sbKey = document.getElementById('sb-key').value.trim();
-  const name = document.getElementById('new-space-name').value.trim();
-  if (!sbUrl || !sbKey) { showError('Supabase URLとKeyを入力してください'); return; }
-  if (!name) { showError('スペース名を入力してください'); return; }
+function fmtJST(hhmm) {
+  if (!hhmm) return '';
+  const j = utcTimeStr(hhmm);
+  const timeStr = `${String(j.h).padStart(2,'0')}:${String(j.m).padStart(2,'0')} JST`;
+  const suffix=j.dayOffset>0?' (+1日)':j.dayOffset<0?' (-1日)':'';return `${String(j.h).padStart(2,'0')}:${String(j.m).padStart(2,'0')}${suffix}`;
+}
 
-  initSupabase(sbUrl, sbKey);
+// UTC weekday + time → JST weekday (accounting for +9h day shift)
+function utcWeekdayToJST(utcWd, utcTime) {
+  if (!utcTime) return utcWd;
+  const j = utcTimeStr(utcTime);
+  return ((utcWd + j.dayOffset) + 7) % 7;
+}
 
-  const edTok = randomToken();
-  const viTok = randomToken();
-  const id = randomToken(16);
+// UTC date string + time → JST date string
+function utcDateToJST(utcDateStr, utcTime) {
+  if (!utcDateStr) return utcDateStr;
+  const j = utcTimeStr(utcTime || '00:00');
+  const d = new Date(utcDateStr + 'T00:00:00Z');
+  d.setUTCMinutes(d.getUTCMinutes() + JST_OFFSET);
+  if (j.dayOffset > 0) d.setUTCDate(d.getUTCDate() + 1);
+  return toDS(d);
+}
 
-  const { error } = await sb.from(SUPABASE_TABLE).insert({
-    id,
-    name,
-    editor_token: edTok,
-    viewer_token: viTok,
-    data: { projects: [{ id: 'p1', game: name, guild: '', events: [], memos: [] }], currentProjectId: 'p1' }
+function updateHint(hintId, inputId) {
+  const el = document.getElementById(hintId);
+  const val = document.getElementById(inputId).value;
+  if (!val) { el.textContent = ''; return; }
+  el.textContent = '→ JST: ' + fmtJST(val);
+}
+
+function initHints() {
+  [['hint-start','f-time'],['hint-end','f-time-end'],['hint-daily','f-daily-time'],
+   ['hint-biweekly','f-biweekly-time'],['hint-monthly','f-monthly-time'],
+   ['hint-temp','f-temp-time'],['hint-custom','f-custom-time']].forEach(([h,i])=>updateHint(h,i));
+}
+
+// --- State ---
+let state = JSON.parse(localStorage.getItem('guildscheduler_v4') || 'null');
+if (!state) {
+  state = {projects:[{id:'p1',game:'Whiteout Survival',guild:'King Shot',events:[
+    {id:'e1',name:'国家戦争',type:'weekly',weekday:6,weekdayEnd:-1,time:'00:00',timeEnd:'00:00',prep:'資源備蓄、援軍リクエスト送信',tasks:[{text:'参加申請を忘れずに',when:'毎日'}],desc:'参加必須。20分前集合',color:COLORS[0]},
+    {id:'e2',name:'ベア狩り',type:'daily',time:'00:00',tasks:[{text:'スタミナを全消費',when:'毎日'}],desc:'報酬は上位30名に配布',color:COLORS[1]},
+  ]}],currentProjectId:'p1'};
+  save();
+}
+
+let editingId=null,calYear,calMonth,selectedDate,customDates=[];
+let modalMode='add',editingProjectId=null;
+
+function save(){localStorage.setItem('guildscheduler_v4',JSON.stringify(state));}
+function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function todayJST(){
+  const now=new Date();
+  const jst=new Date(now.getTime()+JST_OFFSET*60000);
+  return`${jst.getUTCFullYear()}-${String(jst.getUTCMonth()+1).padStart(2,'0')}-${String(jst.getUTCDate()).padStart(2,'0')}`;
+}
+function curProj(){return state.projects.find(p=>p.id===state.currentProjectId)||state.projects[0];}
+function curEvs(){return curProj().events||[];}
+
+// --- Project bar ---
+function renderProjectBar(){
+  const bar=document.getElementById('project-bar');
+  let h=state.projects.map(p=>`<button class="project-tab${p.id===state.currentProjectId?' active':''}" onclick="switchProject('${p.id}')">${p.game}${p.guild?' · '+p.guild:''}</button>`).join('');
+  if(state.projects.length<MAX) h+=`<button class="project-add-btn" onclick="openAddProject()">+ ゲーム追加</button>`;
+  bar.innerHTML=h;
+  const p=curProj();
+  document.getElementById('project-name-display').textContent=p.game+(p.guild?' — '+p.guild:'');
+  document.getElementById('project-count').textContent=`${state.projects.length} / ${MAX}`;
+}
+
+function switchProject(id){
+  state.currentProjectId=id;save();editingId=null;clearForm();
+  calYear=null;calMonth=null;selectedDate=null;
+  renderProjectBar();renderEvents();
+  if(document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
+  if(document.getElementById('tab-output').classList.contains('active')){document.getElementById('out-date').value=todayJST();generateOutput();}
+  if(document.getElementById('tab-memo').classList.contains('active')) renderMemoSelect();
+}
+
+function openAddProject(){
+  if(state.projects.length>=MAX){alert('最大20ゲームまでです');return;}
+  modalMode='add';document.getElementById('modal-title').textContent='新しいゲームを追加';
+  document.getElementById('modal-save-btn').textContent='追加';
+  document.getElementById('modal-game-name').value='';document.getElementById('modal-guild-name').value='';
+  document.getElementById('modal').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-game-name').focus(),50);
+}
+function openEditProject(){
+  const p=curProj();modalMode='edit';editingProjectId=p.id;
+  document.getElementById('modal-title').textContent='ゲームを編集';
+  document.getElementById('modal-save-btn').textContent='保存';
+  document.getElementById('modal-game-name').value=p.game;document.getElementById('modal-guild-name').value=p.guild||'';
+  document.getElementById('modal').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-game-name').focus(),50);
+}
+function saveProject(){
+  const game=document.getElementById('modal-game-name').value.trim();if(!game){alert('ゲーム名を入力してください');return;}
+  const guild=document.getElementById('modal-guild-name').value.trim();
+  if(modalMode==='add'){const id='p'+Date.now();state.projects.push({id,game,guild,events:[]});state.currentProjectId=id;}
+  else{const p=state.projects.find(p=>p.id===editingProjectId);if(p){p.game=game;p.guild=guild;}}
+  save();closeModal();renderProjectBar();renderEvents();
+}
+function deleteProject(){
+  if(state.projects.length<=1){alert('最後のプロジェクトは削除できません');return;}
+  const p=curProj();if(!confirm(`「${p.game}」を削除しますか？\nイベントデータもすべて削除されます。`)) return;
+  state.projects=state.projects.filter(x=>x.id!==p.id);state.currentProjectId=state.projects[0].id;
+  save();renderProjectBar();renderEvents();
+}
+function closeModal(){document.getElementById('modal').style.display='none';}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal') closeModal();});
+
+// --- Event form ---
+function toggleTimeNone(inputId, hintId, cb){
+  const inp=document.getElementById(inputId);
+  const hint=document.getElementById(hintId);
+  if(cb.checked){inp.disabled=true;inp.style.opacity='0.4';if(hint) hint.textContent='';}
+  else{inp.disabled=false;inp.style.opacity='1';updateHint(hintId,inputId);}
+}
+function getTimeVal(inputId, noneId){
+  const cb=document.getElementById(noneId);
+  if(cb&&cb.checked) return '';
+  return document.getElementById(inputId).value;
+}
+function setTimeNone(inputId, noneId, val){
+  const inp=document.getElementById(inputId);
+  const cb=document.getElementById(noneId);
+  if(!cb||!inp) return;
+  if(!val){
+    cb.checked=true;inp.disabled=true;inp.style.opacity='0.4';
+  } else {
+    cb.checked=false;inp.disabled=false;inp.style.opacity='1';inp.value=val;
+  }
+}
+function onTypeChange(){
+  const t=document.getElementById('f-type').value;
+  ['weekly','daily','biweekly','bimonthly','trimonthly','quadmonthly','monthly','temp','custom'].forEach(k=>{const el=document.getElementById('fields-'+k);if(el) el.style.display=k===t?'block':'none';});
+  initHints();
+}
+function addTask(cid){
+  const r=document.createElement('div');r.className='task-row';
+  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById(cid).appendChild(r);
+}
+function getTasks(cid){const t=[];document.querySelectorAll(`#${cid} .task-row`).forEach(r=>{const i=r.querySelector('input'),s=r.querySelector('select');if(i&&i.value.trim()) t.push({text:i.value.trim(),when:s?s.value:'毎日'});});return t;}
+function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option><option value="1"${t.when==='1'?' selected':''}>1日目</option><option value="2"${t.when==='2'?' selected':''}>2日目</option><option value="3"${t.when==='3'?' selected':''}>3日目</option><option value="4"${t.when==='4'?' selected':''}>4日目</option><option value="5"${t.when==='5'?' selected':''}>5日目</option><option value="6"${t.when==='6'?' selected':''}>6日目</option><option value="7"${t.when==='7'?' selected':''}>7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
+function addCustomDate(){
+  const d=document.getElementById('f-custom-date-input').value;if(!d||customDates.includes(d)) return;
+  customDates.push(d);customDates.sort();renderCD();
+}
+function removeCustomDate(d){customDates=customDates.filter(x=>x!==d);renderCD();}
+function renderCD(){document.getElementById('custom-dates-list').innerHTML=customDates.map(d=>`<span class="custom-date-tag">${d} UTC<button onclick="removeCustomDate('${d}')">×</button></span>`).join('');}
+
+function saveEvent(){
+  const name=document.getElementById('f-name').value.trim();if(!name){alert('イベント名を入力してください');return;}
+  const type=document.getElementById('f-type').value,desc=document.getElementById('f-desc').value.trim();
+  const proj=curProj(),evs=proj.events||[];
+  let ev={id:editingId||Date.now().toString(),name,type,desc};
+  ev.color=editingId?(evs.find(e=>e.id===editingId)||{}).color||COLORS[evs.length%COLORS.length]:COLORS[evs.length%COLORS.length];
+  if(type==='weekly'){ev.weekday=+document.getElementById('f-weekday').value;ev.weekdayEnd=+document.getElementById('f-weekday-end').value;ev.time=getTimeVal('f-time','f-time-none');ev.timeEnd=getTimeVal('f-time-end','f-time-end-none');ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasks('weekly-tasks');}
+  else if(type==='daily'){ev.time=getTimeVal('f-daily-time','f-daily-time-none');ev.tasks=getTasks('daily-tasks');}
+  else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=getTimeVal('f-biweekly-time','f-biweekly-time-none');ev.duration=parseInt(document.getElementById('f-biweekly-duration').value)||1;}
+  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=document.getElementById('f-monthly-time').value;}
+  else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=document.getElementById('f-temp-time').value;}
+  else if(type==='custom'){ev.customDates=[...customDates];ev.time=document.getElementById('f-custom-time').value;}
+  if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
+  proj.events=evs;save();editingId=null;clearForm();renderEvents();
+}
+function clearForm(){
+  ['f-name','f-desc','f-prep'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-type').value='weekly';document.getElementById('f-time').value='00:00';
+  document.getElementById('weekly-tasks').innerHTML='';document.getElementById('daily-tasks').innerHTML='';['bimonthly','trimonthly','quadmonthly'].forEach(t=>{const p=document.getElementById('f-'+t+'-prep');if(p) p.value='';const c=document.getElementById(t+'-tasks');if(c) c.innerHTML='';});
+  document.getElementById('form-title').textContent='イベントを追加';
+  customDates=[];renderCD();onTypeChange();
+}
+function cancelEdit(){editingId=null;clearForm();}
+function editEvent(id){
+  const ev=curEvs().find(e=>e.id===id);if(!ev) return;
+  editingId=id;document.getElementById('form-title').textContent='イベントを編集';
+  document.getElementById('f-name').value=ev.name;document.getElementById('f-type').value=ev.type;document.getElementById('f-desc').value=ev.desc||'';
+  onTypeChange();
+  if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'00:00';document.getElementById('f-time-end').value=ev.timeEnd||'13:00';document.getElementById('f-prep').value=ev.prep||'';setTasks('weekly-tasks',ev.tasks);updateHint('hint-start','f-time');updateHint('hint-end','f-time-end');}
+  else if(ev.type==='daily'){document.getElementById('f-daily-time').value=ev.time||'00:00';setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');}
+  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';setTimeNone('f-biweekly-time','f-biweekly-time-none',ev.time);updateHint('hint-biweekly','f-biweekly-time');document.getElementById('f-biweekly-duration').value=ev.duration||1;}
+  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);updateHint('hint-bimonthly','f-bimonthly-time');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);updateHint('hint-trimonthly','f-trimonthly-time');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);updateHint('hint-quadmonthly','f-quadmonthly-time');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'00:00';updateHint('hint-monthly','f-monthly-time');}
+  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';document.getElementById('f-temp-time').value=ev.time||'00:00';updateHint('hint-temp','f-temp-time');}
+  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];document.getElementById('f-custom-time').value=ev.time||'00:00';renderCD();updateHint('hint-custom','f-custom-time');}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function deleteEvent(id){if(!confirm('削除しますか？')) return;const p=curProj();p.events=(p.events||[]).filter(e=>e.id!==id);save();renderEvents();}
+
+// Schedule label: show both UTC and JST
+function schedLabel(ev){
+  if(ev.type==='weekly'){
+    const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
+    const jstWdEnd=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):-1;
+    const wdPart=jstWdEnd>=0&&jstWdEnd!==jstWdStart?`${DAYS[jstWdStart]}〜${DAYS[jstWdEnd]}曜`:DAYS[jstWdStart]+'曜';
+    return`毎週${wdPart} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}`;
+  }
+  if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}`;
+  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;
+  if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}`;
+  if(ev.type==='temp') return`${ev.start||'?'}〜${ev.end||'?'}(UTC) ${fmtJST(ev.time)}`;
+  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}`;
+  return'';
+}
+
+function renderEvents(){
+  const el=document.getElementById('event-list'),evs=curEvs();
+  if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
+  el.innerHTML=evs.map(ev=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
+    return`<div class="event-card"><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+  }).join('');
+}
+
+// --- Calendar: works in JST dates ---
+function isBiDay(ev,jstDS){if(!ev.biweeklyStart) return false;const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%2;return cyclePos<(ev.duration||1);}
+
+function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){if(!utcStart) return false;const jstStart=utcDateToJST(utcStart,utcTime||'00:00');if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%intervalDays;return cyclePos<(duration||1);}function getEvs(jstDS){
+  const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
+  return curEvs().filter(ev=>{
+    if(ev.type==='daily') return true;
+    if(ev.type==='weekly'){
+      const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
+      const jstWdEnd=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):jstWdStart;
+      return jstWdEnd>=jstWdStart?wd>=jstWdStart&&wd<=jstWdEnd:wd>=jstWdStart||wd<=jstWdEnd;
+    }
+    if(ev.type==='biweekly') return isBiDay(ev,jstDS);if(ev.type==='bimonthly') return isNWeekDay(ev.bimonthlyStart,ev.time,jstDS,14,ev.duration);if(ev.type==='trimonthly') return isNWeekDay(ev.trimonthlyStart,ev.time,jstDS,21,ev.duration);if(ev.type==='quadmonthly') return isNWeekDay(ev.quadmonthlyStart,ev.time,jstDS,28,ev.duration);
+    if(ev.type==='monthly'){
+      // monthday stored as UTC day → convert to JST day
+      const jstRef=utcDateToJST(`2000-01-${String(ev.monthday).padStart(2,'0')}`,ev.time);
+      return day===new Date(jstRef+'T00:00:00').getDate();
+    }
+    if(ev.type==='temp'){
+      const jstStart=utcDateToJST(ev.start,ev.time);
+      const jstEnd=utcDateToJST(ev.end,ev.time);
+      return jstDS>=jstStart&&jstDS<=jstEnd;
+    }
+    if(ev.type==='custom'){
+      return(ev.customDates||[]).some(utcD=>utcDateToJST(utcD,ev.time)===jstDS);
+    }
+    return false;
   });
-
-  if (error) { showError('作成失敗: ' + error.message + '\n\nDBテーブルが作成済みか確認してください。'); return; }
-
-  saveConfig(sbUrl, sbKey, id, 'owner', edTok, viTok);
-  await loadSpace(id, 'owner', edTok, viTok);
 }
 
-async function joinSpace() {
-  const sbUrl = document.getElementById('sb-url').value.trim();
-  const sbKey = document.getElementById('sb-key').value.trim();
-  const raw = document.getElementById('join-token').value.trim();
-  if (!sbUrl || !sbKey) { showError('Supabase URLとKeyを入力してください'); return; }
-
-  initSupabase(sbUrl, sbKey);
-
-  // Parse token from URL or raw string
-  let token = raw;
-  try {
-    const u = new URL(raw);
-    token = u.searchParams.get('token') || raw;
-    const mode = u.searchParams.get('mode') || 'editor';
-    await joinViaToken(token, mode, sbUrl, sbKey);
-    return;
-  } catch(e) {}
-  await joinViaToken(token, 'editor', sbUrl, sbKey);
+function getPreps(jstDS){
+  const next=new Date(jstDS+'T00:00:00');next.setDate(next.getDate()+1);
+  const ns=toDS(next);
+  return curEvs().filter(ev=>{
+    if(!ev.prep) return false;
+    if(ev.type==='weekly'){const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);return new Date(ns+'T00:00:00').getDay()===jstWdStart;}
+    if(ev.type==='bimonthly') return isNWeekDay(ev.bimonthlyStart,ev.time,ns,14,1);
+    if(ev.type==='trimonthly') return isNWeekDay(ev.trimonthlyStart,ev.time,ns,21,1);
+    if(ev.type==='quadmonthly') return isNWeekDay(ev.quadmonthlyStart,ev.time,ns,28,1);
+    return false;
+  });
 }
 
-async function joinViaToken(token, mode, sbUrl, sbKey) {
-  if (sbUrl && sbKey) initSupabase(sbUrl, sbKey);
-  if (!sb) { showError('Supabase設定が必要です'); return; }
-
-  const col = mode === 'viewer' ? 'viewer_token' : 'editor_token';
-  const { data, error } = await sb.from(SUPABASE_TABLE).select('*').eq(col, token).single();
-  if (error || !data) { showError('リンクが無効または期限切れです'); return; }
-
-  const detectedRole = mode === 'viewer' ? 'viewer' : 'editor';
-  saveConfig(
-    document.getElementById('sb-url').value || '',
-    document.getElementById('sb-key').value || '',
-    data.id, detectedRole, data.editor_token, data.viewer_token
-  );
-  await loadSpace(data.id, detectedRole, data.editor_token, data.viewer_token);
-}
-
-function saveConfig(sbUrl, sbKey, id, r, edTok, viTok) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify({ sbUrl, sbKey, spaceId: id, role: r, editorToken: edTok, viewerToken: viTok }));
-}
-
-async function loadSpace(id, r, edTok, viTok) {
-  spaceId = id; role = r; editorToken = edTok; viewerToken = viTok;
-
-  const { data, error } = await sb.from(SUPABASE_TABLE).select('*').eq('id', id).single();
-  if (error || !data) { showError('スペースの読み込みに失敗しました'); return; }
-
-  spaceData = data;
-  showApp(data);
-  subscribeRealtime();
-}
-
-function showApp(data) {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('app-title').textContent = data.name;
-
-  const roleLabels = { owner: '管理者', editor: '編集者', viewer: '閲覧専用' };
-  const roleColors = { owner: '#0F6E56', editor: '#185FA5', viewer: '#854F0B' };
-  const rb = document.getElementById('role-badge');
-  rb.textContent = roleLabels[role] || role;
-  rb.style.cssText = `font-size:11px;color:${roleColors[role]||'#888'};background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:10px`;
-
-  if (role === 'viewer') {
-    document.getElementById('readonly-banner').style.display = 'block';
-    document.getElementById('btn-edit-proj').style.display = 'none';
-    document.getElementById('btn-del-proj').style.display = 'none';
+function renderCalendar(){
+  const t=new Date();
+  const jst=new Date(t.getTime()+JST_OFFSET*60000);
+  if(!calYear){calYear=jst.getUTCFullYear();calMonth=jst.getUTCMonth();}
+  document.getElementById('cal-title').textContent=`${calYear}年${calMonth+1}月`;
+  const fd=new Date(calYear,calMonth,1).getDay(),dim=new Date(calYear,calMonth+1,0).getDate();
+  const tStr=`${jst.getUTCFullYear()}-${String(jst.getUTCMonth()+1).padStart(2,'0')}-${String(jst.getUTCDate()).padStart(2,'0')}`;
+  let h=DAYS.map(d=>`<div class="cal-hdr">${d}</div>`).join('');
+  for(let i=0;i<fd;i++) h+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evs=getEvs(ds),preps=getPreps(ds);
+    h+=`<div class="cal-day${ds===tStr?' today':''}${ds===selectedDate?' selected':''}${preps.length?' prep-day':''}" onclick="selectDay('${ds}')"><div class="cal-day-num">${d}</div>${preps.map(e=>`<div class="cal-chip prep" style="background:${e.color}22;color:${e.color}">[前日]${e.name}</div>`).join('')}${evs.slice(0,3).map(e=>`<div class="cal-chip" style="background:${e.color}22;color:${e.color}">${e.name}</div>`).join('')}${evs.length>3?`<div style="font-size:10px;color:#aaa">+${evs.length-3}</div>`:''}</div>`;
   }
-  if (role !== 'owner') {
-    const dz = document.getElementById('danger-zone');
-    if (dz) dz.style.display = 'none';
+  document.getElementById('cal-grid').innerHTML=h;
+}
+
+function selectDay(ds){
+  selectedDate=ds;renderCalendar();
+  const evs=getEvs(ds),preps=getPreps(ds),pane=document.getElementById('detail-pane');
+  if(!evs.length&&!preps.length){pane.innerHTML=`<div style="color:#aaa;font-size:13px">${ds} — イベントなし</div>`;return;}
+  let h=`<div style="font-size:13px;font-weight:500;margin-bottom:8px">${ds}</div>`;
+  h+=preps.map(ev=>`<div class="detail-row"><div class="event-dot" style="background:${ev.color};opacity:0.5"></div><div><div style="font-size:13px;color:#888">[前日準備] ${ev.name}</div>${ev.prep?`<div style="font-size:12px;color:#aaa">${ev.prep}</div>`:''}</div></div>`).join('');
+  h+=evs.map(ev=>`<div class="detail-row"><div class="event-dot" style="background:${ev.color}"></div><div><div style="font-size:13px;font-weight:500">${ev.name} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}</div>${ev.desc?`<div style="font-size:12px;color:#888;margin-top:2px">${ev.desc}</div>`:''}</div></div>`).join('');
+  pane.innerHTML=h;
+}
+function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+function isFirst(ev,jstDS){
+  if(ev.type==='weekly') return new Date(jstDS+'T00:00:00').getDay()===utcWeekdayToJST(ev.weekday||0,ev.time);
+  if(ev.type==='temp') return jstDS===utcDateToJST(ev.start,ev.time);
+  return true;
+}
+function isLast(ev,jstDS){
+  if(ev.type==='weekly'){const e=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):utcWeekdayToJST(ev.weekday||0,ev.time);return new Date(jstDS+'T00:00:00').getDay()===e;}
+  if(ev.type==='temp') return jstDS===utcDateToJST(ev.end,ev.time);
+  return true;
+}
+
+function getDayOfEvent(ev,jstDS){
+  if(ev.type==='weekly'){
+    const startWd=utcWeekdayToJST(ev.weekday||0,ev.time);
+    const wd=new Date(jstDS+'T00:00:00').getDay();
+    return((wd-startWd+7)%7)+1;
+  }
+  if(ev.type==='biweekly'&&ev.biweeklyStart){
+    const jstStart=utcDateToJST(ev.biweeklyStart,ev.time);
+    const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+    return(diff%2)+1;
+  }
+  if(ev.type==='bimonthly'&&ev.bimonthlyStart){
+    const jstStart=utcDateToJST(ev.bimonthlyStart,ev.time);
+    const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+    return(diff%14)+1;
+  }
+  if(ev.type==='trimonthly'&&ev.trimonthlyStart){
+    const jstStart=utcDateToJST(ev.trimonthlyStart,ev.time);
+    const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+    return(diff%21)+1;
+  }
+  if(ev.type==='quadmonthly'&&ev.quadmonthlyStart){
+    const jstStart=utcDateToJST(ev.quadmonthlyStart,ev.time);
+    const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+    return(diff%28)+1;
+  }
+  if(ev.type==='temp'&&ev.start){
+    const jstStart=utcDateToJST(ev.start,ev.time);
+    const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
+    return diff+1;
+  }
+  return 1;
+}
+function generateOutput(){
+  const base=document.getElementById('out-date').value||todayJST();
+  const range=+document.getElementById('out-range').value,p=curProj();
+  let lines=[`===========================\n   ${p.game}${p.guild?' — '+p.guild:''}\n===========================\n`];
+  let any=false;
+  for(let i=0;i<range;i++){
+    const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+i);
+    const ds=toDS(d),preps=getPreps(ds),evs=getEvs(ds);
+    if(!preps.length&&!evs.length) continue;any=true;
+    lines.push(`${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]})`);
+    preps.forEach(ev=>{
+      const prepDesc=ev.prep?' '+ev.prep:'';
+      lines.push(`・[前日準備] ${ev.name}${prepDesc}`);
+    });
+    evs.forEach(ev=>{
+      const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
+      const descStr=ev.desc?' '+ev.desc:'';
+      const tasks=(ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});
+      const taskStr=tasks.length?' ('+tasks.map(t=>t.text).join('／')+')':'';
+      lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
+    });
+    lines.push('');
+  }
+  if(!any) lines.push('期間中にイベントはありません');
+  document.getElementById('output-box').textContent=lines.join('\n');
+}
+
+function copyOutput(){
+  navigator.clipboard.writeText(document.getElementById('output-box').textContent).then(()=>{
+    const b=document.getElementById('copy-btn');b.textContent='コピー完了';b.classList.add('copied');
+    setTimeout(()=>{b.textContent='コピー';b.classList.remove('copied');},2000);
+  });
+}
+
+
+
+// --- Export / Import ---
+function exportData(){
+  const data=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date();
+  const ds=date.getFullYear()+String(date.getMonth()+1).padStart(2,'0')+String(date.getDate()).padStart(2,'0');
+  a.href=url;a.download='guild_scheduler_'+ds+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function importData(e){
+  const file=e.target.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.projects||!Array.isArray(data.projects)) throw new Error('invalid');
+      const mode=confirm(
+        'インポート方法を選択してください。\n\n' +
+        'OK → 既存データに追加（プロジェクトをマージ）\n' +
+        'キャンセル → 全データを上書き（既存データは削除）'
+      );
+      if(mode){
+        // merge: add imported projects that don't exist
+        const existing=JSON.parse(localStorage.getItem('guildscheduler_v4')||'{}');
+        const existingIds=(existing.projects||[]).map(p=>p.id);
+        const toAdd=data.projects.filter(p=>!existingIds.includes(p.id));
+        // rename conflicts
+        toAdd.forEach(p=>{p.id='imported_'+Date.now()+'_'+Math.random().toString(36).slice(2);});
+        existing.projects=[...(existing.projects||[]),...toAdd];
+        localStorage.setItem('guildscheduler_v4',JSON.stringify(existing));
+        state=existing;
+      } else {
+        localStorage.setItem('guildscheduler_v4',JSON.stringify(data));
+        state=data;
+      }
+      state.currentProjectId=state.projects[0].id;
+      renderProjectBar();renderEvents();
+      alert('インポート完了しました');
+    } catch(err){
+      alert('ファイルの読み込みに失敗しました。正しいエクスポートファイルか確認してください。');
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// --- Memo ---
+function getMemos(){return curProj().memos||[];}
+function setMemos(memos){curProj().memos=memos;save();}
+
+function renderMemoSelect(){
+  const sel=document.getElementById('memo-select');
+  const memos=getMemos();
+  sel.innerHTML=memos.map((m,i)=>`<option value="${i}">${m.title||'無題'}</option>`).join('');
+  const hasAny=memos.length>0;
+  document.getElementById('memo-editor').style.display=hasAny?'block':'none';
+  document.getElementById('memo-empty').style.display=hasAny?'none':'block';
+  if(hasAny) loadMemo();
+}
+
+function loadMemo(){
+  const memos=getMemos();
+  const idx=parseInt(document.getElementById('memo-select').value)||0;
+  const m=memos[idx];
+  if(!m) return;
+  document.getElementById('memo-title').value=m.title||'';
+  document.getElementById('memo-body').value=m.body||'';
+}
+
+function saveMemoAuto(){
+  const memos=getMemos();
+  const idx=parseInt(document.getElementById('memo-select').value)||0;
+  if(!memos[idx]) return;
+  memos[idx].title=document.getElementById('memo-title').value;
+  memos[idx].body=document.getElementById('memo-body').value;
+  setMemos(memos);
+  // update select label
+  const sel=document.getElementById('memo-select');
+  if(sel.options[idx]) sel.options[idx].text=memos[idx].title||'無題';
+  const hint=document.getElementById('memo-saved-hint');
+  hint.textContent='保存済み';
+  setTimeout(()=>{hint.textContent='';},1500);
+}
+
+function addMemo(){
+  const memos=getMemos();
+  memos.push({title:'新しいメモ',body:''});
+  setMemos(memos);
+  renderMemoSelect();
+  const sel=document.getElementById('memo-select');
+  sel.value=memos.length-1;
+  loadMemo();
+  document.getElementById('memo-title').focus();
+  document.getElementById('memo-title').select();
+}
+
+function deleteMemo(){
+  const memos=getMemos();
+  if(!memos.length) return;
+  const idx=parseInt(document.getElementById('memo-select').value)||0;
+  const title=memos[idx].title||'無題';
+  if(!confirm(`「${title}」を削除しますか？`)) return;
+  memos.splice(idx,1);
+  setMemos(memos);
+  renderMemoSelect();
+}
+
+function copyMemo(){
+  const text=document.getElementById('memo-body').value;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById('memo-copy-btn');
+    b.textContent='コピー完了';b.classList.add('copied');
+    setTimeout(()=>{b.textContent='コピー';b.classList.remove('copied');},2000);
+  });
+}
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['events','calendar','output','memo'][i]===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='calendar') renderCalendar();
+  if(t==='output'){document.getElementById('out-date').value=todayJST();generateOutput();}
+  if(t==='memo') renderMemoSelect();
+}
+
+document.getElementById('out-date').value=todayJST();
+onTypeChange();renderProjectBar();renderEvents();
+
+// ===== Shared Mode =====
+const SHARED_KEY = 'guild_shared_v2';
+let sbShared = null;
+let sharedSpaceId = null;
+let sharedRole = 'viewer';
+let sharedRealtimeChannel = null;
+
+function setSyncDot(status){
+  const dot=document.getElementById('sync-dot');
+  const colors={ok:'#4ECDA4',syncing:'#FAC775',error:'#F09595',off:'#aaa'};
+  dot.style.background=colors[status]||'#aaa';
+  if(status==='syncing') dot.style.animation='pulse 1s infinite';
+  else dot.style.animation='';
+}
+
+// Auto-connect from URL params
+(async function autoConnect(){
+  const p=new URLSearchParams(window.location.search);
+  const token=p.get('token');
+  const mode=p.get('mode')||'editor';
+  const sbu=p.get('sbu')?decodeURIComponent(p.get('sbu')):'';
+  const sbk=p.get('sbk')?decodeURIComponent(p.get('sbk')):'';
+
+  if(sbu) document.getElementById('shared-sb-url').value=sbu;
+  if(sbk) document.getElementById('shared-sb-key').value=sbk;
+  if(token) document.getElementById('shared-token').value=token;
+  if(mode) document.getElementById('shared-mode').value=mode;
+
+  // Try saved config
+  const saved=JSON.parse(localStorage.getItem(SHARED_KEY)||'null');
+  if(token&&sbu&&sbk){
+    await doSharedConnect(sbu,sbk,token,mode);
+  } else if(saved&&saved.sbUrl&&saved.sbKey&&saved.spaceId){
+    await doSharedConnectById(saved.sbUrl,saved.sbKey,saved.spaceId,saved.role||'editor');
+  }
+})();
+
+async function sharedConnect(){
+  const url=document.getElementById('shared-sb-url').value.trim();
+  const key=document.getElementById('shared-sb-key').value.trim();
+  const token=document.getElementById('shared-token').value.trim();
+  const mode=document.getElementById('shared-mode').value;
+  const err=document.getElementById('shared-error');
+  err.style.display='none';
+  if(!url||!key){err.textContent='URLとKeyを入力してください';err.style.display='block';return;}
+  if(!token){err.textContent='トークンを入力してください';err.style.display='block';return;}
+  await doSharedConnect(url,key,token,mode);
+}
+
+async function doSharedConnect(url,key,token,mode){
+  const err=document.getElementById('shared-error');
+  sbShared=supabase.createClient(url,key);
+  setSyncDot('syncing');
+  const col=mode==='viewer'?'viewer_token':'editor_token';
+  const {data,error}=await sbShared.from('guild_spaces').select('*').eq(col,token).single();
+  if(error||!data){
+    if(err){err.textContent='接続失敗: トークンが無効です';err.style.display='block';}
+    setSyncDot('error');return;
+  }
+  sharedSpaceId=data.id;sharedRole=mode==='viewer'?'viewer':'editor';
+  localStorage.setItem(SHARED_KEY,JSON.stringify({sbUrl:url,sbKey:key,spaceId:data.id,role:sharedRole}));
+  loadSharedData(data);
+}
+
+async function doSharedConnectById(url,key,id,role){
+  sbShared=supabase.createClient(url,key);
+  setSyncDot('syncing');
+  const {data,error}=await sbShared.from('guild_spaces').select('*').eq('id',id).single();
+  if(error||!data){setSyncDot('error');return;}
+  sharedSpaceId=id;sharedRole=role;
+  loadSharedData(data);
+}
+
+function loadSharedData(data){
+  // Load remote state into local app
+  state=data.data;
+  if(!state||!state.projects){state={projects:[],currentProjectId:''};return;}
+  if(!state.currentProjectId&&state.projects.length) state.currentProjectId=state.projects[0].id;
+  save();
+
+  // Hide setup overlay
+  const overlay=document.getElementById('shared-setup');
+  if(overlay) overlay.style.display='none';
+
+  // Set role badge
+  const labels={editor:'編集者',viewer:'閲覧専用'};
+  const rb=document.getElementById('role-badge');
+  if(rb) rb.textContent=labels[sharedRole]||sharedRole;
+
+  // Lock UI for viewers
+  if(sharedRole==='viewer'){
+    document.getElementById('readonly-banner').style.display='block';
+    lockEditorUI();
   }
 
-  renderProjectBar(data.data);
-  renderShareUrls();
-  setSyncState('ok');
+  setSyncDot('ok');
+  renderProjectBar();renderEvents();
+  subscribeSharedRealtime();
 }
 
-function setSyncState(state) {
-  const dot = document.getElementById('sync-dot');
-  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
-  dot.title = state === 'ok' ? '同期済み' : state === 'syncing' ? '同期中...' : '同期エラー';
+function lockEditorUI(){
+  // Disable all form inputs and buttons except copy/output
+  setTimeout(()=>{
+    const editBtns=['btn-save','btn-cancel'];
+    document.querySelectorAll('.btn-primary,.btn-sm.danger,#add-form button.btn-primary').forEach(b=>{
+      if(!b.classList.contains('copy-btn')) b.disabled=true;
+    });
+    document.querySelectorAll('.add-form input,.add-form select,.add-form textarea').forEach(el=>el.disabled=true);
+  },500);
 }
 
-// --- Realtime ---
-function subscribeRealtime() {
-  if (realtimeChannel) sb.removeChannel(realtimeChannel);
-  realtimeChannel = sb.channel('space_' + spaceId)
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: SUPABASE_TABLE, filter: `id=eq.${spaceId}` },
-      payload => {
-        spaceData = payload.new;
-        renderProjectBar(payload.new.data);
-        setSyncState('ok');
+function subscribeSharedRealtime(){
+  if(!sbShared||!sharedSpaceId) return;
+  sharedRealtimeChannel=sbShared.channel('shared_'+sharedSpaceId)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'guild_spaces',filter:`id=eq.${sharedSpaceId}`},
+      payload=>{
+        state=payload.new.data;
+        save();
+        renderProjectBar();renderEvents();
+        if(document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
+        if(document.getElementById('tab-output').classList.contains('active')) generateOutput();
+        setSyncDot('ok');
       })
     .subscribe();
 }
 
-// --- Project bar (read-only render) ---
-function renderProjectBar(appData) {
-  if (!appData) return;
-  const bar = document.getElementById('project-bar');
-  const curId = appData.currentProjectId;
-  let h = (appData.projects || []).map(p =>
-    `<button class="project-tab${p.id===curId?' active':''}" onclick="switchProject('${p.id}')">${p.game}${p.guild?' · '+p.guild:''}</button>`
-  ).join('');
-  if (role !== 'viewer' && (appData.projects||[]).length < 20)
-    h += `<button class="project-add-btn" onclick="addProjectPrompt()">+ ゲーム追加</button>`;
-  bar.innerHTML = h;
-
-  const proj = (appData.projects||[]).find(p=>p.id===curId)||appData.projects[0];
-  if (proj) {
-    document.getElementById('project-name-display').textContent = proj.game + (proj.guild ? ' — ' + proj.guild : '');
-    renderEventList(proj.events||[]);
+// For editor: push changes to cloud on every save
+const _origSaveShared=save;
+function save(){
+  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
+  if(sharedRole==='editor'&&sbShared&&sharedSpaceId){
+    setSyncDot('syncing');
+    sbShared.from('guild_spaces').update({data:state}).eq('id',sharedSpaceId)
+      .then(({error})=>setSyncDot(error?'error':'ok'));
   }
 }
 
-function renderEventList(events) {
-  const el = document.getElementById('event-list');
-  document.getElementById('events-loading').style.display = 'none';
-  if (!events.length) { el.innerHTML = '<div class="empty-state">イベントが登録されていません</div>'; return; }
-  const TYPE_LABELS = {weekly:'毎週',daily:'毎日',biweekly:'隔日',bimonthly:'2週に1回',trimonthly:'3週に1回',quadmonthly:'4週に1回',monthly:'毎月',temp:'臨時',custom:'カスタム'};
-  el.innerHTML = events.map(ev =>
-    `<div style="background:white;border:0.5px solid #e0e0d8;border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
-      <div style="width:10px;height:10px;border-radius:50%;background:${ev.color||'#1D9E75'};flex-shrink:0;margin-top:4px"></div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:500">${ev.name}</div>
-      <div style="font-size:12px;color:#666;margin-top:2px">${TYPE_LABELS[ev.type]||ev.type}${ev.time?' · '+ev.time+' UTC':''}</div>
-      ${ev.desc?`<div style="font-size:11px;color:#888;margin-top:3px">${ev.desc}</div>`:''}
-      </div></div>`
-  ).join('');
-}
+// Prevent auto-sync loop - dummy functions for index.html sync panel
+function openSyncPanel(){}
+function closeSyncModal(){}
+// ===== End Shared Mode =====
 
-function switchProject(id) {
-  if (!spaceData) return;
-  spaceData.data.currentProjectId = id;
-  renderProjectBar(spaceData.data);
-  if (role !== 'viewer') syncToSupabase();
-}
-
-async function addProjectPrompt() {
-  const name = prompt('ゲーム名を入力:');
-  if (!name) return;
-  const guild = prompt('ギルド名（任意）:') || '';
-  const newProj = { id: 'p' + Date.now(), game: name, guild, events: [], memos: [] };
-  spaceData.data.projects.push(newProj);
-  spaceData.data.currentProjectId = newProj.id;
-  renderProjectBar(spaceData.data);
-  await syncToSupabase();
-}
-
-async function openEditProject() {
-  const proj = currentProj();
-  const name = prompt('ゲーム名:', proj.game);
-  if (!name) return;
-  const guild = prompt('ギルド名:', proj.guild || '') || '';
-  proj.game = name; proj.guild = guild;
-  renderProjectBar(spaceData.data);
-  await syncToSupabase();
-}
-
-async function deleteProject() {
-  if (spaceData.data.projects.length <= 1) { alert('最後のプロジェクトは削除できません'); return; }
-  const proj = currentProj();
-  if (!confirm(`「${proj.game}」を削除しますか？`)) return;
-  spaceData.data.projects = spaceData.data.projects.filter(p => p.id !== proj.id);
-  spaceData.data.currentProjectId = spaceData.data.projects[0].id;
-  renderProjectBar(spaceData.data);
-  await syncToSupabase();
-}
-
-function currentProj() {
-  const d = spaceData.data;
-  return d.projects.find(p => p.id === d.currentProjectId) || d.projects[0];
-}
-
-async function syncToSupabase() {
-  setSyncState('syncing');
-  const { error } = await sb.from(SUPABASE_TABLE).update({ data: spaceData.data }).eq('id', spaceId);
-  setSyncState(error ? 'error' : 'ok');
-}
-
-// --- Share URLs ---
-function renderShareUrls() {
-  const base = window.location.origin + window.location.pathname;
-  const sbUrl = (JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}').sbUrl||'');
-  const sbKey = (JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}').sbKey||'');
-  document.getElementById('editor-url').textContent =
-    `${base}?token=${editorToken}&mode=editor&sbu=${encodeURIComponent(sbUrl)}&sbk=${encodeURIComponent(sbKey)}`;
-  document.getElementById('viewer-url').textContent =
-    `${base}?token=${viewerToken}&mode=viewer&sbu=${encodeURIComponent(sbUrl)}&sbk=${encodeURIComponent(sbKey)}`;
-
-  // Presence - list active users (simplified: just show role count)
-  const ul = document.getElementById('user-list');
-  ul.innerHTML = `<div style="font-size:12px;color:#888">リアルタイムの接続者数はSupabase Presence機能で追跡できます。現在の設定では省略しています。</div>`;
-}
-
-function copyShareUrl(type) {
-  const text = document.getElementById(type + '-url').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = event.target;
-    btn.textContent = 'コピー完了'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
-  });
-}
-
-async function revokeEditorAccess() {
-  if (!confirm('現在の編集者リンクを無効にして新しいリンクを発行しますか？\n既存の編集者は再度招待が必要になります。')) return;
-  const newTok = randomToken();
-  const { error } = await sb.from(SUPABASE_TABLE).update({ editor_token: newTok }).eq('id', spaceId);
-  if (error) { alert('失敗: ' + error.message); return; }
-  editorToken = newTok;
-  const cfg = JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}');
-  cfg.editorToken = newTok;
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(cfg));
-  renderShareUrls();
-  alert('新しい編集者リンクを発行しました');
-}
-
-function showSharePanel() { switchTab('share'); }
-
-function switchTab(t) {
-  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', ['events','share'][i] === t));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + t).classList.add('active');
-}
-
-function randomToken(len = 32) {
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, b => b.toString(16).padStart(2,'0')).join('').slice(0, len);
-}
-
-// Auto-fill from URL params
-window.addEventListener('load', () => {
-  const p = new URLSearchParams(window.location.search);
-  if (p.get('sbu')) document.getElementById('sb-url').value = decodeURIComponent(p.get('sbu'));
-  if (p.get('sbk')) document.getElementById('sb-key').value = decodeURIComponent(p.get('sbk'));
-});
 </script>
+
+<!-- Shared Setup Overlay -->
+<div id="shared-setup" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200">
+  <div style="background:white;border-radius:14px;padding:24px;width:360px;max-width:92vw">
+    <h2 style="font-size:16px;font-weight:500;margin-bottom:8px">Guild Scheduler – 共有版</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.6">管理者から受け取ったURLで自動接続します。<br>手動で接続する場合は以下を入力してください。</p>
+    <div class="form-group">
+      <label class="form-label">Project URL</label>
+      <input type="text" class="form-input" id="shared-sb-url" placeholder="https://xxxx.supabase.co"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Publishable Key</label>
+      <input type="text" class="form-input" id="shared-sb-key" placeholder="eyJ..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">トークン（URLから自動入力）</label>
+      <input type="text" class="form-input" id="shared-token" placeholder=""/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">モード</label>
+      <select class="form-input" id="shared-mode">
+        <option value="editor">編集者</option>
+        <option value="viewer">閲覧専用</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="sharedConnect()" style="width:100%">接続</button>
+    <div id="shared-error" style="color:#D85A30;font-size:12px;margin-top:8px;display:none"></div>
+  </div>
+</div>
+
 </body>
 </html>
