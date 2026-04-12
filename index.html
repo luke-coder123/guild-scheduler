@@ -35,14 +35,15 @@ textarea.form-input{resize:vertical;min-height:72px}
 @media(max-width:500px){.form-row{grid-template-columns:1fr}}
 
 /* Responsive */
-@media(max-width:640px){.form-row-3{grid-template-columns:1fr 1fr!important}.event-actions{flex-wrap:wrap}
+@media(max-width:640px){
+  .form-row-3{grid-template-columns:1fr 1fr!important}
+  .event-actions{flex-wrap:wrap}
   .container{padding:12px 10px}
   .header h1{font-size:14px}
   .project-tab{padding:6px 10px;font-size:11px}
   .project-add-btn{padding:4px 8px;font-size:11px}
   .project-settings{flex-wrap:wrap;gap:6px;padding:10px 12px}
   .project-name-display{font-size:13px;width:100%}
-  .project-count{font-size:11px}
   .tabs{gap:2px;padding:3px}
   .tab{padding:7px 4px;font-size:12px}
   .card{padding:12px}
@@ -59,12 +60,13 @@ textarea.form-input{resize:vertical;min-height:72px}
   .event-meta{font-size:11px}
   .event-tasks{font-size:10px}
   .badge{font-size:10px;padding:2px 6px}
-  .cal-hdr{font-size:10px;padding:2px}
-  .cal-day{min-height:52px;padding:3px}
-  .cal-day-num{font-size:10px}
-  .cal-chip{font-size:9px;padding:1px 2px}
+  .cal-hdr{font-size:10px;padding:2px;text-align:center}
+  .cal-day{min-height:56px;padding:3px}
+  .cal-day-num{font-size:10px;margin-bottom:1px}
+  .cal-chip{font-size:9px;padding:1px 3px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
   .cal-title{font-size:13px}
   .cal-nav-btn{padding:4px 8px;font-size:12px}
+  .calendar-grid{gap:2px}
   .detail-pane{padding:10px 12px}
   .detail-row{font-size:12px}
   .output-controls{gap:6px}
@@ -80,11 +82,26 @@ textarea.form-input{resize:vertical;min-height:72px}
   .utc-hint{font-size:10px}
   .custom-date-tag{font-size:11px}
   .project-bar{gap:2px;padding:0 8px}
+  /* time field with checkbox - stack on small screens */
+  .form-group div[style*="display:flex"][style*="align-items:center"]{flex-wrap:wrap;gap:4px}
+  .form-group div[style*="display:flex"][style*="align-items:center"] input[type="time"]{min-width:100px}
 }
 @media(max-width:400px){
   .tabs{flex-wrap:nowrap}
   .tab{font-size:11px;padding:6px 2px}
-  .calendar-grid{gap:2px}
+  .calendar-grid{gap:1px}
+  .cal-day{min-height:42px;padding:2px}
+  .cal-chip{font-size:8px;padding:1px 2px;max-width:100%}
+  .output-controls{flex-direction:column;align-items:flex-start}
+  .form-row{grid-template-columns:1fr}
+}
+@media(max-width:360px){
+  .cal-hdr{font-size:9px;padding:1px}
+  .cal-day{min-height:38px}
+  .cal-day-num{font-size:9px}
+  .cal-chip{display:none}
+  .cal-chip:first-of-type{display:block;font-size:8px}
+}
   .cal-day{min-height:48px}
   .cal-chip{font-size:8px;padding:1px 2px}
   .output-controls{flex-direction:column;align-items:flex-start}
@@ -116,7 +133,7 @@ textarea.form-input{resize:vertical;min-height:72px}
 .cal-nav-btn{padding:5px 12px;border:0.5px solid #d0d0c8;border-radius:8px;background:white;cursor:pointer;font-size:13px;font-family:inherit}
 .cal-nav-btn:hover{background:#f5f5f0}
 .cal-title{font-size:15px;font-weight:500;flex:1}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:12px}
 .cal-hdr{text-align:center;font-size:11px;color:#888;padding:4px}
 .cal-day{min-height:68px;background:white;border:0.5px solid #e0e0d8;border-radius:8px;padding:4px;cursor:pointer}
 .cal-day:hover{border-color:#aaa}
@@ -203,7 +220,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-time" value="00:00" oninput="updateHint('hint-start','f-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-time-none" onchange="toggleTimeNone('f-time','hint-start',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-start"></div></div>
-            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><input type="time" class="form-input" id="f-time-end" value="00:00" oninput="updateHint('hint-end','f-time-end')"/><div class="utc-hint" id="hint-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-time-end" value="00:00" oninput="updateHint('hint-end','f-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-time-end-none" onchange="toggleTimeNone('f-time-end','hint-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-end"></div></div>
           </div>
         </div>
         <div class="form-section" style="margin-top:8px">
@@ -234,6 +251,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-biweekly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time" value="00:00" oninput="updateHint('hint-biweekly','f-biweekly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-none" onchange="toggleTimeNone('f-biweekly-time','hint-biweekly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly"></div></div>
+            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time-end" value="00:00" oninput="updateHint('hint-biweekly-end','f-biweekly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-end-none" onchange="toggleTimeNone('f-biweekly-time-end','hint-biweekly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly-end"></div></div>
           </div>
 
           <div class="form-row" style="margin-top:8px">
@@ -250,6 +268,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-bimonthly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-bimonthly-time" value="00:00" oninput="updateHint('hint-bimonthly','f-bimonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-bimonthly-time-none" onchange="toggleTimeNone('f-bimonthly-time','hint-bimonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-bimonthly"></div></div>
+            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-bimonthly-time-end" value="00:00" oninput="updateHint('hint-bimonthly-end','f-bimonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-bimonthly-time-end-none" onchange="toggleTimeNone('f-bimonthly-time-end','hint-bimonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-bimonthly-end"></div></div>
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-bimonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
@@ -272,6 +291,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-trimonthly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-trimonthly-time" value="00:00" oninput="updateHint('hint-trimonthly','f-trimonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-trimonthly-time-none" onchange="toggleTimeNone('f-trimonthly-time','hint-trimonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-trimonthly"></div></div>
+            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-trimonthly-time-end" value="00:00" oninput="updateHint('hint-trimonthly-end','f-trimonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-trimonthly-time-end-none" onchange="toggleTimeNone('f-trimonthly-time-end','hint-trimonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-trimonthly-end"></div></div>
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-trimonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
@@ -294,6 +314,7 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-quadmonthly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quadmonthly-time" value="00:00" oninput="updateHint('hint-quadmonthly','f-quadmonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quadmonthly-time-none" onchange="toggleTimeNone('f-quadmonthly-time','hint-quadmonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-quadmonthly"></div></div>
+            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quadmonthly-time-end" value="00:00" oninput="updateHint('hint-quadmonthly-end','f-quadmonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quadmonthly-time-end-none" onchange="toggleTimeNone('f-quadmonthly-time-end','hint-quadmonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-quadmonthly-end"></div></div>
           </div>
           <div class="form-row" style="margin-top:8px">
             <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-quadmonthly-duration" min="1" max="30" value="1"/><div style="font-size:11px;color:#888;margin-top:3px">1=当日のみ、3=3日間開催</div></div>
@@ -315,7 +336,8 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-section-title">毎月スケジュール（UTC入力）</div>
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">毎月何日 (UTC)</label><input type="number" class="form-input" id="f-monthday" min="1" max="31" value="1"/></div>
-            <div class="form-group" style="margin:0"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-monthly-time" value="00:00" oninput="updateHint('hint-monthly','f-monthly-time')"/><div class="utc-hint" id="hint-monthly"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-monthly-time" value="00:00" oninput="updateHint('hint-monthly','f-monthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-monthly-time-none" onchange="toggleTimeNone('f-monthly-time','hint-monthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-monthly"></div></div>
+            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-monthly-time-end" value="00:00" oninput="updateHint('hint-monthly-end','f-monthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-monthly-time-end-none" onchange="toggleTimeNone('f-monthly-time-end','hint-monthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-monthly-end"></div></div>
           </div>
         </div>
       </div>
@@ -327,7 +349,10 @@ textarea.form-input{resize:vertical;min-height:72px}
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-temp-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">終了日 (UTC)</label><input type="date" class="form-input" id="f-temp-end"/></div>
           </div>
-          <div class="form-group" style="margin-top:8px"><label class="form-label">時間 (UTC)</label><input type="time" class="form-input" id="f-temp-time" value="00:00" oninput="updateHint('hint-temp','f-temp-time')"/><div class="utc-hint" id="hint-temp"></div></div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-temp-time" value="00:00" oninput="updateHint('hint-temp','f-temp-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-temp-time-none" onchange="toggleTimeNone('f-temp-time','hint-temp',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-temp"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-temp-time-end" value="00:00" oninput="updateHint('hint-temp-end','f-temp-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-temp-time-end-none" onchange="toggleTimeNone('f-temp-time-end','hint-temp-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-temp-end"></div></div>
+          </div>
         </div>
       </div>
 
@@ -336,7 +361,10 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-section-title">カスタム日程指定（UTC入力）</div>
           <div style="display:flex;gap:8px;align-items:flex-start">
             <div style="flex:1"><input type="date" class="form-input" id="f-custom-date-input"/></div>
-            <div><input type="time" class="form-input" id="f-custom-time" value="00:00" style="width:120px" oninput="updateHint('hint-custom','f-custom-time')"/><div class="utc-hint" id="hint-custom"></div></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start">
+              <div><label style="font-size:11px;color:#666;display:block;margin-bottom:2px">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:6px"><input type="time" class="form-input" id="f-custom-time" value="00:00" oninput="updateHint('hint-custom','f-custom-time')" style="width:110px"/><label style="font-size:11px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:3px"><input type="checkbox" id="f-custom-time-none" onchange="toggleTimeNone('f-custom-time','hint-custom',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-custom"></div></div>
+              <div><label style="font-size:11px;color:#666;display:block;margin-bottom:2px">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:6px"><input type="time" class="form-input" id="f-custom-time-end" value="00:00" oninput="updateHint('hint-custom-end','f-custom-time-end')" style="width:110px"/><label style="font-size:11px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:3px"><input type="checkbox" id="f-custom-time-end-none" onchange="toggleTimeNone('f-custom-time-end','hint-custom-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-custom-end"></div></div>
+            </div>
             <button class="add-task-btn" style="margin-top:2px" onclick="addCustomDate()">+ 追加</button>
           </div>
           <div class="custom-dates-list" id="custom-dates-list"></div>
@@ -344,6 +372,15 @@ textarea.form-input{resize:vertical;min-height:72px}
       </div>
 
       <div class="form-group" style="margin-top:12px"><label class="form-label">メモ・全体注意事項</label><textarea class="form-input" id="f-desc" placeholder="例: 参加必須。当日20分前に集合"></textarea></div>
+    <div class="form-section" style="margin-top:12px">
+      <div class="form-section-title">エントリー（通知テキストに ○エントリー として表示）</div>
+      <div id="entry-list" style="margin-bottom:8px"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input type="text" class="form-input" id="f-entry-name" placeholder="エントリー名（例: イベント1）" style="flex:1;min-width:120px"/>
+        <input type="text" class="form-input" id="f-entry-detail" placeholder="内容・詳細" style="flex:2;min-width:160px"/>
+        <button class="add-task-btn" onclick="addEntryRow()">+ 追加</button>
+      </div>
+    </div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-primary" onclick="saveEvent()">保存</button>
         <button class="btn-sm" onclick="cancelEdit()">キャンセル</button>
@@ -595,12 +632,12 @@ function saveEvent(){
   let ev={id:editingId||Date.now().toString(),name,type,desc};
   ev.color=editingId?(evs.find(e=>e.id===editingId)||{}).color||COLORS[evs.length%COLORS.length]:COLORS[evs.length%COLORS.length];
   if(type==='weekly'){ev.weekday=+document.getElementById('f-weekday').value;ev.weekdayEnd=+document.getElementById('f-weekday-end').value;ev.time=getTimeVal('f-time','f-time-none');ev.timeEnd=getTimeVal('f-time-end','f-time-end-none');ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasks('weekly-tasks');}
-  else if(type==='daily'){ev.time=getTimeVal('f-daily-time','f-daily-time-none');ev.tasks=getTasks('daily-tasks');}
-  else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=getTimeVal('f-biweekly-time','f-biweekly-time-none');ev.duration=parseInt(document.getElementById('f-biweekly-duration').value)||1;}
-  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=document.getElementById('f-monthly-time').value;}
-  else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=document.getElementById('f-temp-time').value;}
-  else if(type==='custom'){ev.customDates=[...customDates];ev.time=document.getElementById('f-custom-time').value;}
-  if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
+  else if(type==='daily'){ev.time=getTimeVal('f-daily-time','f-daily-time-none');ev.timeEnd=getTimeVal('f-daily-time-end','f-daily-time-end-none');ev.tasks=getTasks('daily-tasks');}
+  else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=getTimeVal('f-biweekly-time','f-biweekly-time-none');ev.timeEnd=getTimeVal('f-biweekly-time-end','f-biweekly-time-end-none');ev.duration=parseInt(document.getElementById('f-biweekly-duration').value)||1;}
+  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.timeEnd=getTimeVal('f-bimonthly-time-end','f-bimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.timeEnd=getTimeVal('f-trimonthly-time-end','f-trimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.timeEnd=getTimeVal('f-quadmonthly-time-end','f-quadmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=getTimeVal('f-monthly-time','f-monthly-time-none');ev.timeEnd=getTimeVal('f-monthly-time-end','f-monthly-time-end-none');}
+  else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=getTimeVal('f-temp-time','f-temp-time-none');ev.timeEnd=getTimeVal('f-temp-time-end','f-temp-time-end-none');}
+  else if(type==='custom'){ev.customDates=[...customDates];ev.time=getTimeVal('f-custom-time','f-custom-time-none');ev.timeEnd=getTimeVal('f-custom-time-end','f-custom-time-end-none');}
+  ev.entries=[...editingEntries];if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
   proj.events=evs;save();editingId=null;clearForm();renderEvents();
 }
 function clearForm(){
@@ -608,7 +645,7 @@ function clearForm(){
   document.getElementById('f-type').value='weekly';document.getElementById('f-time').value='00:00';
   document.getElementById('weekly-tasks').innerHTML='';document.getElementById('daily-tasks').innerHTML='';['bimonthly','trimonthly','quadmonthly'].forEach(t=>{const p=document.getElementById('f-'+t+'-prep');if(p) p.value='';const c=document.getElementById(t+'-tasks');if(c) c.innerHTML='';});
   document.getElementById('form-title').textContent='イベントを追加';
-  customDates=[];renderCD();onTypeChange();
+  customDates=[];renderCD();onTypeChange();editingEntries=[];renderEntryList();
 }
 function cancelEdit(){editingId=null;clearForm();}
 function editEvent(id){
@@ -617,12 +654,12 @@ function editEvent(id){
   document.getElementById('f-name').value=ev.name;document.getElementById('f-type').value=ev.type;document.getElementById('f-desc').value=ev.desc||'';
   onTypeChange();
   if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'00:00';document.getElementById('f-time-end').value=ev.timeEnd||'13:00';document.getElementById('f-prep').value=ev.prep||'';setTasks('weekly-tasks',ev.tasks);updateHint('hint-start','f-time');updateHint('hint-end','f-time-end');}
-  else if(ev.type==='daily'){document.getElementById('f-daily-time').value=ev.time||'00:00';setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');}
-  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';setTimeNone('f-biweekly-time','f-biweekly-time-none',ev.time);updateHint('hint-biweekly','f-biweekly-time');document.getElementById('f-biweekly-duration').value=ev.duration||1;}
-  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);updateHint('hint-bimonthly','f-bimonthly-time');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);updateHint('hint-trimonthly','f-trimonthly-time');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);updateHint('hint-quadmonthly','f-quadmonthly-time');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;document.getElementById('f-monthly-time').value=ev.time||'00:00';updateHint('hint-monthly','f-monthly-time');}
-  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';document.getElementById('f-temp-time').value=ev.time||'00:00';updateHint('hint-temp','f-temp-time');}
-  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];document.getElementById('f-custom-time').value=ev.time||'00:00';renderCD();updateHint('hint-custom','f-custom-time');}
-  window.scrollTo({top:0,behavior:'smooth'});
+  else if(ev.type==='daily'){setTimeNone('f-daily-time','f-daily-time-none',ev.time);setTimeNone('f-daily-time-end','f-daily-time-end-none',ev.timeEnd);setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');updateHint('hint-daily-end','f-daily-time-end');}
+  else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';setTimeNone('f-biweekly-time','f-biweekly-time-none',ev.time);setTimeNone('f-biweekly-time-end','f-biweekly-time-end-none',ev.timeEnd);updateHint('hint-biweekly','f-biweekly-time');updateHint('hint-biweekly-end','f-biweekly-time-end');document.getElementById('f-biweekly-duration').value=ev.duration||1;}
+  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);setTimeNone('f-bimonthly-time-end','f-bimonthly-time-end-none',ev.timeEnd);updateHint('hint-bimonthly','f-bimonthly-time');updateHint('hint-bimonthly-end','f-bimonthly-time-end');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);setTimeNone('f-trimonthly-time-end','f-trimonthly-time-end-none',ev.timeEnd);updateHint('hint-trimonthly','f-trimonthly-time');updateHint('hint-trimonthly-end','f-trimonthly-time-end');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);setTimeNone('f-quadmonthly-time-end','f-quadmonthly-time-end-none',ev.timeEnd);updateHint('hint-quadmonthly','f-quadmonthly-time');updateHint('hint-quadmonthly-end','f-quadmonthly-time-end');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;setTimeNone('f-monthly-time','f-monthly-time-none',ev.time);setTimeNone('f-monthly-time-end','f-monthly-time-end-none',ev.timeEnd);updateHint('hint-monthly','f-monthly-time');updateHint('hint-monthly-end','f-monthly-time-end');updateHint('hint-monthly','f-monthly-time');}
+  else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';setTimeNone('f-temp-time','f-temp-time-none',ev.time);setTimeNone('f-temp-time-end','f-temp-time-end-none',ev.timeEnd);updateHint('hint-temp','f-temp-time');updateHint('hint-temp-end','f-temp-time-end');updateHint('hint-temp','f-temp-time');}
+  else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];setTimeNone('f-custom-time','f-custom-time-none',ev.time);setTimeNone('f-custom-time-end','f-custom-time-end-none',ev.timeEnd);renderCD();updateHint('hint-custom','f-custom-time');updateHint('hint-custom-end','f-custom-time-end');}
+  editingEntries=ev.entries?[...ev.entries]:[];renderEntryList();window.scrollTo({top:0,behavior:'smooth'});
 }
 function deleteEvent(id){if(!confirm('削除しますか？')) return;const p=curProj();p.events=(p.events||[]).filter(e=>e.id!==id);save();renderEvents();}
 
@@ -634,11 +671,11 @@ function schedLabel(ev){
     const wdPart=jstWdEnd>=0&&jstWdEnd!==jstWdStart?`${DAYS[jstWdStart]}〜${DAYS[jstWdEnd]}曜`:DAYS[jstWdStart]+'曜';
     return`毎週${wdPart} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}`;
   }
-  if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}`;
-  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}`;
-  if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}`;
+  if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
+  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
+  if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
   if(ev.type==='temp') return`${ev.start||'?'}〜${ev.end||'?'}(UTC) ${fmtJST(ev.time)}`;
-  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}`;
+  if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
   return'';
 }
 
@@ -646,7 +683,7 @@ function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
   el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}${ev.entries&&ev.entries.length?`<div class="event-tasks" style="color:#185FA5">エントリー ${ev.entries.length}件</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
 }
 
@@ -785,6 +822,10 @@ function generateOutput(){
       const tasks=(ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});
       const taskStr=tasks.length?' ('+tasks.map(t=>t.text).join('／')+')':'';
       lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
+      if(ev.entries&&ev.entries.length){
+        lines.push('○エントリー');
+        ev.entries.forEach(en=>lines.push(`  - ${en.name}${en.detail?' : '+en.detail:''}`));
+      }
     });
     lines.push('');
   }
@@ -1044,6 +1085,47 @@ function moveEvent(idx, dir){
   proj.events = evs;
   save(); renderEvents();
 }
+
+// ===== Entry list =====
+let editingEntries = [];
+
+function renderEntryList(){
+  const c = document.getElementById('entry-list');
+  if(!c) return;
+  if(!editingEntries.length){c.innerHTML='<div style="font-size:12px;color:#aaa;padding:4px 0">エントリーなし</div>';return;}
+  c.innerHTML = editingEntries.map((e,i)=>
+    `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0e8">
+      <div style="flex:1;font-size:13px"><span style="font-weight:500">${e.name}</span>${e.detail?' : <span style="color:#666">'+e.detail+'</span>':''}</div>
+      <button class="remove-task-btn" onclick="removeEntry(${i})" style="flex-shrink:0">×</button>
+    </div>`
+  ).join('');
+}
+
+function addEntryRow(){
+  const name = document.getElementById('f-entry-name').value.trim();
+  const detail = document.getElementById('f-entry-detail').value.trim();
+  if(!name) return;
+  editingEntries.push({name, detail});
+  document.getElementById('f-entry-name').value = '';
+  document.getElementById('f-entry-detail').value = '';
+  renderEntryList();
+  document.getElementById('f-entry-name').focus();
+}
+
+function removeEntry(i){
+  editingEntries.splice(i,1);
+  renderEntryList();
+}
+
+// Allow Enter key to add entry
+document.getElementById('f-entry-detail').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){e.preventDefault();addEntryRow();}
+});
+document.getElementById('f-entry-name').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){e.preventDefault();document.getElementById('f-entry-detail').focus();}
+});
+// ===== End Entry list =====
+
 </script>
 
 <!-- Shared Setup Overlay -->
