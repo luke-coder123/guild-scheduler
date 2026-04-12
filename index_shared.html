@@ -957,7 +957,6 @@ async function autoConnect(){
   // URLSearchParams handles decoding automatically
   const p=new URLSearchParams(window.location.search);
   const token=p.get('token')||'';
-  alert('DEBUG token='+token+' search='+window.location.search.slice(0,80));
   const mode=p.get('mode')||'editor';
   // sbu/sbk are already encoded with encodeURIComponent in index.html
   // URLSearchParams.get() auto-decodes them
@@ -977,6 +976,9 @@ async function autoConnect(){
     await doSharedConnectById(saved.sbUrl,saved.sbKey,saved.spaceId,saved.role||'editor');
   }
   // else: show setup screen with pre-filled fields
+  // Show connect button state
+  const btn=document.querySelector('#shared-setup button.btn-primary');
+  if(btn) btn.textContent='接続';
 }
 
 async function sharedConnect(){
@@ -993,15 +995,31 @@ async function sharedConnect(){
 
 async function doSharedConnect(url,key,token,mode){
   const err=document.getElementById('shared-error');
-  sbShared=supabase.createClient(url,key);
-  setSyncDot('syncing');
-  const col=mode==='viewer'?'viewer_token':'editor_token';
-  const {data,error}=await sbShared.from('guild_spaces').select('*').eq(col,token).single();
-  if(error||!data){
-    if(err){err.textContent='接続失敗: トークンが無効です';err.style.display='block';}
+  if(err) err.style.display='none';
+  try {
+    sbShared=supabase.createClient(url,key);
+  } catch(e) {
+    if(err){err.textContent='Supabase初期化失敗: '+e.message;err.style.display='block';}
     setSyncDot('error');return;
   }
-  sharedSpaceId=data.id;sharedRole=mode==='viewer'?'viewer':'editor';
+  setSyncDot('syncing');
+  // Try both tokens (editor first, then viewer)
+  let data=null,foundMode=mode;
+  const col=mode==='viewer'?'viewer_token':'editor_token';
+  const {data:d1,error:e1}=await sbShared.from('guild_spaces').select('*').eq(col,token).single();
+  if(d1&&!e1){data=d1;}
+  else {
+    // Try the other column
+    const altCol=mode==='viewer'?'editor_token':'viewer_token';
+    const {data:d2,error:e2}=await sbShared.from('guild_spaces').select('*').eq(altCol,token).single();
+    if(d2&&!e2){data=d2;foundMode=mode==='viewer'?'editor':'viewer';}
+  }
+  if(!data){
+    if(err){err.textContent='接続失敗: トークンが見つかりません。URLを確認してください。';err.style.display='block';}
+    setSyncDot('error');return;
+  }
+  sharedSpaceId=data.id;
+  sharedRole=foundMode==='viewer'?'viewer':'editor';
   localStorage.setItem(SHARED_KEY,JSON.stringify({sbUrl:url,sbKey:key,spaceId:data.id,role:sharedRole}));
   loadSharedData(data);
 }
