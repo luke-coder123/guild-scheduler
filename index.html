@@ -646,9 +646,8 @@ function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
   el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card" data-id="${ev.id}" data-idx="${idx}"><div class="drag-handle" title="ドラッグで並べ替え" style="cursor:grab;color:#ccc;font-size:18px;padding:0 4px;flex-shrink:0;user-select:none">⠿</div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
-  setTimeout(initDragSort, 0);
 }
 
 // --- Calendar: works in JST dates ---
@@ -1033,75 +1032,18 @@ function subscribeRealtime(){
 // ===== End Supabase Sync =====
 
 
-// ===== Drag & Drop sort =====
-let dragState = null;
 
-function initDragSort(){
-  const list = document.getElementById('event-list');
-  if(!list) return;
-  list.querySelectorAll('.drag-handle').forEach(handle=>{
-    handle.addEventListener('mousedown', onHandleDown, {passive:false});
-    handle.addEventListener('touchstart', onHandleDown, {passive:false});
-  });
+function moveEvent(idx, dir){
+  const proj = curProj();
+  const evs = proj.events;
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= evs.length) return;
+  const tmp = evs[idx];
+  evs[idx] = evs[newIdx];
+  evs[newIdx] = tmp;
+  proj.events = evs;
+  save(); renderEvents();
 }
-
-function onHandleDown(e){
-  e.preventDefault();
-  const card = e.currentTarget.closest('.event-card');
-  if(!card) return;
-  const isTouch = e.type === 'touchstart';
-  const startY = isTouch ? e.touches[0].clientY : e.clientY;
-  const cards = [...document.querySelectorAll('.event-card')];
-  const srcIdx = cards.indexOf(card);
-  const rect = card.getBoundingClientRect();
-  const clone = card.cloneNode(true);
-  clone.style.cssText = 'position:fixed;left:'+rect.left+'px;top:'+rect.top+'px;width:'+rect.width+'px;opacity:0.85;z-index:999;pointer-events:none;background:white;border:1.5px solid #1D9E75;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15)';
-  document.body.appendChild(clone);
-  card.style.opacity = '0.3';
-  dragState = {card, clone, srcIdx, startY, initTop:rect.top, currentIdx:srcIdx};
-  const moveEvt = isTouch ? 'touchmove' : 'mousemove';
-  const endEvt = isTouch ? 'touchend' : 'mouseup';
-  document.addEventListener(moveEvt, onDragMove, {passive:false});
-  document.addEventListener(endEvt, onDragEnd, {once:true});
-}
-
-function onDragMove(e){
-  if(!dragState) return;
-  e.preventDefault();
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  const dy = clientY - dragState.startY;
-  dragState.clone.style.top = (dragState.initTop + dy) + 'px';
-  const cards = [...document.querySelectorAll('.event-card')];
-  cards.forEach(c=>c.classList.remove('drag-over'));
-  const target = cards.find(c=>{
-    if(c === dragState.card) return false;
-    const r = c.getBoundingClientRect();
-    return clientY >= r.top && clientY <= r.bottom;
-  });
-  if(target){target.classList.add('drag-over');dragState.currentIdx=cards.indexOf(target);}
-  else dragState.currentIdx=dragState.srcIdx;
-}
-
-function onDragEnd(e){
-  if(!dragState) return;
-  const {card, clone, srcIdx, currentIdx} = dragState;
-  clone.remove();
-  card.style.opacity = '';
-  document.querySelectorAll('.event-card').forEach(c=>c.classList.remove('drag-over'));
-  document.removeEventListener('mousemove', onDragMove);
-  document.removeEventListener('touchmove', onDragMove);
-  if(currentIdx !== srcIdx){
-    const proj = curProj();
-    const evs = proj.events;
-    const moved = evs.splice(srcIdx,1)[0];
-    evs.splice(currentIdx,0,moved);
-    proj.events = evs;
-    save(); renderEvents();
-  }
-  dragState = null;
-}
-// ===== End Drag & Drop =====
-
 </script>
 
 <!-- Shared Setup Overlay -->
