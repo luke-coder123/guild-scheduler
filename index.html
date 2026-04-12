@@ -645,7 +645,7 @@ function schedLabel(ev){
 function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
-  el.innerHTML=evs.map(ev=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
+  el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
     return`<div class="event-card" data-id="${ev.id}" data-idx="${idx}"><div class="drag-handle" title="ドラッグで並べ替え" style="cursor:grab;color:#ccc;font-size:18px;padding:0 4px;flex-shrink:0;user-select:none">⠿</div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
   setTimeout(initDragSort, 0);
