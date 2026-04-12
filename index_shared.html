@@ -957,6 +957,7 @@ async function autoConnect(){
   // URLSearchParams handles decoding automatically
   const p=new URLSearchParams(window.location.search);
   const token=p.get('token')||'';
+  alert('DEBUG token='+token+' search='+window.location.search.slice(0,80));
   const mode=p.get('mode')||'editor';
   // sbu/sbk are already encoded with encodeURIComponent in index.html
   // URLSearchParams.get() auto-decodes them
