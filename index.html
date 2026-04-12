@@ -518,7 +518,14 @@ if (!state) {
 let editingId=null,calYear,calMonth,selectedDate,customDates=[];
 let modalMode='add',editingProjectId=null;
 
-function save(){localStorage.setItem('guildscheduler_v4',JSON.stringify(state));}
+function save(){
+  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
+  if(typeof sbClient!=='undefined'&&sbClient&&typeof syncSpaceId!=='undefined'&&syncSpaceId){
+    setSyncDot('syncing');
+    sbClient.from('guild_spaces').update({data:state}).eq('id',syncSpaceId)
+      .then(({error})=>setSyncDot(error?'error':'ok'));
+  }
+}
 function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function todayJST(){
   const now=new Date();
@@ -1135,21 +1142,15 @@ async function pushToCloud(){
 }
 
 function toggleAutoSync(){
-  autoSyncEnabled=!autoSyncEnabled;
-  if(autoSyncEnabled){
-    autoSyncTimer=setInterval(()=>pushToCloud(),30000); // 30秒ごと
-    pushToCloud();
-  } else {
-    clearInterval(autoSyncTimer);
-  }
-  updateAutoSyncBtn();
+  // No-op: sync is now always immediate on save
 }
 function updateAutoSyncBtn(){
   const btn=document.getElementById('auto-sync-btn');
   if(!btn) return;
-  btn.textContent='自動同期: '+(autoSyncEnabled?'ON (30秒)':'OFF');
-  btn.style.color=autoSyncEnabled?'#0F6E56':'#666';
-  btn.style.borderColor=autoSyncEnabled?'#1D9E75':'#d0d0c8';
+  btn.textContent='即時同期: ON';
+  btn.style.color='#0F6E56';
+  btn.style.borderColor='#1D9E75';
+  btn.disabled=true;
 }
 
 function disconnectSync(){
@@ -1179,14 +1180,6 @@ function subscribeRealtime(){
         }
       })
     .subscribe();
-}
-
-// Hook into save() to auto-sync if enabled
-const _origSave=save;
-// Override save to also push if auto-sync on
-function saveAndSync(){
-  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
-  if(autoSyncEnabled&&sbClient&&syncSpaceId) pushToCloud();
 }
 
 // Init sync on load
