@@ -609,11 +609,20 @@ function onTypeChange(){
 }
 function addTask(cid){
   const r=document.createElement('div');r.className='task-row';
-  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
+  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select onchange="onTaskWhenChange(this)"><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option><option value="非表示">非表示</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
   document.getElementById(cid).appendChild(r);
 }
+function onTaskWhenChange(sel){
+  const inp=sel.parentElement.querySelector('input');
+  if(!inp) return;
+  if(sel.value==='非表示'){
+    inp.placeholder='非表示にする日番号（例: 2,4）空欄=全日';
+  } else {
+    inp.placeholder='タスク内容';
+  }
+}
 function getTasks(cid){const t=[];document.querySelectorAll(`#${cid} .task-row`).forEach(r=>{const i=r.querySelector('input'),s=r.querySelector('select');if(i&&i.value.trim()) t.push({text:i.value.trim(),when:s?s.value:'毎日'});});return t;}
-function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option><option value="1"${t.when==='1'?' selected':''}>1日目</option><option value="2"${t.when==='2'?' selected':''}>2日目</option><option value="3"${t.when==='3'?' selected':''}>3日目</option><option value="4"${t.when==='4'?' selected':''}>4日目</option><option value="5"${t.when==='5'?' selected':''}>5日目</option><option value="6"${t.when==='6'?' selected':''}>6日目</option><option value="7"${t.when==='7'?' selected':''}>7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
+function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option><option value="1"${t.when==='1'?' selected':''}>1日目</option><option value="2"${t.when==='2'?' selected':''}>2日目</option><option value="3"${t.when==='3'?' selected':''}>3日目</option><option value="4"${t.when==='4'?' selected':''}>4日目</option><option value="5"${t.when==='5'?' selected':''}>5日目</option><option value="6"${t.when==='6'?' selected':''}>6日目</option><option value="7"${t.when==='7'?' selected':''}>7日目</option><option value="非表示"${t.when==='非表示'?' selected':''}>非表示</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
 function addCustomDate(){
   const d=document.getElementById('f-custom-date-input').value;if(!d||customDates.includes(d)) return;
   customDates.push(d);customDates.sort();renderCD();
@@ -710,9 +719,23 @@ function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){
   const [,jstCycleEnd]=jstRangeForEvent(utcStart,utcTime||'',dur);
   const jstDurDays=Math.round((new Date(jstCycleEnd+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000)+1;
   return cyclePos<jstDurDays;
-}function getEvs(jstDS){
+}function isHiddenDay(ev, jstDS){
+  if(!ev.tasks||!ev.tasks.length) return false;
+  const hiddenTasks=(ev.tasks||[]).filter(t=>t.when==='非表示');
+  if(!hiddenTasks.length) return false;
+  const day=getDayOfEvent(ev,jstDS);
+  return hiddenTasks.some(t=>{
+    // text = comma-separated day numbers e.g. "2,4,6"
+    // if text is empty → hide ALL days of this event
+    if(!t.text||!t.text.trim()) return true;
+    const days=t.text.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+    return days.includes(day);
+  });
+}
+function getEvs(jstDS){
   const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
   return curEvs().filter(ev=>{
+    if(isHiddenDay(ev,jstDS)) return false;
     if(ev.type==='daily') return true;
     if(ev.type==='weekly'){
       const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
