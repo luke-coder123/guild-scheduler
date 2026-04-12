@@ -373,12 +373,23 @@ textarea.form-input{resize:vertical;min-height:72px}
 
       <div class="form-group" style="margin-top:12px"><label class="form-label">メモ・全体注意事項</label><textarea class="form-input" id="f-desc" placeholder="例: 参加必須。当日20分前に集合"></textarea></div>
     <div class="form-section" style="margin-top:12px">
-      <div class="form-section-title">エントリー（通知テキストに ○エントリー として表示）</div>
+      <div class="form-section-title">エントリー（通知テキストに ○曜日 として表示）</div>
       <div id="entry-list" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <input type="text" class="form-input" id="f-entry-name" placeholder="エントリー名（例: イベント1）" style="flex:1;min-width:120px"/>
-        <input type="text" class="form-input" id="f-entry-detail" placeholder="内容・詳細" style="flex:2;min-width:160px"/>
-        <button class="add-task-btn" onclick="addEntryRow()">+ 追加</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex-shrink:0"><label class="form-label">曜日</label>
+          <select class="form-input" id="f-entry-day" style="width:90px">
+            <option value="月">月曜</option><option value="火">火曜</option><option value="水">水曜</option>
+            <option value="木">木曜</option><option value="金">金曜</option><option value="土">土曜</option><option value="日">日曜</option>
+            <option value="毎日">毎日</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:100px"><label class="form-label">イベント名</label>
+          <input type="text" class="form-input" id="f-entry-name" placeholder="例: イベント1名"/>
+        </div>
+        <div style="flex:2;min-width:140px"><label class="form-label">詳細</label>
+          <input type="text" class="form-input" id="f-entry-detail" placeholder="内容・詳細"/>
+        </div>
+        <button class="add-task-btn" onclick="addEntryRow()" style="margin-bottom:1px">+ 追加</button>
       </div>
     </div>
       <div style="display:flex;gap:8px;margin-top:4px">
@@ -522,7 +533,14 @@ if (!state) {
 let editingId=null,calYear,calMonth,selectedDate,customDates=[];
 let modalMode='add',editingProjectId=null;
 
-function save(){localStorage.setItem('guildscheduler_v4',JSON.stringify(state));}
+function save(){
+  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
+  if(typeof sbClient!=='undefined'&&sbClient&&typeof syncSpaceId!=='undefined'&&syncSpaceId){
+    setSyncDot('syncing');
+    sbClient.from('guild_spaces').update({data:state}).eq('id',syncSpaceId)
+      .then(({error})=>setSyncDot(error?'error':'ok'));
+  }
+}
 function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function todayJST(){
   const now=new Date();
@@ -683,7 +701,7 @@ function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
   el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}${ev.entries&&ev.entries.length?`<div class="event-tasks" style="color:#185FA5">エントリー ${ev.entries.length}件</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}${ev.entries&&ev.entries.length?`<div class="event-tasks" style="color:#185FA5">エントリー ${ev.entries.length}件（${[...new Set(ev.entries.map(e=>e.day))].map(d=>d==='毎日'?'毎日':d+'曜').join(', ')}）</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
 }
 
@@ -823,8 +841,13 @@ function generateOutput(){
       const taskStr=tasks.length?' ('+tasks.map(t=>t.text).join('／')+')':'';
       lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
       if(ev.entries&&ev.entries.length){
-        lines.push('○エントリー');
-        ev.entries.forEach(en=>lines.push(`  - ${en.name}${en.detail?' : '+en.detail:''}`));
+        const entryDays=[...new Set(ev.entries.map(e=>e.day))];
+        entryDays.forEach(day=>{
+          lines.push(`○${day==='毎日'?'毎日':day+'曜'}`);
+          ev.entries.filter(e=>e.day===day).forEach(en=>
+            lines.push(`  - ${en.name}${en.detail?' : '+en.detail:''}`)
+          );
+        });
       }
     });
     lines.push('');
@@ -1092,20 +1115,33 @@ let editingEntries = [];
 function renderEntryList(){
   const c = document.getElementById('entry-list');
   if(!c) return;
-  if(!editingEntries.length){c.innerHTML='<div style="font-size:12px;color:#aaa;padding:4px 0">エントリーなし</div>';return;}
-  c.innerHTML = editingEntries.map((e,i)=>
-    `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0e8">
-      <div style="flex:1;font-size:13px"><span style="font-weight:500">${e.name}</span>${e.detail?' : <span style="color:#666">'+e.detail+'</span>':''}</div>
-      <button class="remove-task-btn" onclick="removeEntry(${i})" style="flex-shrink:0">×</button>
-    </div>`
-  ).join('');
+  if(!editingEntries.length){
+    c.innerHTML='<div style="font-size:12px;color:#aaa;padding:4px 0">エントリーなし</div>';
+    return;
+  }
+  // Group by day
+  const days = [...new Set(editingEntries.map(e=>e.day))];
+  c.innerHTML = days.map(day=>{
+    const items = editingEntries.filter(e=>e.day===day);
+    return `<div style="margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:#0F6E56;margin-bottom:4px">○${day}曜</div>
+      ${items.map((e,_)=>{
+        const globalIdx = editingEntries.indexOf(e);
+        return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 12px;border-bottom:0.5px solid #f5f5f0">
+          <div style="flex:1;font-size:13px"><span style="font-weight:500">${e.name}</span>${e.detail?' : <span style="color:#666">'+e.detail+'</span>':''}</div>
+          <button class="remove-task-btn" onclick="removeEntry(${globalIdx})">×</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
 }
 
 function addEntryRow(){
+  const day = document.getElementById('f-entry-day').value;
   const name = document.getElementById('f-entry-name').value.trim();
   const detail = document.getElementById('f-entry-detail').value.trim();
   if(!name) return;
-  editingEntries.push({name, detail});
+  editingEntries.push({day, name, detail});
   document.getElementById('f-entry-name').value = '';
   document.getElementById('f-entry-detail').value = '';
   renderEntryList();
@@ -1117,12 +1153,11 @@ function removeEntry(i){
   renderEntryList();
 }
 
-// Allow Enter key to add entry
-document.getElementById('f-entry-detail').addEventListener('keydown', e=>{
-  if(e.key==='Enter'){e.preventDefault();addEntryRow();}
-});
-document.getElementById('f-entry-name').addEventListener('keydown', e=>{
-  if(e.key==='Enter'){e.preventDefault();document.getElementById('f-entry-detail').focus();}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const detailEl = document.getElementById('f-entry-detail');
+  const nameEl = document.getElementById('f-entry-name');
+  if(detailEl) detailEl.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();addEntryRow();}});
+  if(nameEl) nameEl.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();if(detailEl) detailEl.focus();}});
 });
 // ===== End Entry list =====
 
