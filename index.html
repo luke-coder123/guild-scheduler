@@ -151,7 +151,7 @@ textarea.form-input{resize:vertical;min-height:72px}
 .output-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;row-gap:8px}
 .output-controls label{font-size:13px;color:#666}
 .output-box{background:#f9f9f6;border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;color:#1a1a1a;white-space:pre-wrap;border:0.5px solid #e0e0d8;min-height:200px}
-.task-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.task-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
 .task-row input{flex:1;padding:6px 10px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:13px;font-family:inherit}
 .task-row input:focus{outline:none;border-color:#1D9E75}
 .task-row select{padding:6px 8px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer}
@@ -372,26 +372,7 @@ textarea.form-input{resize:vertical;min-height:72px}
       </div>
 
       <div class="form-group" style="margin-top:12px"><label class="form-label">メモ・全体注意事項</label><textarea class="form-input" id="f-desc" placeholder="例: 参加必須。当日20分前に集合"></textarea></div>
-    <div class="form-section" style="margin-top:12px">
-      <div class="form-section-title">エントリー（通知テキストに ○曜日 として表示）</div>
-      <div id="entry-list" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end">
-        <div style="flex-shrink:0"><label class="form-label">曜日</label>
-          <select class="form-input" id="f-entry-day" style="width:90px">
-            <option value="月">月曜</option><option value="火">火曜</option><option value="水">水曜</option>
-            <option value="木">木曜</option><option value="金">金曜</option><option value="土">土曜</option><option value="日">日曜</option>
-            <option value="毎日">毎日</option>
-          </select>
-        </div>
-        <div style="flex:1;min-width:100px"><label class="form-label">イベント名</label>
-          <input type="text" class="form-input" id="f-entry-name" placeholder="例: イベント1名"/>
-        </div>
-        <div style="flex:2;min-width:140px"><label class="form-label">詳細</label>
-          <input type="text" class="form-input" id="f-entry-detail" placeholder="内容・詳細"/>
-        </div>
-        <button class="add-task-btn" onclick="addEntryRow()" style="margin-bottom:1px">+ 追加</button>
-      </div>
-    </div>
+
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-primary" onclick="saveEvent()">保存</button>
         <button class="btn-sm" onclick="cancelEdit()">キャンセル</button>
@@ -530,7 +511,7 @@ if (!state) {
   save();
 }
 
-let editingId=null,calYear,calMonth,selectedDate,customDates=[];
+let editingId=null,calYear,calMonth,selectedDate,customDates=[],editingEntries=[];
 let modalMode='add',editingProjectId=null;
 
 function save(){
@@ -631,11 +612,62 @@ function onTypeChange(){
 }
 function addTask(cid){
   const r=document.createElement('div');r.className='task-row';
-  r.innerHTML=`<input type="text" placeholder="タスク内容"/><select><option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
+  r.innerHTML=`
+    <select class="task-type-sel" onchange="onTaskTypeChange(this)" style="width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer">
+      <option value="task">タスク</option>
+      <option value="entry">エントリー</option>
+    </select>
+    <input type="text" placeholder="詳細内容" style="flex:1"/>
+    <select class="task-when-sel" style="width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer">
+      <option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option><option value="非表示">非表示</option>
+    </select>
+    <button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;
   document.getElementById(cid).appendChild(r);
 }
-function getTasks(cid){const t=[];document.querySelectorAll(`#${cid} .task-row`).forEach(r=>{const i=r.querySelector('input'),s=r.querySelector('select');if(i&&i.value.trim()) t.push({text:i.value.trim(),when:s?s.value:'毎日'});});return t;}
-function setTasks(cid,tasks){const c=document.getElementById(cid);c.innerHTML='';(tasks||[]).forEach(t=>{const r=document.createElement('div');r.className='task-row';r.innerHTML=`<input type="text" value="${t.text}"/><select><option value="毎日"${t.when==='毎日'?' selected':''}>毎日</option><option value="初日"${t.when==='初日'?' selected':''}>初日のみ</option><option value="最終日"${t.when==='最終日'?' selected':''}>最終日のみ</option><option value="1"${t.when==='1'?' selected':''}>1日目</option><option value="2"${t.when==='2'?' selected':''}>2日目</option><option value="3"${t.when==='3'?' selected':''}>3日目</option><option value="4"${t.when==='4'?' selected':''}>4日目</option><option value="5"${t.when==='5'?' selected':''}>5日目</option><option value="6"${t.when==='6'?' selected':''}>6日目</option><option value="7"${t.when==='7'?' selected':''}>7日目</option></select><button class="remove-task-btn" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r);});}
+function getTasks(cid){
+  const t=[];
+  document.querySelectorAll('#'+cid+' .task-row').forEach(r=>{
+    const inp=r.querySelector('input');
+    const typeSel=r.querySelector('.task-type-sel');
+    const whenSel=r.querySelector('.task-when-sel');
+    if(!inp||!inp.value.trim()) return;
+    const isEntry=typeSel&&typeSel.value==='entry';
+    const when=whenSel?whenSel.value:(isEntry?'entry-月':'毎日');
+    t.push({text:inp.value.trim(),when});
+  });
+  return t;
+}
+function setTasks(cid,tasks){
+  const c=document.getElementById(cid);c.innerHTML='';
+  (tasks||[]).forEach(t=>{
+    const isEntry=t.when&&t.when.startsWith('entry-');
+    const r=document.createElement('div');r.className='task-row';
+    // Build type select
+    const typeSel=document.createElement('select');
+    typeSel.className='task-type-sel';
+    typeSel.style.cssText='width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer';
+    typeSel.innerHTML='<option value="task"'+(isEntry?'':' selected')+'>タスク</option><option value="entry"'+(isEntry?' selected':'')+'>エントリー</option>';
+    typeSel.addEventListener('change',function(){onTaskTypeChange(this);});
+    // Build text input
+    const inp=document.createElement('input');
+    inp.type='text';inp.value=t.text||'';inp.style.flex='1';
+    inp.placeholder=isEntry?'詳細内容':'タスク内容';
+    // Build when select
+    const whenSel=document.createElement('select');
+    whenSel.className='task-when-sel';
+    whenSel.style.cssText='width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer';
+    const taskOpts=[['毎日','毎日'],['初日','初日のみ'],['最終日','最終日のみ'],['1','1日目'],['2','2日目'],['3','3日目'],['4','4日目'],['5','5日目'],['6','6日目'],['7','7日目'],['非表示','非表示']];
+    const entryOpts=[['entry-月','月曜'],['entry-火','火曜'],['entry-水','水曜'],['entry-木','木曜'],['entry-金','金曜'],['entry-土','土曜'],['entry-日','日曜'],['entry-毎日','毎日']];
+    const opts=isEntry?entryOpts:taskOpts;
+    whenSel.innerHTML=opts.map(([v,l])=>'<option value="'+v+'"'+(v===t.when?' selected':'')+'>'+l+'</option>').join('');
+    // Build remove button
+    const btn=document.createElement('button');
+    btn.className='remove-task-btn';btn.textContent='×';
+    btn.addEventListener('click',function(){r.remove();});
+    r.appendChild(typeSel);r.appendChild(inp);r.appendChild(whenSel);r.appendChild(btn);
+    c.appendChild(r);
+  });
+}
 function addCustomDate(){
   const d=document.getElementById('f-custom-date-input').value;if(!d||customDates.includes(d)) return;
   customDates.push(d);customDates.sort();renderCD();
@@ -655,15 +687,15 @@ function saveEvent(){
   else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.timeEnd=getTimeVal('f-bimonthly-time-end','f-bimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.timeEnd=getTimeVal('f-trimonthly-time-end','f-trimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.timeEnd=getTimeVal('f-quadmonthly-time-end','f-quadmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=getTimeVal('f-monthly-time','f-monthly-time-none');ev.timeEnd=getTimeVal('f-monthly-time-end','f-monthly-time-end-none');}
   else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=getTimeVal('f-temp-time','f-temp-time-none');ev.timeEnd=getTimeVal('f-temp-time-end','f-temp-time-end-none');}
   else if(type==='custom'){ev.customDates=[...customDates];ev.time=getTimeVal('f-custom-time','f-custom-time-none');ev.timeEnd=getTimeVal('f-custom-time-end','f-custom-time-end-none');}
-  ev.entries=[...editingEntries];if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
+  if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
   proj.events=evs;save();editingId=null;clearForm();renderEvents();
 }
 function clearForm(){
   ['f-name','f-desc','f-prep'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-type').value='weekly';document.getElementById('f-time').value='00:00';
+  document.getElementById('f-type').value='weekly';setTimeNone('f-time','f-time-none','');setTimeNone('f-time-end','f-time-end-none','');setTimeNone('f-daily-time','f-daily-time-none','');setTimeNone('f-daily-time-end','f-daily-time-end-none','');
   document.getElementById('weekly-tasks').innerHTML='';document.getElementById('daily-tasks').innerHTML='';['bimonthly','trimonthly','quadmonthly'].forEach(t=>{const p=document.getElementById('f-'+t+'-prep');if(p) p.value='';const c=document.getElementById(t+'-tasks');if(c) c.innerHTML='';});
   document.getElementById('form-title').textContent='イベントを追加';
-  customDates=[];renderCD();onTypeChange();editingEntries=[];renderEntryList();
+  customDates=[];renderCD();onTypeChange();
 }
 function cancelEdit(){editingId=null;clearForm();}
 function editEvent(id){
@@ -677,7 +709,7 @@ function editEvent(id){
   else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);setTimeNone('f-bimonthly-time-end','f-bimonthly-time-end-none',ev.timeEnd);updateHint('hint-bimonthly','f-bimonthly-time');updateHint('hint-bimonthly-end','f-bimonthly-time-end');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);setTimeNone('f-trimonthly-time-end','f-trimonthly-time-end-none',ev.timeEnd);updateHint('hint-trimonthly','f-trimonthly-time');updateHint('hint-trimonthly-end','f-trimonthly-time-end');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);setTimeNone('f-quadmonthly-time-end','f-quadmonthly-time-end-none',ev.timeEnd);updateHint('hint-quadmonthly','f-quadmonthly-time');updateHint('hint-quadmonthly-end','f-quadmonthly-time-end');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;setTimeNone('f-monthly-time','f-monthly-time-none',ev.time);setTimeNone('f-monthly-time-end','f-monthly-time-end-none',ev.timeEnd);updateHint('hint-monthly','f-monthly-time');updateHint('hint-monthly-end','f-monthly-time-end');updateHint('hint-monthly','f-monthly-time');}
   else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';setTimeNone('f-temp-time','f-temp-time-none',ev.time);setTimeNone('f-temp-time-end','f-temp-time-end-none',ev.timeEnd);updateHint('hint-temp','f-temp-time');updateHint('hint-temp-end','f-temp-time-end');updateHint('hint-temp','f-temp-time');}
   else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];setTimeNone('f-custom-time','f-custom-time-none',ev.time);setTimeNone('f-custom-time-end','f-custom-time-end-none',ev.timeEnd);renderCD();updateHint('hint-custom','f-custom-time');updateHint('hint-custom-end','f-custom-time-end');}
-  editingEntries=ev.entries?[...ev.entries]:[];renderEntryList();window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function deleteEvent(id){if(!confirm('削除しますか？')) return;const p=curProj();p.events=(p.events||[]).filter(e=>e.id!==id);save();renderEvents();}
 
@@ -701,7 +733,7 @@ function renderEvents(){
   const el=document.getElementById('event-list'),evs=curEvs();
   if(!evs.length){el.innerHTML='<div class="empty-state">イベントが登録されていません</div>';return;}
   el.innerHTML=evs.map((ev,idx)=>{const t=(ev.tasks||[]).map(t=>`${t.text}(${t.when})`).join(' / ');
-    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}${ev.entries&&ev.entries.length?`<div class="event-tasks" style="color:#185FA5">エントリー ${ev.entries.length}件（${[...new Set(ev.entries.map(e=>e.day))].map(d=>d==='毎日'?'毎日':d+'曜').join(', ')}）</div>`:''}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
+    return`<div class="event-card" data-idx="${idx}"><div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0"><button onclick="moveEvent(${idx},-1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="上へ">▲</button><button onclick="moveEvent(${idx},1)" style="padding:1px 6px;font-size:11px;border:0.5px solid #d0d0c8;border-radius:4px;background:none;cursor:pointer;color:#888;line-height:1.2" title="下へ">▼</button></div><div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-name">${ev.name}</div><div class="event-meta">${schedLabel(ev)}</div>${ev.prep?`<div class="event-tasks">準備: ${ev.prep}</div>`:''}${t?`<div class="event-tasks">タスク: ${t}</div>`:''}${ev.desc?`<div class="event-tasks">${ev.desc.substring(0,60)}${ev.desc.length>60?'…':''}</div>`:''}${(()=>{const et=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-'));if(!et.length) return '';const days=[...new Set(et.map(t=>t.when.replace('entry-','')))];return `<div class="event-tasks" style="color:#185FA5">エントリー ${et.length}件（${days.map(d=>d==='毎日'?'毎日':d+'曜').join(', ')}）</div>`;})()}</div><div class="event-actions"><span class="badge ${TYPE_BADGE[ev.type]||'b-custom'}">${TYPE_LABELS[ev.type]||ev.type}</span><button class="btn-sm" onclick="editEvent('${ev.id}')">編集</button><button class="btn-sm danger" onclick="deleteEvent('${ev.id}')">削除</button></div></div>`;
   }).join('');
 }
 
@@ -838,14 +870,17 @@ function generateOutput(){
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
       const tasks=(ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});
-      const taskStr=tasks.length?' ('+tasks.map(t=>t.text).join('／')+')':'';
+      const tasks2=(ev.tasks||[]).filter(t=>{if(!t.when||t.when.startsWith('entry-')||t.when==='非表示') return false;const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});const taskStr=tasks2.length?' ('+tasks2.map(t=>t.text).join('／')+')':'';
       lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
-      if(ev.entries&&ev.entries.length){
-        const entryDays=[...new Set(ev.entries.map(e=>e.day))];
+      // Entry tasks from tasks array
+      const entryTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-'));
+      if(entryTasks.length){
+        // Group by day
+        const entryDays=[...new Set(entryTasks.map(t=>t.when.replace('entry-','')))];
         entryDays.forEach(day=>{
-          lines.push(`○${day==='毎日'?'毎日':day+'曜'}`);
-          ev.entries.filter(e=>e.day===day).forEach(en=>
-            lines.push(`  - ${en.name}${en.detail?' : '+en.detail:''}`)
+          lines.push('○'+(day==='毎日'?'毎日':day+'曜'));
+          entryTasks.filter(t=>t.when==='entry-'+day).forEach(t=>
+            lines.push('  - '+t.text)
           );
         });
       }
@@ -1108,58 +1143,6 @@ function moveEvent(idx, dir){
   proj.events = evs;
   save(); renderEvents();
 }
-
-// ===== Entry list =====
-let editingEntries = [];
-
-function renderEntryList(){
-  const c = document.getElementById('entry-list');
-  if(!c) return;
-  if(!editingEntries.length){
-    c.innerHTML='<div style="font-size:12px;color:#aaa;padding:4px 0">エントリーなし</div>';
-    return;
-  }
-  // Group by day
-  const days = [...new Set(editingEntries.map(e=>e.day))];
-  c.innerHTML = days.map(day=>{
-    const items = editingEntries.filter(e=>e.day===day);
-    return `<div style="margin-bottom:8px">
-      <div style="font-size:12px;font-weight:500;color:#0F6E56;margin-bottom:4px">○${day}曜</div>
-      ${items.map((e,_)=>{
-        const globalIdx = editingEntries.indexOf(e);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 12px;border-bottom:0.5px solid #f5f5f0">
-          <div style="flex:1;font-size:13px"><span style="font-weight:500">${e.name}</span>${e.detail?' : <span style="color:#666">'+e.detail+'</span>':''}</div>
-          <button class="remove-task-btn" onclick="removeEntry(${globalIdx})">×</button>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }).join('');
-}
-
-function addEntryRow(){
-  const day = document.getElementById('f-entry-day').value;
-  const name = document.getElementById('f-entry-name').value.trim();
-  const detail = document.getElementById('f-entry-detail').value.trim();
-  if(!name) return;
-  editingEntries.push({day, name, detail});
-  document.getElementById('f-entry-name').value = '';
-  document.getElementById('f-entry-detail').value = '';
-  renderEntryList();
-  document.getElementById('f-entry-name').focus();
-}
-
-function removeEntry(i){
-  editingEntries.splice(i,1);
-  renderEntryList();
-}
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  const detailEl = document.getElementById('f-entry-detail');
-  const nameEl = document.getElementById('f-entry-name');
-  if(detailEl) detailEl.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();addEntryRow();}});
-  if(nameEl) nameEl.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();if(detailEl) detailEl.focus();}});
-});
-// ===== End Entry list =====
 
 </script>
 
