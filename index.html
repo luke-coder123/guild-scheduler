@@ -234,7 +234,6 @@ textarea.form-input{resize:vertical;min-height:72px}
           <div class="form-row">
             <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-biweekly-start"/></div>
             <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time" value="00:00" oninput="updateHint('hint-biweekly','f-biweekly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-none" onchange="toggleTimeNone('f-biweekly-time','hint-biweekly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly"></div></div>
-            <div class="form-group" style="margin:0;margin-top:8px"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time-end" value="00:00" oninput="updateHint('hint-biweekly-end','f-biweekly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-end-none" onchange="toggleTimeNone('f-biweekly-time-end','hint-biweekly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-biweekly-end"></div></div>
             <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-biweekly-time-end" value="00:00" oninput="updateHint('hint-biweekly-end','f-biweekly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-biweekly-time-end-none" onchange="toggleTimeNone('f-biweekly-time-end','hint-biweekly-end',this)"/> 指定なし(24h)</label></div><div class="utc-hint" id="hint-biweekly-end"></div></div>
           </div>
 
@@ -711,29 +710,21 @@ function renderEvents(){
 function isBiDay(ev,jstDS){
   if(!ev.biweeklyStart) return false;
   const dur=ev.duration||1;
-  const [jstStart]=jstRangeForEvent(ev.biweeklyStart,ev.time||'',1);
+  const jstStart=utcDateToJST(ev.biweeklyStart,ev.time||'');
   if(!jstStart||jstDS<jstStart) return false;
   const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
   if(diff<0) return false;
-  const cyclePos=diff%2;
-  const [,jstCycleEnd]=jstRangeForEvent(ev.biweeklyStart,ev.time||'',dur);
-  const jstDurDays=Math.round((new Date(jstCycleEnd+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000)+1;
-  return cyclePos<jstDurDays;
+  return (diff%2)<dur;
 }
 
 function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){
   if(!utcStart) return false;
   const dur=duration||1;
-  const [jstStart]=jstRangeForEvent(utcStart,utcTime||'',1);
+  const jstStart=utcDateToJST(utcStart,utcTime||'');
   if(!jstStart||jstDS<jstStart) return false;
   const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);
   if(diff<0) return false;
-  // cyclePos: which day within the interval are we on?
-  const cyclePos=diff%intervalDays;
-  // How many JST days does one "dur UTC days" span?
-  const [,jstCycleEnd]=jstRangeForEvent(utcStart,utcTime||'',dur);
-  const jstDurDays=Math.round((new Date(jstCycleEnd+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000)+1;
-  return cyclePos<jstDurDays;
+  return (diff%intervalDays)<dur;
 }function isHiddenDay(ev, jstDS){
   if(!ev.tasks||!ev.tasks.length) return false;
   const hiddenTasks=(ev.tasks||[]).filter(t=>t.when==='非表示');
