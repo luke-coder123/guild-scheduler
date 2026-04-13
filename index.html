@@ -766,6 +766,11 @@ function isBiDay(ev,jstDS){if(!ev.biweeklyStart) return false;const jstStart=utc
 function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){if(!utcStart) return false;const jstStart=utcDateToJST(utcStart,utcTime||'00:00');if(jstDS<jstStart) return false;const diff=Math.round((new Date(jstDS+'T00:00:00')-new Date(jstStart+'T00:00:00'))/86400000);if(diff<0) return false;const cyclePos=diff%intervalDays;return cyclePos<(duration||1);}function getEvs(jstDS){
   const d=new Date(jstDS+'T00:00:00'),wd=d.getDay(),day=d.getDate();
   return curEvs().filter(ev=>{
+    // エントリーのみのイベント：その日に一致するエントリータスクがなければ除外
+    const evTasks=ev.tasks||[];
+    if(evTasks.length>0&&evTasks.every(t=>!t.when||t.when.startsWith('entry-'))){
+      return evTasks.some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,jstDS));
+    }
     if(ev.type==='daily') return true;
     if(ev.type==='weekly'){
       const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);
@@ -928,19 +933,17 @@ function generateOutput(){
     evs.forEach(ev=>{
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
-      // タスク（通常）
       const normalTasks=(ev.tasks||[]).filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
-      // 本戦
       const honsenTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
-      // エントリー（このevに属する）
-      const hasEntry=(ev.tasks||[]).some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
-      // イベント行を出すか：タスクか本戦があれば出す、エントリーのみなら出さない
-      const hasTaskOrHonsen=normalTasks.length>0||honsenTasks.length>0;
-      if(!hasEntry||hasTaskOrHonsen){
+      const hasEntryToday=(ev.tasks||[]).some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
+      // エントリーのみのイベント：エントリーがある日のみ処理（イベント行は出さない）
+      const isEntryOnly=(ev.tasks||[]).length>0&&(ev.tasks||[]).every(t=>!t.when||t.when.startsWith('entry-'));
+      if(isEntryOnly&&!hasEntryToday) return;
+      // イベント行：タスク/本戦がある場合、またはエントリー専用でない場合
+      if(!isEntryOnly||normalTasks.length>0||honsenTasks.length>0){
         const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
         lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
       }
-      // 本戦行
       honsenTasks.forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
     });
 
