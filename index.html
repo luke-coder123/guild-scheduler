@@ -617,7 +617,7 @@ function onTaskTypeChange(typeSel){
   const inp=row.querySelector('input[type=text]');
   if(!whenSel) return;
   const TASK_OPTS='<option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option><option value="非表示">非表示</option>';
-  const ENTRY_OPTS='<option value="entry-月">月曜</option><option value="entry-火">火曜</option><option value="entry-水">水曜</option><option value="entry-木">木曜</option><option value="entry-金">金曜</option><option value="entry-土">土曜</option><option value="entry-日">日曜</option><option value="entry-毎日">毎日</option>';
+  const ENTRY_OPTS='<option value="entry-毎日">毎日</option><option value="entry-初日">初日のみ</option><option value="entry-最終日">最終日のみ</option><option value="entry-1">1日目</option><option value="entry-2">2日目</option><option value="entry-3">3日目</option><option value="entry-4">4日目</option><option value="entry-5">5日目</option><option value="entry-6">6日目</option><option value="entry-7">7日目</option>';
   const HONSEN_OPTS='<option value="honsen-毎日">毎日</option><option value="honsen-初日">初日のみ</option><option value="honsen-最終日">最終日のみ</option><option value="honsen-1">1日目</option><option value="honsen-2">2日目</option><option value="honsen-3">3日目</option><option value="honsen-4">4日目</option><option value="honsen-5">5日目</option><option value="honsen-6">6日目</option><option value="honsen-7">7日目</option>';
   if(typeSel.value==='entry'){
     whenSel.innerHTML=ENTRY_OPTS;
@@ -653,7 +653,7 @@ function getTasks(cid){
     const whenSel=r.querySelector('.task-when-sel');
     if(!inp||!inp.value.trim()) return;
     const isEntry=typeSel&&typeSel.value==='entry';const isHonsen=typeSel&&typeSel.value==='honsen';
-    const when=whenSel?whenSel.value:(isHonsen?'honsen':isEntry?'entry-月':'毎日');
+    const when=whenSel?whenSel.value:(isHonsen?'honsen-毎日':isEntry?'entry-毎日':'毎日');
     t.push({text:inp.value.trim(),when});
   });
   return t;
@@ -678,11 +678,11 @@ function setTasks(cid,tasks){
     whenSel.className='task-when-sel';
     whenSel.style.cssText='width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer';
     const taskOpts=[['毎日','毎日'],['初日','初日のみ'],['最終日','最終日のみ'],['1','1日目'],['2','2日目'],['3','3日目'],['4','4日目'],['5','5日目'],['6','6日目'],['7','7日目'],['非表示','非表示']];
-    const entryOpts=[['entry-月','月曜'],['entry-火','火曜'],['entry-水','水曜'],['entry-木','木曜'],['entry-金','金曜'],['entry-土','土曜'],['entry-日','日曜'],['entry-毎日','毎日']];
+    const entryOpts=[['entry-毎日','毎日'],['entry-初日','初日のみ'],['entry-最終日','最終日のみ'],['entry-1','1日目'],['entry-2','2日目'],['entry-3','3日目'],['entry-4','4日目'],['entry-5','5日目'],['entry-6','6日目'],['entry-7','7日目']];
     const isHonsenType=isHonsen||t.when==='honsen'||(t.when&&t.when.startsWith('honsen-'));
     const honsenOpts=[['honsen-毎日','毎日'],['honsen-初日','初日のみ'],['honsen-最終日','最終日のみ'],['honsen-1','1日目'],['honsen-2','2日目'],['honsen-3','3日目'],['honsen-4','4日目'],['honsen-5','5日目'],['honsen-6','6日目'],['honsen-7','7日目']];
     const opts=isHonsenType?honsenOpts:isEntry?entryOpts:taskOpts;
-    whenSel.innerHTML=opts.map(([v,l])=>'<option value="'+v+'"'+(v===t.when?' selected':'')+'>'+l+'</option>').join('');
+    const normalizedWhen=t.when==='honsen'?'honsen-毎日':t.when;whenSel.innerHTML=opts.map(([v,l])=>'<option value="'+v+'"'+(v===normalizedWhen?' selected':'')+'>'+l+'</option>').join('');
     // Build remove button
     const btn=document.createElement('button');
     btn.className='remove-task-btn';btn.textContent='×';
@@ -875,6 +875,35 @@ function getDayOfEvent(ev,jstDS){
   }
   return 1;
 }
+function taskMatchesDay(t, ev, ds){
+  const w=t.when;
+  if(!w) return false;
+  if(w==='非表示') return false;
+  const day=getDayOfEvent(ev,ds);
+  const wd=new Date(ds+'T00:00:00').getDay();
+  // Entry: same day-of-event logic as task
+  if(w.startsWith('entry-')){
+    const ew=w.replace('entry-','');
+    if(ew==='毎日') return true;
+    if(ew==='初日') return isFirst(ev,ds);
+    if(ew==='最終日') return isLast(ev,ds);
+    return ew===String(day);
+  }
+  // Honsen: match by day-of-event
+  if(w.startsWith('honsen-')){
+    const hw=w.replace('honsen-','');
+    if(hw==='毎日') return true;
+    if(hw==='初日') return isFirst(ev,ds);
+    if(hw==='最終日') return isLast(ev,ds);
+    return hw===String(day);
+  }
+  // Task: match by day-of-event
+  if(w==='毎日') return true;
+  if(w==='初日') return isFirst(ev,ds);
+  if(w==='最終日') return isLast(ev,ds);
+  return w===String(day);
+}
+
 function generateOutput(){
   const base=document.getElementById('out-date').value||todayJST();
   const range=+document.getElementById('out-range').value,p=curProj();
@@ -892,27 +921,18 @@ function generateOutput(){
     evs.forEach(ev=>{
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
-      const tasks=(ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});
-      const tasks2=(ev.tasks||[]).filter(t=>{if(!t.when||t.when.startsWith('entry-')||t.when==='非表示'||t.when==='honsen'||t.when.startsWith('honsen-')) return false;const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});const taskStr=tasks2.length?' ('+tasks2.map(t=>t.text).join('／')+')':'';
+      // タスク（通常）
+      const normalTasks=(ev.tasks||[]).filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
+      const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
       lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
-      // 本戦 tasks
-      const honsenTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-'));
-      honsenTasks.filter(t=>{
-        const day=getDayOfEvent(ev,ds);
-        const w=t.when.replace('honsen-','');
-        if(w==='毎日') return true;
-        if(w==='初日') return isFirst(ev,ds);
-        if(w==='最終日') return isLast(ev,ds);
-        return w===String(day);
-      }).forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
-      // Entry tasks
-      const entryTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-'));
-      if(entryTasks.length){
-        const entryDays=[...new Set(entryTasks.map(t=>t.when.replace('entry-','')))];
-        entryDays.forEach(day=>{
-          lines.push('○'+(day==='毎日'?'毎日':day+'曜'));
-          entryTasks.filter(t=>t.when==='entry-'+day).forEach(t=>lines.push('  - '+t.text));
-        });
+      // 本戦
+      (ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds))
+        .forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
+      // エントリー（当日の曜日に一致するものだけ）
+      const entryToday=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
+      if(entryToday.length){
+        lines.push('○エントリー');
+        entryToday.forEach(t=>lines.push('  - '+t.text));
       }
     });
     lines.push('');
