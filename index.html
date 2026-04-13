@@ -918,23 +918,37 @@ function generateOutput(){
       const prepDesc=ev.prep?' '+ev.prep:'';
       lines.push(`・[前日準備] ${ev.name}${prepDesc}`);
     });
+    // Collect entries for this day across all evs
+    const dayEntries=[];
+    evs.forEach(ev=>{
+      const entryToday=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
+      entryToday.forEach(t=>dayEntries.push({evName:ev.name,text:t.text}));
+    });
+
     evs.forEach(ev=>{
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
       // タスク（通常）
       const normalTasks=(ev.tasks||[]).filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
-      const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
-      lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
       // 本戦
-      (ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds))
-        .forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
-      // エントリー（当日の曜日に一致するものだけ）
-      const entryToday=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
-      if(entryToday.length){
-        lines.push('○エントリー');
-        entryToday.forEach(t=>lines.push('  - '+t.text));
+      const honsenTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
+      // エントリー（このevに属する）
+      const hasEntry=(ev.tasks||[]).some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
+      // イベント行を出すか：タスクか本戦があれば出す、エントリーのみなら出さない
+      const hasTaskOrHonsen=normalTasks.length>0||honsenTasks.length>0;
+      if(!hasEntry||hasTaskOrHonsen){
+        const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
+        lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
       }
+      // 本戦行
+      honsenTasks.forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
     });
+
+    // ○エントリー セクション（その日のエントリーまとめ）
+    if(dayEntries.length){
+      lines.push('○エントリー');
+      dayEntries.forEach(e=>lines.push('・'+e.evName+(e.text?'　'+e.text:'')));
+    }
     lines.push('');
   }
   if(!any) lines.push('期間中にイベントはありません');
