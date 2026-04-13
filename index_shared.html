@@ -488,7 +488,7 @@ if (!state) {
 let editingId=null,calYear,calMonth,selectedDate,customDates=[];
 let modalMode='add',editingProjectId=null;
 
-function save(){localStorage.setItem('guildscheduler_v4',JSON.stringify(state));}
+function save(){/* shared: state lives in Supabase, localStorage not relied upon */}
 function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function todayJST(){
   const now=new Date();
@@ -501,12 +501,14 @@ function curEvs(){return curProj().events||[];}
 // --- Project bar ---
 function renderProjectBar(){
   const bar=document.getElementById('project-bar');
-  let h=state.projects.map(p=>`<button class="project-tab${p.id===state.currentProjectId?' active':''}" onclick="switchProject('${p.id}')">${p.game}${p.guild?' · '+p.guild:''}</button>`).join('');
-  if(state.projects.length<MAX) h+=`<button class="project-add-btn" onclick="openAddProject()">+ ゲーム追加</button>`;
-  bar.innerHTML=h;
-  const p=curProj();
-  document.getElementById('project-name-display').textContent=p.game+(p.guild?' — '+p.guild:'');
-  document.getElementById('project-count').textContent=`${state.projects.length} / ${MAX}`;
+  // 編集者・閲覧者ともに currentProjectId のゲームのみ表示
+  const proj=(state.projects||[]).find(p=>p.id===state.currentProjectId)||(state.projects||[])[0];
+  if(!proj) return;
+  bar.innerHTML='';
+  document.getElementById('project-name-display').textContent=proj.game+(proj.guild?' — '+proj.guild:'');
+  const countEl=document.getElementById('project-count');
+  if(countEl) countEl.textContent='';
+  renderEvents();
 }
 
 function switchProject(id){
@@ -960,9 +962,8 @@ async function autoConnect(){
   const sbu=p.get('sbu')||'';
   const sbk=p.get('sbk')||'';
 
-  // URL params always take priority - connect directly without using form fields
   if(token&&sbu&&sbk){
-    // Pre-fill form in case of error display
+    // Always connect fresh from URL (works in private browsing)
     const elUrl=document.getElementById('shared-sb-url');
     const elKey=document.getElementById('shared-sb-key');
     const elTok=document.getElementById('shared-token');
@@ -971,17 +972,10 @@ async function autoConnect(){
     if(elKey) elKey.value=sbk;
     if(elTok) elTok.value=token;
     if(elMode) elMode.value=mode;
-    // Connect directly with URL values (bypass form entirely)
     await doSharedConnect(sbu,sbk,token,mode);
     return;
   }
-  // No URL params - try saved config
-  const saved=JSON.parse(localStorage.getItem(SHARED_KEY)||'null');
-  if(saved&&saved.sbUrl&&saved.sbKey&&saved.spaceId){
-    await doSharedConnectById(saved.sbUrl,saved.sbKey,saved.spaceId,saved.role||'editor');
-    return;
-  }
-  // Show setup screen
+  // No URL params - show setup screen
   const overlay=document.getElementById('shared-setup');
   if(overlay) overlay.style.display='flex';
 }
@@ -1094,7 +1088,6 @@ function subscribeSharedRealtime(){
 // For editor: push changes to cloud on every save
 const _origSaveShared=save;
 function save(){
-  localStorage.setItem('guildscheduler_v4',JSON.stringify(state));
   if(sharedRole==='editor'&&sbShared&&sharedSpaceId){
     setSyncDot('syncing');
     sbShared.from('guild_spaces').update({data:state}).eq('id',sharedSpaceId)
