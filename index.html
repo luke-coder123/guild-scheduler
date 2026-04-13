@@ -610,14 +610,35 @@ function onTypeChange(){
   ['weekly','daily','biweekly','bimonthly','trimonthly','quadmonthly','monthly','temp','custom'].forEach(k=>{const el=document.getElementById('fields-'+k);if(el) el.style.display=k===t?'block':'none';});
   initHints();
 }
+function onTaskTypeChange(typeSel){
+  const row=typeSel.closest('.task-row');
+  if(!row) return;
+  const whenSel=row.querySelector('.task-when-sel');
+  const inp=row.querySelector('input[type=text]');
+  if(!whenSel) return;
+  const TASK_OPTS='<option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option><option value="非表示">非表示</option>';
+  const ENTRY_OPTS='<option value="entry-月">月曜</option><option value="entry-火">火曜</option><option value="entry-水">水曜</option><option value="entry-木">木曜</option><option value="entry-金">金曜</option><option value="entry-土">土曜</option><option value="entry-日">日曜</option><option value="entry-毎日">毎日</option>';
+  const HONSEN_OPTS='<option value="honsen-毎日">毎日</option><option value="honsen-初日">初日のみ</option><option value="honsen-最終日">最終日のみ</option><option value="honsen-1">1日目</option><option value="honsen-2">2日目</option><option value="honsen-3">3日目</option><option value="honsen-4">4日目</option><option value="honsen-5">5日目</option><option value="honsen-6">6日目</option><option value="honsen-7">7日目</option>';
+  if(typeSel.value==='entry'){
+    whenSel.innerHTML=ENTRY_OPTS;
+    if(inp) inp.placeholder='詳細内容';
+  } else if(typeSel.value==='honsen'){
+    whenSel.innerHTML=HONSEN_OPTS;
+    if(inp) inp.placeholder='詳細（例: 21:00～）';
+  } else {
+    whenSel.innerHTML=TASK_OPTS;
+    if(inp) inp.placeholder='タスク内容';
+  }
+}
 function addTask(cid){
   const r=document.createElement('div');r.className='task-row';
   r.innerHTML=`
     <select class="task-type-sel" onchange="onTaskTypeChange(this)" style="width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer">
       <option value="task">タスク</option>
       <option value="entry">エントリー</option>
+      <option value="honsen">本戦</option>
     </select>
-    <input type="text" placeholder="詳細内容" style="flex:1"/>
+    <input type="text" placeholder="タスク内容" style="flex:1"/>
     <select class="task-when-sel" style="width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer">
       <option value="毎日">毎日</option><option value="初日">初日のみ</option><option value="最終日">最終日のみ</option><option value="1">1日目</option><option value="2">2日目</option><option value="3">3日目</option><option value="4">4日目</option><option value="5">5日目</option><option value="6">6日目</option><option value="7">7日目</option><option value="非表示">非表示</option>
     </select>
@@ -631,8 +652,8 @@ function getTasks(cid){
     const typeSel=r.querySelector('.task-type-sel');
     const whenSel=r.querySelector('.task-when-sel');
     if(!inp||!inp.value.trim()) return;
-    const isEntry=typeSel&&typeSel.value==='entry';
-    const when=whenSel?whenSel.value:(isEntry?'entry-月':'毎日');
+    const isEntry=typeSel&&typeSel.value==='entry';const isHonsen=typeSel&&typeSel.value==='honsen';
+    const when=whenSel?whenSel.value:(isHonsen?'honsen':isEntry?'entry-月':'毎日');
     t.push({text:inp.value.trim(),when});
   });
   return t;
@@ -646,19 +667,21 @@ function setTasks(cid,tasks){
     const typeSel=document.createElement('select');
     typeSel.className='task-type-sel';
     typeSel.style.cssText='width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer';
-    typeSel.innerHTML='<option value="task"'+(isEntry?'':' selected')+'>タスク</option><option value="entry"'+(isEntry?' selected':'')+'>エントリー</option>';
+    const isHonsen=t.when==='honsen'||(t.when&&t.when.startsWith('honsen-'));typeSel.innerHTML='<option value="task"'+(!isEntry&&!isHonsen?' selected':'')+'>タスク</option><option value="entry"'+(isEntry?' selected':'')+'>エントリー</option><option value="honsen"'+(isHonsen?' selected':'')+'>本戦</option>';
     typeSel.addEventListener('change',function(){onTaskTypeChange(this);});
     // Build text input
     const inp=document.createElement('input');
     inp.type='text';inp.value=t.text||'';inp.style.flex='1';
-    inp.placeholder=isEntry?'詳細内容':'タスク内容';
+    inp.placeholder=isHonsen?'詳細（例: 21:00～）':isEntry?'詳細内容':'タスク内容';
     // Build when select
     const whenSel=document.createElement('select');
     whenSel.className='task-when-sel';
     whenSel.style.cssText='width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer';
     const taskOpts=[['毎日','毎日'],['初日','初日のみ'],['最終日','最終日のみ'],['1','1日目'],['2','2日目'],['3','3日目'],['4','4日目'],['5','5日目'],['6','6日目'],['7','7日目'],['非表示','非表示']];
     const entryOpts=[['entry-月','月曜'],['entry-火','火曜'],['entry-水','水曜'],['entry-木','木曜'],['entry-金','金曜'],['entry-土','土曜'],['entry-日','日曜'],['entry-毎日','毎日']];
-    const opts=isEntry?entryOpts:taskOpts;
+    const isHonsenType=isHonsen||t.when==='honsen'||(t.when&&t.when.startsWith('honsen-'));
+    const honsenOpts=[['honsen-毎日','毎日'],['honsen-初日','初日のみ'],['honsen-最終日','最終日のみ'],['honsen-1','1日目'],['honsen-2','2日目'],['honsen-3','3日目'],['honsen-4','4日目'],['honsen-5','5日目'],['honsen-6','6日目'],['honsen-7','7日目']];
+    const opts=isHonsenType?honsenOpts:isEntry?entryOpts:taskOpts;
     whenSel.innerHTML=opts.map(([v,l])=>'<option value="'+v+'"'+(v===t.when?' selected':'')+'>'+l+'</option>').join('');
     // Build remove button
     const btn=document.createElement('button');
@@ -870,18 +893,25 @@ function generateOutput(){
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
       const tasks=(ev.tasks||[]).filter(t=>{const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});
-      const tasks2=(ev.tasks||[]).filter(t=>{if(!t.when||t.when.startsWith('entry-')||t.when==='非表示') return false;const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});const taskStr=tasks2.length?' ('+tasks2.map(t=>t.text).join('／')+')':'';
+      const tasks2=(ev.tasks||[]).filter(t=>{if(!t.when||t.when.startsWith('entry-')||t.when==='非表示'||t.when==='honsen'||t.when.startsWith('honsen-')) return false;const day=getDayOfEvent(ev,ds);return t.when==='毎日'||(t.when==='初日'&&isFirst(ev,ds))||(t.when==='最終日'&&isLast(ev,ds))||(t.when===String(day));});const taskStr=tasks2.length?' ('+tasks2.map(t=>t.text).join('／')+')':'';
       lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
-      // Entry tasks from tasks array
+      // 本戦 tasks
+      const honsenTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-'));
+      honsenTasks.filter(t=>{
+        const day=getDayOfEvent(ev,ds);
+        const w=t.when.replace('honsen-','');
+        if(w==='毎日') return true;
+        if(w==='初日') return isFirst(ev,ds);
+        if(w==='最終日') return isLast(ev,ds);
+        return w===String(day);
+      }).forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
+      // Entry tasks
       const entryTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-'));
       if(entryTasks.length){
-        // Group by day
         const entryDays=[...new Set(entryTasks.map(t=>t.when.replace('entry-','')))];
         entryDays.forEach(day=>{
           lines.push('○'+(day==='毎日'?'毎日':day+'曜'));
-          entryTasks.filter(t=>t.when==='entry-'+day).forEach(t=>
-            lines.push('  - '+t.text)
-          );
+          entryTasks.filter(t=>t.when==='entry-'+day).forEach(t=>lines.push('  - '+t.text));
         });
       }
     });
