@@ -206,7 +206,7 @@ textarea.form-input{resize:vertical;min-height:72px}
         <div class="form-group" style="margin:0"><label class="form-label">イベント名</label><input type="text" class="form-input" id="f-name" placeholder="例: 国家戦争"/></div>
         <div class="form-group" style="margin:0"><label class="form-label">種別</label>
           <select class="form-input" id="f-type" onchange="onTypeChange()">
-            <option value="weekly">毎週</option><option value="daily">毎日</option><option value="biweekly">隔日</option><option value="monthly">毎月</option><option value="temp">臨時</option><option value="bimonthly">2週に1回</option><option value="trimonthly">3週に1回</option><option value="quadmonthly">4週に1回</option><option value="custom">カスタム</option>
+            <option value="weekly">毎週</option><option value="daily">毎日</option><option value="biweekly">隔日</option><option value="monthly">毎月</option><option value="temp">臨時</option><option value="bimonthly">2週に1回</option><option value="trimonthly">3週に1回</option><option value="quadmonthly">4週に1回</option><option value="quinmonthly">5週に1回</option><option value="hexmonthly">6週に1回</option><option value="custom">カスタム</option>
           </select>
         </div>
       </div>
@@ -330,6 +330,48 @@ textarea.form-input{resize:vertical;min-height:72px}
           <button class="add-task-btn" style="margin-top:4px" onclick="addTask('quadmonthly-tasks')">+ タスク追加</button>
         </div>
       </div>
+      <div id="fields-quinmonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">5週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-quinmonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quinmonthly-time" value="00:00" oninput="updateHint('hint-quinmonthly','f-quinmonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quinmonthly-time-none" onchange="toggleTimeNone('f-quinmonthly-time','hint-quinmonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-quinmonthly"></div></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-quinmonthly-time-end" value="00:00" oninput="updateHint('hint-quinmonthly-end','f-quinmonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-quinmonthly-time-end-none" onchange="toggleTimeNone('f-quinmonthly-time-end','hint-quinmonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-quinmonthly-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-quinmonthly-duration" min="1" max="30" value="1"/></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日から5週間隔で繰り返し。曜日変更時は開始日を更新</p>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-quinmonthly-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中タスク</label>
+          <div id="quinmonthly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('quinmonthly-tasks')">+ タスク追加</button>
+        </div>
+      </div>
+      <div id="fields-hexmonthly" style="display:none">
+        <div class="form-section">
+          <div class="form-section-title">6週に1回（UTC入力）</div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0"><label class="form-label">開始日 (UTC)</label><input type="date" class="form-input" id="f-hexmonthly-start"/></div>
+            <div class="form-group" style="margin:0"><label class="form-label">開始時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-hexmonthly-time" value="00:00" oninput="updateHint('hint-hexmonthly','f-hexmonthly-time')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-hexmonthly-time-none" onchange="toggleTimeNone('f-hexmonthly-time','hint-hexmonthly',this)"/> 指定なし</label></div><div class="utc-hint" id="hint-hexmonthly"></div></div>
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <div class="form-group" style="margin:0"><label class="form-label">終了時間 (UTC)</label><div style="display:flex;align-items:center;gap:8px"><input type="time" class="form-input" id="f-hexmonthly-time-end" value="00:00" oninput="updateHint('hint-hexmonthly-end','f-hexmonthly-time-end')" style="flex:1"/><label style="font-size:12px;color:#666;white-space:nowrap;display:flex;align-items:center;gap:4px"><input type="checkbox" id="f-hexmonthly-time-end-none" onchange="toggleTimeNone('f-hexmonthly-time-end','hint-hexmonthly-end',this)" checked/> 指定なし</label></div><div class="utc-hint" id="hint-hexmonthly-end"></div></div>
+            <div class="form-group" style="margin:0"><label class="form-label">開催日数</label><input type="number" class="form-input" id="f-hexmonthly-duration" min="1" max="30" value="1"/></div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-top:8px">※ 開始日から6週間隔で繰り返し。曜日変更時は開始日を更新</p>
+        </div>
+        <div class="form-section" style="margin-top:8px">
+          <div class="form-section-title">前日準備・期間中タスク</div>
+          <div class="form-group" style="margin-bottom:8px"><label class="form-label">前日準備タスク（空欄でスキップ）</label><input type="text" class="form-input" id="f-hexmonthly-prep" placeholder="例: 資源備蓄、援軍リクエスト送信"/></div>
+          <label class="form-label">期間中タスク</label>
+          <div id="hexmonthly-tasks" style="margin-top:6px"></div>
+          <button class="add-task-btn" style="margin-top:4px" onclick="addTask('hexmonthly-tasks')">+ タスク追加</button>
+        </div>
+      </div>
 
       <div id="fields-monthly" style="display:none">
         <div class="form-section">
@@ -445,7 +487,7 @@ textarea.form-input{resize:vertical;min-height:72px}
 <script>
 const DAYS=['日','月','火','水','木','金','土'];
 const COLORS=['#1D9E75','#534AB7','#D85A30','#BA7517','#378ADD','#639922','#D4537E','#888780'];
-const TYPE_LABELS={weekly:'毎週',daily:'毎日',biweekly:'隔日',bimonthly:'2週に1回',trimonthly:'3週に1回',quadmonthly:'4週に1回',monthly:'毎月',temp:'臨時',custom:'カスタム'};
+const TYPE_LABELS={weekly:'毎週',daily:'毎日',biweekly:'隔日',bimonthly:'2週に1回',trimonthly:'3週に1回',quadmonthly:'4週に1回',quinmonthly:'5週に1回',monthly:'毎月',temp:'臨時',custom:'カスタム'};
 const TYPE_BADGE={weekly:'b-weekly',daily:'b-daily',biweekly:'b-biweekly',monthly:'b-monthly',temp:'b-temp',custom:'b-custom'};
 const JST_OFFSET=9*60; // minutes
 const MAX=20;
@@ -607,7 +649,7 @@ function setTimeNone(inputId, noneId, val){
 }
 function onTypeChange(){
   const t=document.getElementById('f-type').value;
-  ['weekly','daily','biweekly','bimonthly','trimonthly','quadmonthly','monthly','temp','custom'].forEach(k=>{const el=document.getElementById('fields-'+k);if(el) el.style.display=k===t?'block':'none';});
+  ['weekly','daily','biweekly','bimonthly','trimonthly','quadmonthly','quinmonthly','monthly','temp','custom'].forEach(k=>{const el=document.getElementById('fields-'+k);if(el) el.style.display=k===t?'block':'none';});
   initHints();
 }
 function onTaskTypeChange(typeSel){
@@ -718,7 +760,7 @@ function saveEvent(){
   if(type==='weekly'){ev.weekday=+document.getElementById('f-weekday').value;ev.weekdayEnd=+document.getElementById('f-weekday-end').value;ev.time=getTimeVal('f-time','f-time-none');ev.timeEnd=getTimeVal('f-time-end','f-time-end-none');ev.prep=document.getElementById('f-prep').value.trim();ev.tasks=getTasks('weekly-tasks');}
   else if(type==='daily'){ev.time=getTimeVal('f-daily-time','f-daily-time-none');ev.timeEnd=getTimeVal('f-daily-time-end','f-daily-time-end-none');ev.tasks=getTasks('daily-tasks');}
   else if(type==='biweekly'){ev.biweeklyStart=document.getElementById('f-biweekly-start').value;ev.time=getTimeVal('f-biweekly-time','f-biweekly-time-none');ev.timeEnd=getTimeVal('f-biweekly-time-end','f-biweekly-time-end-none');ev.duration=parseInt(document.getElementById('f-biweekly-duration').value)||1;}
-  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.timeEnd=getTimeVal('f-bimonthly-time-end','f-bimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.timeEnd=getTimeVal('f-trimonthly-time-end','f-trimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.timeEnd=getTimeVal('f-quadmonthly-time-end','f-quadmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=getTimeVal('f-monthly-time','f-monthly-time-none');ev.timeEnd=getTimeVal('f-monthly-time-end','f-monthly-time-end-none');}
+  else if(type==='bimonthly'){ev.bimonthlyStart=document.getElementById('f-bimonthly-start').value;ev.time=getTimeVal('f-bimonthly-time','f-bimonthly-time-none');ev.timeEnd=getTimeVal('f-bimonthly-time-end','f-bimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-bimonthly-duration').value)||1;ev.prep=document.getElementById('f-bimonthly-prep').value.trim();ev.tasks=getTasks('bimonthly-tasks');}else if(type==='trimonthly'){ev.trimonthlyStart=document.getElementById('f-trimonthly-start').value;ev.time=getTimeVal('f-trimonthly-time','f-trimonthly-time-none');ev.timeEnd=getTimeVal('f-trimonthly-time-end','f-trimonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-trimonthly-duration').value)||1;ev.prep=document.getElementById('f-trimonthly-prep').value.trim();ev.tasks=getTasks('trimonthly-tasks');}else if(type==='quinmonthly'){ev.quinmonthlyStart=document.getElementById('f-quinmonthly-start').value;ev.time=getTimeVal('f-quinmonthly-time','f-quinmonthly-time-none');ev.timeEnd=getTimeVal('f-quinmonthly-time-end','f-quinmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-quinmonthly-duration').value)||1;ev.prep=document.getElementById('f-quinmonthly-prep').value.trim();ev.tasks=getTasks('quinmonthly-tasks');}else if(type==='hexmonthly'){ev.hexmonthlyStart=document.getElementById('f-hexmonthly-start').value;ev.time=getTimeVal('f-hexmonthly-time','f-hexmonthly-time-none');ev.timeEnd=getTimeVal('f-hexmonthly-time-end','f-hexmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-hexmonthly-duration').value)||1;ev.prep=document.getElementById('f-hexmonthly-prep').value.trim();ev.tasks=getTasks('hexmonthly-tasks');}else if(type==='quadmonthly'){ev.quadmonthlyStart=document.getElementById('f-quadmonthly-start').value;ev.time=getTimeVal('f-quadmonthly-time','f-quadmonthly-time-none');ev.timeEnd=getTimeVal('f-quadmonthly-time-end','f-quadmonthly-time-end-none');ev.duration=parseInt(document.getElementById('f-quadmonthly-duration').value)||1;ev.prep=document.getElementById('f-quadmonthly-prep').value.trim();ev.tasks=getTasks('quadmonthly-tasks');}else if(type==='monthly'){ev.monthday=+document.getElementById('f-monthday').value;ev.time=getTimeVal('f-monthly-time','f-monthly-time-none');ev.timeEnd=getTimeVal('f-monthly-time-end','f-monthly-time-end-none');}
   else if(type==='temp'){ev.start=document.getElementById('f-temp-start').value;ev.end=document.getElementById('f-temp-end').value;ev.time=getTimeVal('f-temp-time','f-temp-time-none');ev.timeEnd=getTimeVal('f-temp-time-end','f-temp-time-end-none');}
   else if(type==='custom'){ev.customDates=[...customDates];ev.time=getTimeVal('f-custom-time','f-custom-time-none');ev.timeEnd=getTimeVal('f-custom-time-end','f-custom-time-end-none');}
   if(editingId){const i=evs.findIndex(e=>e.id===editingId);evs[i]=ev;}else evs.push(ev);
@@ -727,7 +769,7 @@ function saveEvent(){
 function clearForm(){
   ['f-name','f-desc','f-prep'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-type').value='weekly';setTimeNone('f-time','f-time-none','');setTimeNone('f-time-end','f-time-end-none','');setTimeNone('f-daily-time','f-daily-time-none','');setTimeNone('f-daily-time-end','f-daily-time-end-none','');
-  document.getElementById('weekly-tasks').innerHTML='';document.getElementById('daily-tasks').innerHTML='';['bimonthly','trimonthly','quadmonthly'].forEach(t=>{const p=document.getElementById('f-'+t+'-prep');if(p) p.value='';const c=document.getElementById(t+'-tasks');if(c) c.innerHTML='';});
+  document.getElementById('weekly-tasks').innerHTML='';document.getElementById('daily-tasks').innerHTML='';['quinmonthly','bimonthly','trimonthly','quadmonthly'].forEach(t=>{const p=document.getElementById('f-'+t+'-prep');if(p) p.value='';const c=document.getElementById(t+'-tasks');if(c) c.innerHTML='';});
   document.getElementById('form-title').textContent='イベントを追加';
   customDates=[];renderCD();onTypeChange();
 }
@@ -740,7 +782,7 @@ function editEvent(id){
   if(ev.type==='weekly'){document.getElementById('f-weekday').value=ev.weekday||0;document.getElementById('f-weekday-end').value=ev.weekdayEnd!=null?ev.weekdayEnd:-1;document.getElementById('f-time').value=ev.time||'00:00';document.getElementById('f-time-end').value=ev.timeEnd||'13:00';document.getElementById('f-prep').value=ev.prep||'';setTasks('weekly-tasks',ev.tasks);updateHint('hint-start','f-time');updateHint('hint-end','f-time-end');}
   else if(ev.type==='daily'){setTimeNone('f-daily-time','f-daily-time-none',ev.time);setTimeNone('f-daily-time-end','f-daily-time-end-none',ev.timeEnd);setTasks('daily-tasks',ev.tasks);updateHint('hint-daily','f-daily-time');updateHint('hint-daily-end','f-daily-time-end');}
   else if(ev.type==='biweekly'){document.getElementById('f-biweekly-start').value=ev.biweeklyStart||'';setTimeNone('f-biweekly-time','f-biweekly-time-none',ev.time);setTimeNone('f-biweekly-time-end','f-biweekly-time-end-none',ev.timeEnd);updateHint('hint-biweekly','f-biweekly-time');updateHint('hint-biweekly-end','f-biweekly-time-end');document.getElementById('f-biweekly-duration').value=ev.duration||1;}
-  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);setTimeNone('f-bimonthly-time-end','f-bimonthly-time-end-none',ev.timeEnd);updateHint('hint-bimonthly','f-bimonthly-time');updateHint('hint-bimonthly-end','f-bimonthly-time-end');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);setTimeNone('f-trimonthly-time-end','f-trimonthly-time-end-none',ev.timeEnd);updateHint('hint-trimonthly','f-trimonthly-time');updateHint('hint-trimonthly-end','f-trimonthly-time-end');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);setTimeNone('f-quadmonthly-time-end','f-quadmonthly-time-end-none',ev.timeEnd);updateHint('hint-quadmonthly','f-quadmonthly-time');updateHint('hint-quadmonthly-end','f-quadmonthly-time-end');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;setTimeNone('f-monthly-time','f-monthly-time-none',ev.time);setTimeNone('f-monthly-time-end','f-monthly-time-end-none',ev.timeEnd);updateHint('hint-monthly','f-monthly-time');updateHint('hint-monthly-end','f-monthly-time-end');updateHint('hint-monthly','f-monthly-time');}
+  else if(ev.type==='bimonthly'){document.getElementById('f-bimonthly-start').value=ev.bimonthlyStart||'';setTimeNone('f-bimonthly-time','f-bimonthly-time-none',ev.time);setTimeNone('f-bimonthly-time-end','f-bimonthly-time-end-none',ev.timeEnd);updateHint('hint-bimonthly','f-bimonthly-time');updateHint('hint-bimonthly-end','f-bimonthly-time-end');document.getElementById('f-bimonthly-duration').value=ev.duration||1;document.getElementById('f-bimonthly-prep').value=ev.prep||'';setTasks('bimonthly-tasks',ev.tasks);}else if(ev.type==='trimonthly'){document.getElementById('f-trimonthly-start').value=ev.trimonthlyStart||'';setTimeNone('f-trimonthly-time','f-trimonthly-time-none',ev.time);setTimeNone('f-trimonthly-time-end','f-trimonthly-time-end-none',ev.timeEnd);updateHint('hint-trimonthly','f-trimonthly-time');updateHint('hint-trimonthly-end','f-trimonthly-time-end');document.getElementById('f-trimonthly-duration').value=ev.duration||1;document.getElementById('f-trimonthly-prep').value=ev.prep||'';setTasks('trimonthly-tasks',ev.tasks);}else if(ev.type==='quinmonthly'){document.getElementById('f-quinmonthly-start').value=ev.quinmonthlyStart||'';setTimeNone('f-quinmonthly-time','f-quinmonthly-time-none',ev.time);setTimeNone('f-quinmonthly-time-end','f-quinmonthly-time-end-none',ev.timeEnd);updateHint('hint-quinmonthly','f-quinmonthly-time');updateHint('hint-quinmonthly-end','f-quinmonthly-time-end');document.getElementById('f-quinmonthly-duration').value=ev.duration||1;document.getElementById('f-quinmonthly-prep').value=ev.prep||'';setTasks('quinmonthly-tasks',ev.tasks);}else if(ev.type==='hexmonthly'){document.getElementById('f-hexmonthly-start').value=ev.hexmonthlyStart||'';setTimeNone('f-hexmonthly-time','f-hexmonthly-time-none',ev.time);setTimeNone('f-hexmonthly-time-end','f-hexmonthly-time-end-none',ev.timeEnd);updateHint('hint-hexmonthly','f-hexmonthly-time');updateHint('hint-hexmonthly-end','f-hexmonthly-time-end');document.getElementById('f-hexmonthly-duration').value=ev.duration||1;document.getElementById('f-hexmonthly-prep').value=ev.prep||'';setTasks('hexmonthly-tasks',ev.tasks);}else if(ev.type==='quadmonthly'){document.getElementById('f-quadmonthly-start').value=ev.quadmonthlyStart||'';setTimeNone('f-quadmonthly-time','f-quadmonthly-time-none',ev.time);setTimeNone('f-quadmonthly-time-end','f-quadmonthly-time-end-none',ev.timeEnd);updateHint('hint-quadmonthly','f-quadmonthly-time');updateHint('hint-quadmonthly-end','f-quadmonthly-time-end');document.getElementById('f-quadmonthly-duration').value=ev.duration||1;document.getElementById('f-quadmonthly-prep').value=ev.prep||'';setTasks('quadmonthly-tasks',ev.tasks);}else if(ev.type==='monthly'){document.getElementById('f-monthday').value=ev.monthday||1;setTimeNone('f-monthly-time','f-monthly-time-none',ev.time);setTimeNone('f-monthly-time-end','f-monthly-time-end-none',ev.timeEnd);updateHint('hint-monthly','f-monthly-time');updateHint('hint-monthly-end','f-monthly-time-end');updateHint('hint-monthly','f-monthly-time');}
   else if(ev.type==='temp'){document.getElementById('f-temp-start').value=ev.start||'';document.getElementById('f-temp-end').value=ev.end||'';setTimeNone('f-temp-time','f-temp-time-none',ev.time);setTimeNone('f-temp-time-end','f-temp-time-end-none',ev.timeEnd);updateHint('hint-temp','f-temp-time');updateHint('hint-temp-end','f-temp-time-end');updateHint('hint-temp','f-temp-time');}
   else if(ev.type==='custom'){customDates=ev.customDates?[...ev.customDates]:[];setTimeNone('f-custom-time','f-custom-time-none',ev.time);setTimeNone('f-custom-time-end','f-custom-time-end-none',ev.timeEnd);renderCD();updateHint('hint-custom','f-custom-time');updateHint('hint-custom-end','f-custom-time-end');}
   window.scrollTo({top:0,behavior:'smooth'});
@@ -756,7 +798,7 @@ function schedLabel(ev){
     return`毎週${wdPart} ${fmtJST(ev.time)}${ev.timeEnd?'〜'+fmtJST(ev.timeEnd):''}`;
   }
   if(ev.type==='daily') return`毎日 ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
-  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
+  if(ev.type==='bimonthly') return`2週に1回（${ev.bimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='trimonthly') return`3週に1回（${ev.trimonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='quinmonthly') return`5週に1回（${ev.quinmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='hexmonthly') return`6週に1回（${ev.hexmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}${ev.duration>1?' '+ev.duration+'日間開催':''}`;if(ev.type==='quadmonthly') return`4週に1回（${ev.quadmonthlyStart||'開始日未設定'} UTC~）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;if(ev.type==='biweekly') return`隔日（${ev.biweeklyStart||'開始日未設定'} UTC〜）${fmtJST(ev.time)}${ev.duration>1?' '+ev.duration+'日間開催':''}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
   if(ev.type==='monthly') return`毎月${ev.monthday||1}日(UTC) ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
   if(ev.type==='temp') return`${ev.start||'?'}〜${ev.end||'?'}(UTC) ${fmtJST(ev.time)}`;
   if(ev.type==='custom') return`指定日 ${(ev.customDates||[]).length}件 ${fmtJST(ev.time)}${ev.timeEnd?'-'+fmtJST(ev.timeEnd):''}`;
@@ -788,7 +830,7 @@ function isNWeekDay(utcStart,utcTime,jstDS,intervalDays,duration){if(!utcStart) 
       const jstWdEnd=ev.weekdayEnd>=0?utcWeekdayToJST(ev.weekdayEnd,ev.timeEnd):jstWdStart;
       return jstWdEnd>=jstWdStart?wd>=jstWdStart&&wd<=jstWdEnd:wd>=jstWdStart||wd<=jstWdEnd;
     }
-    if(ev.type==='biweekly') return isBiDay(ev,jstDS);if(ev.type==='bimonthly') return isNWeekDay(ev.bimonthlyStart,ev.time,jstDS,14,ev.duration);if(ev.type==='trimonthly') return isNWeekDay(ev.trimonthlyStart,ev.time,jstDS,21,ev.duration);if(ev.type==='quadmonthly') return isNWeekDay(ev.quadmonthlyStart,ev.time,jstDS,28,ev.duration);
+    if(ev.type==='biweekly') return isBiDay(ev,jstDS);if(ev.type==='bimonthly') return isNWeekDay(ev.bimonthlyStart,ev.time,jstDS,14,ev.duration);if(ev.type==='trimonthly') return isNWeekDay(ev.trimonthlyStart,ev.time,jstDS,21,ev.duration);if(ev.type==='quinmonthly') return isNWeekDay(ev.quinmonthlyStart,ev.time,jstDS,35,ev.duration);if(ev.type==='hexmonthly') return isNWeekDay(ev.hexmonthlyStart,ev.time,jstDS,42,ev.duration);if(ev.type==='quadmonthly') return isNWeekDay(ev.quadmonthlyStart,ev.time,jstDS,28,ev.duration);
     if(ev.type==='monthly'){
       // monthday stored as UTC day → convert to JST day
       const jstRef=utcDateToJST(`2000-01-${String(ev.monthday).padStart(2,'0')}`,ev.time);
@@ -814,7 +856,7 @@ function getPreps(jstDS){
     if(ev.type==='weekly'){const jstWdStart=utcWeekdayToJST(ev.weekday||0,ev.time);return new Date(ns+'T00:00:00').getDay()===jstWdStart;}
     if(ev.type==='bimonthly') return isNWeekDay(ev.bimonthlyStart,ev.time,ns,14,1);
     if(ev.type==='trimonthly') return isNWeekDay(ev.trimonthlyStart,ev.time,ns,21,1);
-    if(ev.type==='quadmonthly') return isNWeekDay(ev.quadmonthlyStart,ev.time,ns,28,1);
+    if(ev.type==='quinmonthly') return isNWeekDay(ev.quinmonthlyStart,ev.time,ns,35,1);if(ev.type==='hexmonthly') return isNWeekDay(ev.hexmonthlyStart,ev.time,ns,42,1);if(ev.type==='quadmonthly') return isNWeekDay(ev.quadmonthlyStart,ev.time,ns,28,1);
     return false;
   });
 }
