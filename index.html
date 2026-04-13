@@ -933,18 +933,19 @@ function generateOutput(){
     evs.forEach(ev=>{
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
-      const normalTasks=(ev.tasks||[]).filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
-      const honsenTasks=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
-      const hasEntryToday=(ev.tasks||[]).some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
-      // エントリーのみのイベント：エントリーがある日のみ処理（イベント行は出さない）
-      const isEntryOnly=(ev.tasks||[]).length>0&&(ev.tasks||[]).every(t=>!t.when||t.when.startsWith('entry-'));
-      if(isEntryOnly&&!hasEntryToday) return;
-      // イベント行：タスク/本戦がある場合、またはエントリー専用でない場合
-      if(!isEntryOnly||normalTasks.length>0||honsenTasks.length>0){
+      const evTasks=ev.tasks||[];
+      const normalTasks=evTasks.filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
+      const honsenTasks=evTasks.filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
+      const hasEntryToday=evTasks.some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
+      // タスク・本戦・エントリー全て未登録 → この日は何も出さない
+      if(!normalTasks.length&&!honsenTasks.length&&!hasEntryToday) return;
+      // タスク or 本戦がある → イベント行を出す
+      if(normalTasks.length||honsenTasks.length){
         const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
         lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
+        honsenTasks.forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
       }
-      honsenTasks.forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
+      // エントリーのみ → イベント行は出さない（○エントリーセクションに反映済み）
     });
 
     // ○エントリー セクション（その日のエントリーまとめ）
