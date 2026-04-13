@@ -625,9 +625,14 @@ function onTaskTypeChange(typeSel){
   } else if(typeSel.value==='honsen'){
     whenSel.innerHTML=HONSEN_OPTS;
     if(inp) inp.placeholder='詳細（例: 21:00～）';
+  } else if(typeSel.value==='nashi'){
+    whenSel.innerHTML='<option value="nashi">なし</option>';
+    if(inp){inp.value='';inp.disabled=true;inp.placeholder='(反映なし)';}
+    whenSel.disabled=true;
   } else {
     whenSel.innerHTML=TASK_OPTS;
-    if(inp) inp.placeholder='タスク内容';
+    if(inp){inp.disabled=false;inp.placeholder='タスク内容';}
+    whenSel.disabled=false;
   }
 }
 function addTask(cid){
@@ -637,6 +642,7 @@ function addTask(cid){
       <option value="task">タスク</option>
       <option value="entry">エントリー</option>
       <option value="honsen">本戦</option>
+      <option value="nashi">なし</option>
     </select>
     <input type="text" placeholder="タスク内容" style="flex:1"/>
     <select class="task-when-sel" style="width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer">
@@ -667,7 +673,7 @@ function setTasks(cid,tasks){
     const typeSel=document.createElement('select');
     typeSel.className='task-type-sel';
     typeSel.style.cssText='width:90px;padding:5px 6px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer';
-    const isHonsen=t.when==='honsen'||(t.when&&t.when.startsWith('honsen-'));typeSel.innerHTML='<option value="task"'+(!isEntry&&!isHonsen?' selected':'')+'>タスク</option><option value="entry"'+(isEntry?' selected':'')+'>エントリー</option><option value="honsen"'+(isHonsen?' selected':'')+'>本戦</option>';
+    const isHonsen=t.when==='honsen'||(t.when&&t.when.startsWith('honsen-'));const isNashi=t.when==='nashi';typeSel.innerHTML='<option value="task"'+(!isEntry&&!isHonsen&&!isNashi?' selected':'')+'>タスク</option><option value="entry"'+(isEntry?' selected':'')+'>エントリー</option><option value="honsen"'+(isHonsen?' selected':'')+'>本戦</option><option value="nashi"'+(isNashi?' selected':'')+'>なし</option>';
     typeSel.addEventListener('change',function(){onTaskTypeChange(this);});
     // Build text input
     const inp=document.createElement('input');
@@ -687,6 +693,11 @@ function setTasks(cid,tasks){
     const btn=document.createElement('button');
     btn.className='remove-task-btn';btn.textContent='×';
     btn.addEventListener('click',function(){r.remove();});
+    if(isNashi){
+      inp.disabled=true;inp.placeholder='(反映なし)';inp.value='';
+      whenSel.innerHTML='<option value="nashi">なし</option>';
+      whenSel.disabled=true;
+    }
     r.appendChild(typeSel);r.appendChild(inp);r.appendChild(whenSel);r.appendChild(btn);
     c.appendChild(r);
   });
@@ -937,32 +948,34 @@ function generateOutput(){
       const tStr=ev.time?(' '+fmtJST(ev.time)+(ev.timeEnd?('-'+fmtJST(ev.timeEnd)):'')):'';
       const descStr=ev.desc?' '+ev.desc:'';
       const evTasks=ev.tasks||[];
-      const normalTasks=evTasks.filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
-      const honsenTasks=evTasks.filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
-      const hasEntryToday=evTasks.some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
-      // エントリーの詳細が空白または「なし」のものは除外
-      const validEntryToday=evTasks.filter(t=>
+      // なし → 完全除外
+      const activeTasksAll=evTasks.filter(t=>t.when!=='nashi');
+      const normalTasks=activeTasksAll.filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
+      const honsenTasks=activeTasksAll.filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
+      const validEntryToday=activeTasksAll.filter(t=>
         t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds)&&
         t.text&&t.text.trim()!==''&&t.text.trim()!=='なし'
       );
-      // タスク/本戦/有効エントリー/タスク未登録のどれもない → エントリーのみで詳細なし → 非表示
-      const hasNoContent=!normalTasks.length&&!honsenTasks.length&&!validEntryToday.length;
-      // エントリーのみかつ詳細なし → 非表示
-      if(evTasks.length>0&&evTasks.every(t=>t.when&&t.when.startsWith('entry-'))&&hasNoContent) return;
-      // イベント名のみ（タスク未登録）→ イベント行に表示
-      if(!normalTasks.length&&!honsenTasks.length&&!validEntryToday.length){
-        // タスク類が何もない → 通常イベント行
+      const hasContent=normalTasks.length||honsenTasks.length||validEntryToday.length;
+      // タスク未登録（タスク配列が空かなしのみ）→ 通常イベント行
+      if(!evTasks.length||evTasks.every(t=>t.when==='nashi')){
         lines.push(`・${ev.name}${tStr}${descStr}`);
         return;
       }
-      // タスク or 本戦がある → イベント行
-      if(normalTasks.length||honsenTasks.length){
-        const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
+      // 何も有効なものがない → 非表示
+      if(!hasContent) return;
+      // タスクあり → イベント行 + タスク
+      if(normalTasks.length){
+        const taskStr=' ('+normalTasks.map(t=>t.text).join('／')+')';
         lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
+      }
+      // 本戦あり → ・イベント名 本戦 詳細（イベント行は出さない）
+      if(honsenTasks.length&&!normalTasks.length){
+        honsenTasks.forEach(t=>lines.push('・'+ev.name+(t.text?' '+t.text:'')));
+      } else if(honsenTasks.length){
         honsenTasks.forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
       }
-      // エントリー有効分をdayEntriesに追加（既に上のループで追加済みだが詳細フィルター再適用）
-      // ※ dayEntriesは上のループで収集しているが、'なし'チェックをここで適用するため再構築
+      // エントリーのみ → イベント行なし（○エントリーセクションで表示）
     });
 
     // ○エントリー セクション（その日のエントリーまとめ）
@@ -1142,8 +1155,8 @@ function openSyncPanel(){
   document.getElementById('sync-modal').style.display='flex';
   if(sbClient&&syncSpaceId) showSyncConnected();
 }
-function closeSyncModal(){document.getElementById('sync-modal').style.display='none';}
-document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal') closeSyncModal();});
+function closeSyncModal(){const el=document.getElementById('sync-modal');if(el)el.style.display='none';}
+const _sm=document.getElementById('sync-modal');if(_sm)_sm.addEventListener('click',e=>{if(e.target.id==='sync-modal') closeSyncModal();});
 
 async function connectSync(){
   const url=document.getElementById('sync-sb-url').value.trim();
@@ -1260,5 +1273,37 @@ function moveEvent(idx, dir){
   </div>
 </div>
 
+
+<!-- Sync Panel -->
+<div class="modal-overlay" id="sync-modal" style="display:none">
+  <div class="modal" style="width:380px">
+    <h2>Supabase クラウド同期</h2>
+    <div id="sync-setup">
+      <div class="form-group"><label class="form-label">Project URL</label><input type="text" class="form-input" id="sync-sb-url" placeholder="https://xxxx.supabase.co"/></div>
+      <div class="form-group"><label class="form-label">Publishable Key (anon)</label><input type="text" class="form-input" id="sync-sb-key" placeholder="eyJ..."/></div>
+      <div class="form-group"><label class="form-label">Space ID（既存スペースに接続する場合）</label><input type="text" class="form-input" id="sync-space-id" placeholder="空欄で新規作成"/></div>
+      <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary" onclick="connectSync()">接続</button><button class="btn-sm" onclick="closeSyncModal()">キャンセル</button></div>
+      <div id="sync-error" style="color:#D85A30;font-size:12px;margin-top:8px;display:none"></div>
+    </div>
+    <div id="sync-connected" style="display:none">
+      <div style="font-size:13px;color:#0F6E56;font-weight:500;margin-bottom:12px">✓ 接続済み</div>
+      <div style="font-size:12px;color:#666;margin-bottom:8px">Space ID: <span id="sync-space-id-display" style="font-family:monospace;font-size:11px;color:#444"></span></div>
+      <div style="font-size:12px;color:#666;margin-bottom:4px">編集者用リンク:</div>
+      <div id="sync-editor-url" style="background:#f9f9f6;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;word-break:break-all;border:0.5px solid #e0e0d8;margin-bottom:6px"></div>
+      <div style="font-size:12px;color:#666;margin-bottom:4px">閲覧専用リンク:</div>
+      <div id="sync-viewer-url" style="background:#f9f9f6;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;word-break:break-all;border:0.5px solid #e0e0d8;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="pushToCloud()" style="flex:1">クラウドに今すぐ同期</button>
+        <button class="copy-btn" onclick="copyEditorUrl()">編集者URLコピー</button>
+        <button class="copy-btn" onclick="copyViewerUrl()">閲覧URLコピー</button>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn-sm" onclick="toggleAutoSync()" id="auto-sync-btn">即時同期: ON</button>
+        <button class="btn-sm danger" onclick="disconnectSync()">切断</button>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-top:8px" id="sync-last-time"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
