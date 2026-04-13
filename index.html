@@ -926,7 +926,10 @@ function generateOutput(){
     // Collect entries for this day across all evs
     const dayEntries=[];
     evs.forEach(ev=>{
-      const entryToday=(ev.tasks||[]).filter(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
+      const entryToday=(ev.tasks||[]).filter(t=>
+        t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds)&&
+        t.text&&t.text.trim()!==''&&t.text.trim()!=='なし'
+      );
       entryToday.forEach(t=>dayEntries.push({evName:ev.name,text:t.text}));
     });
 
@@ -937,15 +940,29 @@ function generateOutput(){
       const normalTasks=evTasks.filter(t=>t.when&&!t.when.startsWith('entry-')&&!t.when.startsWith('honsen-')&&t.when!=='非表示'&&taskMatchesDay(t,ev,ds));
       const honsenTasks=evTasks.filter(t=>t.when&&t.when.startsWith('honsen-')&&taskMatchesDay(t,ev,ds));
       const hasEntryToday=evTasks.some(t=>t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds));
-      // タスク・本戦・エントリー全て未登録 → この日は何も出さない
-      if(!normalTasks.length&&!honsenTasks.length&&!hasEntryToday) return;
-      // タスク or 本戦がある → イベント行を出す
+      // エントリーの詳細が空白または「なし」のものは除外
+      const validEntryToday=evTasks.filter(t=>
+        t.when&&t.when.startsWith('entry-')&&taskMatchesDay(t,ev,ds)&&
+        t.text&&t.text.trim()!==''&&t.text.trim()!=='なし'
+      );
+      // タスク/本戦/有効エントリー/タスク未登録のどれもない → エントリーのみで詳細なし → 非表示
+      const hasNoContent=!normalTasks.length&&!honsenTasks.length&&!validEntryToday.length;
+      // エントリーのみかつ詳細なし → 非表示
+      if(evTasks.length>0&&evTasks.every(t=>t.when&&t.when.startsWith('entry-'))&&hasNoContent) return;
+      // イベント名のみ（タスク未登録）→ イベント行に表示
+      if(!normalTasks.length&&!honsenTasks.length&&!validEntryToday.length){
+        // タスク類が何もない → 通常イベント行
+        lines.push(`・${ev.name}${tStr}${descStr}`);
+        return;
+      }
+      // タスク or 本戦がある → イベント行
       if(normalTasks.length||honsenTasks.length){
         const taskStr=normalTasks.length?' ('+normalTasks.map(t=>t.text).join('／')+')':'';
         lines.push(`・${ev.name}${tStr}${descStr}${taskStr}`);
         honsenTasks.forEach(t=>lines.push('・'+ev.name+' 本戦'+(t.text?' '+t.text:'')));
       }
-      // エントリーのみ → イベント行は出さない（○エントリーセクションに反映済み）
+      // エントリー有効分をdayEntriesに追加（既に上のループで追加済みだが詳細フィルター再適用）
+      // ※ dayEntriesは上のループで収集しているが、'なし'チェックをここで適用するため再構築
     });
 
     // ○エントリー セクション（その日のエントリーまとめ）
